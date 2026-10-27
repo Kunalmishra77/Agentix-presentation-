@@ -91,3 +91,10 @@ test("fake generators are deterministic and masked", () => {
   assert.equal(s.length, 8);
   assert.deepEqual(Array.from(s), Array.from(AX.fake.series(2, 8, 5, 50)));
 });
+
+test("tier A projects list at least 6 feature items across groups", () => {
+  for (const p of AX.projects.filter((p) => p.tier === "A")) {
+    const n = p.features.reduce((a, g) => a + g.items.length, 0);
+    assert.ok(n >= 6, p.slug + " has " + n);
+  }
+});

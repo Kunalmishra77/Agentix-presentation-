@@ -52,7 +52,7 @@
     },
     {
       slug: "socialflow", name: "SocialFlow", client: "AGENTiX", category: "agents", status: "live", tier: "A", year: 2026,
-      summary: "Instagram, Facebook and Telegram automation with a knowledge-grounded AI inbox, comment-to-DM funnels, a design studio and a profile audit in one workspace.",
+      summary: "Grown from the InstaAgent v1 prototype, a single-tenant Instagram DM agent with follow-gate, into Instagram, Facebook and Telegram automation with a knowledge-grounded AI inbox, comment-to-DM funnels, a design studio and a profile audit in one workspace.",
       problem: "Brands spend hours replying to comments and DMs, then lose followers who never get the link they asked for.",
       outcomes: ["Comment keywords trigger instant DMs with follow-gate checks", "AI replies stay grounded in the brand's own knowledge base", "Content, calendar and reels planned in one studio", "Profile Score shows exactly what to fix next"],
       features: [
@@ -60,7 +60,8 @@
         F("Automation", "Comment-to-DM with follow-gate", "Visual flows"),
         F("Content", "Content studio and calendar", "Fabric.js design editor", "Reels studio"),
         F("Insights", "Profile Score", "Post Audit"),
-        F("Business", "CRM", "Bookings", "Commerce", "Influencers")
+        F("Business", "CRM", "Bookings", "Commerce", "Influencers"),
+        F("Origins", "Evolved from InstaAgent v1: single-tenant Instagram DM agent with follow-gate")
       ],
       workflow: [
         W("Post goes live", "A reel or post invites people to comment a keyword."),
@@ -290,7 +291,7 @@
         W("Billing and schemes", "Charges or AB-PMJAY claims are settled."),
         W("Cockpit view", "Outcomes roll up to the Secretary and CMO.")
       ],
-      stack: ["React", "TypeScript", "Vercel", "FHIR concepts", "ABDM sandbox", "Chart components"],
+      stack: ["Next.js 16", "React 19", "TypeScript", "Tailwind v4", "Zustand", "Recharts", "Framer Motion", "next-intl", "react-hook-form + Zod", "Supabase (RLS)", "Vitest"],
       liveUrl: "https://government-hims.vercel.app/", embed: { url: "https://government-hims.vercel.app/", mode: "iframe" },
       shots: shots("agentix-hims", true), demo: true
     },
@@ -409,7 +410,7 @@
         W("Reminders scheduled", "The WhatsApp engine queues the next ones."),
         W("Check-in and reports", "Kiosk attendance feeds the reports.")
       ],
-      stack: ["React", "Node.js", "PostgreSQL", "Face recognition", "WhatsApp Cloud API", "Docker", "Coolify"],
+      stack: ["Next.js 16", "React 19", "next-intl (EN/HI)", "Tailwind 4", "Radix", "Prisma 7", "Postgres (Supabase)", "pg-boss", "WhatsApp Cloud API", "Razorpay", "MediaPipe", "Python YuNet face service", "Turborepo"],
       liveUrl: "https://maxfitnessgym.co.in/crm", shots: [], demo: true
     },
     {
@@ -586,7 +587,7 @@
         W("Invoice issued", "Billing is generated from admin.")
       ],
       stack: ["PHP", "MySQL", "Apache", "cPanel", "JavaScript"],
-      liveUrl: "https://drshwetadiwan.in/", embed: { url: "https://drshwetadiwan.in/", mode: "iframe" },
+      liveUrl: "https://drshwetadiwan.com/", embed: { url: "https://drshwetadiwan.com/", mode: "iframe" },
       shots: [], demo: false
     },
     {
@@ -788,9 +789,9 @@
       slug: "tallow-tape", name: "Tallow & Tape", path: "tallow", category: "immersive", noShots: true,
       summary: "A recording studio site with sessions and tracks.",
       problem: "Studios need to sound as good as they look online.",
-      outcomes: ["Sessions showcased", "Tracks to preview", "Gear and rooms explained", "Easy booking enquiry"],
+      outcomes: ["Sessions showcased", "Tracks to preview", "A studio brand that looks as good as it sounds", "Easy booking enquiry"],
       features: [F("Showpiece", "Studio sessions", "Tracks")],
-      workflow: [W("Enter the studio", "Warm hero."), W("Listen", "Tracks play."), W("See the rooms", "Gear shown."), W("Book", "Session enquiry.")]
+      workflow: [W("Enter the studio", "Warm hero."), W("Listen", "Tracks play."), W("Browse sessions", "Recent sessions shown."), W("Book", "Session enquiry.")]
     }),
     concept({
       slug: "vaskaro", name: "Vaskaro", path: "vaskaro", category: "immersive", noShots: true,
