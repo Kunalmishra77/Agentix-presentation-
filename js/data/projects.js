@@ -705,7 +705,7 @@
       workflow: [W("Ride the page", "Steer with the trackpad."), W("Watch range", "Speed and range update."), W("Pick variant and colour", "Configure the scooter."), W("Book a test ride", "Slot confirmed.")]
     }),
     concept({
-      slug: "crumb", name: "Crumb", path: "crumb", scroller: true, category: "ecommerce", tier: "B", noShots: true,
+      slug: "crumb", name: "Crumb", path: "crumb", category: "ecommerce", tier: "B", noShots: true,
       summary: "A bakery with a build-your-own box and a cart that adds it up.",
       problem: "Gifting boxes need choice without a complicated order form.",
       outcomes: ["Box builder with live count", "Cart with totals", "Warm, appetising brand", "Easy gifting"],
@@ -780,7 +780,7 @@
       mid: false
     }),
     concept({
-      slug: "coralbay", name: "Coral Bay", path: "coralbay", scroller: true, category: "immersive", noShots: true,
+      slug: "coralbay", name: "Coral Bay", path: "coralbay", category: "immersive", noShots: true,
       summary: "A holiday brand where the destination is one scroll away.",
       problem: "Holiday sites show lists, not the feeling of arriving.",
       outcomes: ["Arrival feel through scroll", "Destination highlights", "Simple enquiry", "Fresh visual identity"],
@@ -788,7 +788,7 @@
       workflow: [W("Start the scroll", "Leave the city."), W("Arrive", "Beach reveals."), W("See highlights", "Activities shown."), W("Enquire", "Plan the trip.")]
     }),
     concept({
-      slug: "tallow-tape", name: "Tallow & Tape", path: "tallow", scroller: true, category: "immersive", noShots: true,
+      slug: "tallow-tape", name: "Tallow & Tape", path: "tallow", category: "immersive", noShots: true,
       summary: "A recording studio site with sessions and tracks.",
       problem: "Studios need to sound as good as they look online.",
       outcomes: ["Sessions showcased", "Tracks to preview", "A studio brand that looks as good as it sounds", "Easy booking enquiry"],
@@ -796,7 +796,7 @@
       workflow: [W("Enter the studio", "Warm hero."), W("Listen", "Tracks play."), W("Browse sessions", "Recent sessions shown."), W("Book", "Session enquiry.")]
     }),
     concept({
-      slug: "vaskaro", name: "Vaskaro", path: "vaskaro", scroller: true, category: "immersive", noShots: true,
+      slug: "vaskaro", name: "Vaskaro", path: "vaskaro", category: "immersive", noShots: true,
       summary: "A mountain motorcycle brand: mountain roads on a scroll wheel, with test rides.",
       problem: "Motorcycles are about the road, which a spec sheet cannot show.",
       outcomes: ["Road felt through scroll", "Model highlights", "Test ride booking", "Adventure brand identity"],
