@@ -1,0 +1,4 @@
+.superpowers/
+node_modules/
+tools/frame-report.json
+*.log
