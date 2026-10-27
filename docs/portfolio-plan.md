@@ -87,6 +87,7 @@ Demo tier key: **A** = deep interactive app simulation · **B** = guided walkthr
 | # | Project | Folder | Live URL | Status | What it does | Demo |
 |---|---|---|---|---|---|---|
 | 15 | **Woodpecker PMS** | D:\…\HMS by Agentix | hotelmanagement.aiagentixdev.com/portal | LIVE · 2026-10-27 (347 commits) | Multi-property serviced-apartment platform: reservations, tape-chart calendar, check-in & Form-C, folios & GST invoices, housekeeping, maintenance, POS/kitchen, inventory/laundry, payroll, OTA channels, dynamic pricing, booking engine, owner portal & payouts, 9 role portals, AI. | **A** — tape chart with fictional rooms (drag to extend stay) → open folio → add POS charge → generate GST invoice; occupancy/ADR/RevPAR dashboard; housekeeping board |
+| 15a | **Kaaya Eco Resort** | D:\…\kaaya eco resort | kaayaecoresort.com | LIVE · 2026-06-15 | Luxury eco-resort (Yala, Sri Lanka) website + booking platform: rooms & room detail, availability with blocked dates, online booking & payments, guest accounts (register, my bookings), dining, experiences, groups, gallery, reviews, enquiries; admin for bookings, rooms, blocked dates, gallery, reviews, enquiries. React + Express + MySQL/Prisma. | **B** — live site embed; booking widget (dates → available rooms → guest details → mock payment → confirmation); admin bookings/enquiries/blocked-dates |
 
 ### Category 6 — Fitness
 
@@ -188,7 +189,7 @@ Note: Meridian (#32) is `E:\triozen\day-1-watch-brand`. Thames Wellness (#25) so
 **Identity: light, with deep navy moments.** The base canvas is warm daylight paper (≈#F6F4EF) with navy ink (≈#0B1F33) and Agentix orange (≈#EE6A24) as the one accent. A few full-bleed **deep-navy bands** give rhythm and drama: the flagship scene and the demo shells' chrome. The page is not all-dark. Display type is a geometric grotesk echoing the wordmark (*Sora* / *Space Grotesk*); body *Inter*; mono for data and status chips.
 
 **Scroll story (main page):**
-1. **Preloader.** The Agentix brain mark draws itself as an SVG stroke, the wordmark letters settle, and a counter ticks 0 → 49 projects.
+1. **Preloader.** The Agentix brain mark draws itself as an SVG stroke, the wordmark letters settle, and a counter ticks 0 → 50 projects.
 2. **Hero.** A kinetic headline, "AI Applied, Growth Multiplied.", over a 3D-perspective fan of real product screens that tilts with the cursor and spreads apart as you scroll (pinned). CTAs: *Explore the work* and *Watch an agent close a lead*.
 3. **"One lead, every system"** (pinned, deep navy). As you scroll, a single fictional customer's journey plays across our products: a WhatsApp message (AGENTiX), a Kanban card heating up, a booking, a hospital or hotel record, an invoice, a follow-up post scheduled. It shows how our products connect.
 4. **Category index.** A large editorial numbered list (01–11). Hovering a row floats that category's screenshots after the cursor; clicking jumps to the section.

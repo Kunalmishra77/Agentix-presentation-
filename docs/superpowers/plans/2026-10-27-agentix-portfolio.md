@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** A static, single-entry AI Agentix portfolio. It has a showreel-grade interactive landing page covering 49 projects, and every project opens in the same window into a demo: full A-to-Z module simulations with fictional data for products, and live embeds for websites.
+**Goal:** A static, single-entry AI Agentix portfolio. It has a showreel-grade interactive landing page covering 50 projects, and every project opens in the same window into a demo: full A-to-Z module simulations with fictional data for products, and live embeds for websites.
 
 **Architecture:**
 - Classic `<script>` files share one global namespace, `window.AX`. There is no build step, and the page works from `file://` and from any static host.
@@ -65,7 +65,7 @@ js/core/router.js                  # AX.router
 js/core/ui.js                      # AX.ui (toast, drawer, modal, badge, agentixBadge)
 js/data/fake.js                    # deterministic fictional data generators
 js/data/categories.js              # AX.categories
-js/data/projects.js                # AX.projects (49 entries)
+js/data/projects.js                # AX.projects (50 entries)
 js/landing/preloader.js, hero.js, onelead.js, index-list.js, sections.js, delivery.js, landing.js
 js/shell/shell.js                  # demo shell (tabs, transitions, scroll restore)
 js/engines/charts.js, table.js, board.js, chat.js, flow.js, pipeline.js, calendar.js, store.js, embed.js, appshell.js
@@ -149,7 +149,7 @@ Category layouts:
 
 **Projects:** one entry for every row in spec §2 (#1–#43, #43a–d, #44 and #45 as `delivery` entries with `demo:false`). That is 49 entries. Slugs:
 - **agents, content, crm:** `agentix`, `socialflow`, `voicecrm`, `riya-crm`, `socialpush`, `yt-automation`, `agentix-crm`, `eurobrass-crm`, `leadforge`, `santure-crm`, `ekatva`
-- **health, hospitality, fitness, platforms:** `agentix-hims`, `umang-hims`, `umang-website`, `woodpecker-pms`, `max-register`, `max-website`, `fitness-first`, `redux`, `yhc`, `skinwise`, `nri-trust`
+- **health, hospitality, fitness, platforms:** `agentix-hims`, `umang-hims`, `umang-website`, `woodpecker-pms`, `kaaya-eco-resort`, `max-register`, `max-website`, `fitness-first`, `redux`, `yhc`, `skinwise`, `nri-trust`
 - **websites:** `ai-agentix-site`, `dr-shweta-diwan`, `thames-spa`, `eurobrass-site`
 - **ecommerce:** `aurelle`, `vara`, `drify`, `fruitivo`, `kanak`, `meridian`, `dewlab`, `melt`, `zipev`, `crumb`
 - **immersive:** `movade`, `cairnline`, `saffron`, `aurelune`, `halden`, `irontemple`, `marigold`, `moana`, `coralbay`, `tallow-tape`, `vaskaro`
@@ -158,7 +158,7 @@ Category layouts:
 `summary`, `features`, `workflow` and `stack` copy comes from the spec §2 rows. The `features` groups must list every module named for that project in the spec (the A-to-Z requirement). Concept brands get `status:"concept"` and an `embed.url` of `https://showcase-build-tau.vercel.app/<path>/`; the paths are perfume, drift, moana, travel, aurelle, vara, cairnline, saffron, kanak, halden, zipev, aurelune, dewlab, irontemple, marigold, meridian, melt, plus coralbay, tallow, vaskaro, crumb after Task 4.
 
 - [ ] **Step 1: Write failing tests**, `tests/unit/projects.test.js`:
-  - `AX.projects.length === 49`
+  - `AX.projects.length === 50`
   - slugs are unique
   - every `category` exists in `AX.categories`
   - every project has non-empty `summary`, `features.length >= 1` and `stack.length >= 1`
@@ -413,7 +413,7 @@ Category layouts:
 
 **Hero (paper background):**
 - Headline "AI Applied, Growth Multiplied." uses split-line reveal.
-- Subline: "49 products, platforms and websites — built by AI Agentix. Open any of them and try it."
+- Subline: "${AX.projects.length} products, platforms and websites — built by AI Agentix. Open any of them and try it."
 - A 3D-perspective fan of 7 product screenshot cards (agentix, woodpecker-pms, agentix-hims, max-register, socialflow, aurelle, yt-automation) tilts toward the cursor (max 8°). On scroll the hero pins for 120 vh while the fan spreads into a grid and fades.
 - CTAs: "Explore the work" (scrolls to the index) and "Watch an agent close a lead" (opens `#/demo/agentix/walkthrough/conversations`).
 - A custom cursor dot scales up with the label "Open demo" over any `[data-demo]` element (it is disabled on touch).
@@ -876,6 +876,13 @@ One manifest each, with the shared steps, in a single task.
   - `trial: form`: thank-you state.
   - Link to `riya-crm`.
 - `max-website`: `site: custom`, `join: custom` (QR onboarding: existing vs new member).
+- `kaaya-eco-resort`:
+  - `site: custom` (embed `https://kaayaecoresort.com/`)
+  - `book: custom`: dates → available rooms (excluding `blocked` dates via `AX.calendar.overlaps`) → guest details → mock payment → confirmation with booking ref; booking lands in `ctx.state`
+  - `my-bookings: table` (guest account view)
+  - `admin-bookings: table` (new booking appears)
+  - `admin-blocked: calendar`
+  - `admin-rooms: table`, `admin-reviews: table`, `admin-enquiries: table`, `admin-gallery: custom`
 - `ai-agentix-site`: `site: custom`, `assistant: chat` (answers 6 scripted questions and "navigates" by showing a highlighted section card).
 
 **Key interactions:** the `riya-crm` trial event updates the leads table; `leadforge` provenance drawer opens; the NRI unit test passes.
@@ -923,7 +930,7 @@ Never log into production apps.
 - Create: `tests/e2e/responsive.test.js`, `tests/e2e/all-routes.test.js`, `tests/e2e/perf.test.js`, `README.md`
 
 - [ ] **Step 1: Write the tests.**
-  - `all-routes`: home plus every `#/demo/<slug>/<tab>` for all 49 slugs × 5 tabs → zero page errors and no failed same-origin requests.
+  - `all-routes`: home plus every `#/demo/<slug>/<tab>` for all 50 slugs × 5 tabs → zero page errors and no failed same-origin requests.
   - `responsive` at 390/768/1024/1440:
     - `document.documentElement.scrollWidth <= innerWidth` on home and on 6 dense demos (woodpecker-pms tape, agentix crm, agentix-hims secretary, max-register members, eurobrass-crm quotations, socialpush composer) (**Review Focus 4**)
     - all text inside cards stays within its card box
