@@ -19,7 +19,7 @@
       summary: o.summary, problem: o.problem, outcomes: o.outcomes, features: o.features, workflow: o.workflow,
       stack: o.stack || ["HTML", "CSS", "JavaScript", "GSAP", "ScrollTrigger", "Lenis"],
       liveUrl: SHOWCASE + o.path + "/",
-      embed: { url: SHOWCASE + o.path + "/", mode: "iframe" },
+      embed: { url: SHOWCASE + o.path + "/", mode: o.scroller ? "scroller" : "iframe" },
       shots: o.noShots ? [] : shots(o.slug, o.mid !== false), demo: false
     };
   }
@@ -47,7 +47,7 @@
         W("ROI reporting", "Spend and conversions roll up into the marketing dashboard.")
       ],
       stack: ["React", "Node.js", "PostgreSQL", "WhatsApp Cloud API", "Meta Graph API", "ReactFlow", "Docker", "Coolify"],
-      liveUrl: "https://app.aiagentixdev.com/", embed: { url: "https://app.aiagentixdev.com/", mode: "iframe" },
+      liveUrl: "https://app.aiagentixdev.com/", embed: { url: "https://app.aiagentixdev.com/", mode: "scroller" },
       shots: shots("agentix", true), demo: true
     },
     {
@@ -248,6 +248,7 @@
         W("Plan the build", "Turn the prototype into a delivery plan.")
       ],
       stack: ["Claude artifact", "HTML", "JavaScript"],
+      liveUrl: "https://claude.ai/artifact/1aWGMS5ETqSCp4f1SV5JLD", embed: { url: "https://claude.ai/artifact/1aWGMS5ETqSCp4f1SV5JLD", mode: "scroller", external: true },
       shots: [], demo: true
     },
     {
@@ -267,6 +268,7 @@
         W("Review operations", "See the book of business at a glance.")
       ],
       stack: ["Claude artifact", "HTML", "JavaScript"],
+      liveUrl: "https://claude.ai/artifact/SPtLCBo9RcGfjE1FMAdwiw", embed: { url: "https://claude.ai/artifact/SPtLCBo9RcGfjE1FMAdwiw", mode: "scroller", external: true },
       shots: [], demo: true
     },
 
@@ -337,7 +339,7 @@
         W("Content updated", "The CMS publishes changes instantly.")
       ],
       stack: ["PHP", "Apache", "cPanel", "Supabase", "JavaScript"],
-      liveUrl: "https://www.umanghospitals.in/", embed: { url: "https://www.umanghospitals.in/", mode: "iframe" },
+      liveUrl: "https://www.umanghospitals.in/", embed: { url: "https://www.umanghospitals.in/", mode: "scroller" },
       shots: [], demo: true
     },
 
@@ -362,7 +364,7 @@
         W("Owner reporting", "Occupancy, ADR and payouts are published.")
       ],
       stack: ["React", "Node.js", "PostgreSQL", "Docker", "Coolify"],
-      liveUrl: "https://hotelmanagement.aiagentixdev.com/portal", embed: { url: "https://hotelmanagement.aiagentixdev.com/portal", mode: "iframe" },
+      liveUrl: "https://hotelmanagement.aiagentixdev.com/portal", embed: { url: "https://hotelmanagement.aiagentixdev.com/portal", mode: "scroller" },
       shots: shots("woodpecker-pms", true), demo: true
     },
     {
@@ -430,7 +432,7 @@
         W("Enters the CRM", "The member appears in Max Register.")
       ],
       stack: ["React", "Node.js", "i18n"],
-      liveUrl: "https://maxfitnessgym.co.in/", embed: { url: "https://maxfitnessgym.co.in/", mode: "iframe" },
+      liveUrl: "https://maxfitnessgym.co.in/", embed: { url: "https://maxfitnessgym.co.in/", mode: "scroller" },
       shots: [], demo: true
     },
     {
@@ -500,7 +502,7 @@
         W("Guarantee tracked", "Progress is monitored for the money-back promise.")
       ],
       stack: ["Next.js", "React", "Node.js", "Three.js", "PostgreSQL", "WhatsApp Cloud API"],
-      liveUrl: "https://yourhaircompany.com/", embed: { url: "https://yourhaircompany.com/", mode: "iframe" },
+      liveUrl: "https://yourhaircompany.com/", embed: { url: "https://yourhaircompany.com/", mode: "scroller" },
       shots: shots("yhc", false), demo: true
     },
     {
@@ -522,7 +524,7 @@
         W("Checkout", "The order is placed and tracked in admin.")
       ],
       stack: ["Next.js", "React", "Node.js", "Computer vision", "LLM", "Payments gateway"],
-      liveUrl: "https://myskinwise.com/", embed: { url: "https://myskinwise.com/", mode: "iframe" },
+      liveUrl: "https://myskinwise.com/", embed: { url: "https://myskinwise.com/", mode: "scroller" },
       shots: shots("skinwise", false), demo: true
     },
     {
@@ -703,7 +705,7 @@
       workflow: [W("Ride the page", "Steer with the trackpad."), W("Watch range", "Speed and range update."), W("Pick variant and colour", "Configure the scooter."), W("Book a test ride", "Slot confirmed.")]
     }),
     concept({
-      slug: "crumb", name: "Crumb", path: "crumb", category: "ecommerce", tier: "B", noShots: true,
+      slug: "crumb", name: "Crumb", path: "crumb", scroller: true, category: "ecommerce", tier: "B", noShots: true,
       summary: "A bakery with a build-your-own box and a cart that adds it up.",
       problem: "Gifting boxes need choice without a complicated order form.",
       outcomes: ["Box builder with live count", "Cart with totals", "Warm, appetising brand", "Easy gifting"],
@@ -778,7 +780,7 @@
       mid: false
     }),
     concept({
-      slug: "coralbay", name: "Coral Bay", path: "coralbay", category: "immersive", noShots: true,
+      slug: "coralbay", name: "Coral Bay", path: "coralbay", scroller: true, category: "immersive", noShots: true,
       summary: "A holiday brand where the destination is one scroll away.",
       problem: "Holiday sites show lists, not the feeling of arriving.",
       outcomes: ["Arrival feel through scroll", "Destination highlights", "Simple enquiry", "Fresh visual identity"],
@@ -786,7 +788,7 @@
       workflow: [W("Start the scroll", "Leave the city."), W("Arrive", "Beach reveals."), W("See highlights", "Activities shown."), W("Enquire", "Plan the trip.")]
     }),
     concept({
-      slug: "tallow-tape", name: "Tallow & Tape", path: "tallow", category: "immersive", noShots: true,
+      slug: "tallow-tape", name: "Tallow & Tape", path: "tallow", scroller: true, category: "immersive", noShots: true,
       summary: "A recording studio site with sessions and tracks.",
       problem: "Studios need to sound as good as they look online.",
       outcomes: ["Sessions showcased", "Tracks to preview", "A studio brand that looks as good as it sounds", "Easy booking enquiry"],
@@ -794,7 +796,7 @@
       workflow: [W("Enter the studio", "Warm hero."), W("Listen", "Tracks play."), W("Browse sessions", "Recent sessions shown."), W("Book", "Session enquiry.")]
     }),
     concept({
-      slug: "vaskaro", name: "Vaskaro", path: "vaskaro", category: "immersive", noShots: true,
+      slug: "vaskaro", name: "Vaskaro", path: "vaskaro", scroller: true, category: "immersive", noShots: true,
       summary: "A mountain motorcycle brand: mountain roads on a scroll wheel, with test rides.",
       problem: "Motorcycles are about the road, which a spec sheet cannot show.",
       outcomes: ["Road felt through scroll", "Model highlights", "Test ride booking", "Adventure brand identity"],
