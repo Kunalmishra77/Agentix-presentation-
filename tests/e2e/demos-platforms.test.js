@@ -141,3 +141,123 @@ test("redux: moving a job on the board logs a WhatsApp job update; 390px fits", 
     }
   } finally { await m.close(); }
 });
+
+/* ======================= YOUR HAIR COMPANY ======================= */
+async function takeScan(page, picks) {
+  await openModule(page, "scan");
+  for (let i = 0; i < 4; i++) {
+    await page.waitForSelector('[data-scan-q="' + i + '"]');
+    await page.click('[data-opt="' + picks[i] + '"]');
+  }
+  await page.waitForSelector("[data-scan-result]");
+}
+
+test("yhc: every module renders", () => walkAll("yhc", 16));
+
+test("yhc: scan funnel runs 4 questions, a progress mesh, then a stage and density that match the rules", async () => {
+  const { page, errors, close } = await sweep("yhc");
+  try {
+    await takeScan(page, [1, 1, 2, 1]);
+    const expected = await page.evaluate(() => AX.yhc.scanResult({ pattern: 1, duration: 1, family: 2, lifestyle: 1 }));
+    assert.equal(await page.getAttribute("[data-scan-result]", "data-scan-result"), expected.label);
+    assert.equal(+(await page.getAttribute("[data-scan-result]", "data-density")), expected.density);
+    assert.match(await page.textContent("[data-scan-result]"), /Simulated analysis/);
+    assert.ok(expected.density < 96 && expected.stage >= 2);
+    const worse = await page.evaluate(() => AX.yhc.scanResult({ pattern: 3, duration: 2, family: 3, lifestyle: 2 }));
+    assert.ok(worse.stage > expected.stage && worse.density < expected.density);
+    assert.deepEqual(errors, []);
+  } finally { await close(); }
+});
+
+test("yhc: customer books a ₹500 consult, doctor sees it on the calendar, Send plan creates the sales lead", async () => {
+  const { page, errors, close } = await sweep("yhc");
+  try {
+    await takeScan(page, [1, 1, 2, 1]);
+    await page.click("[data-goto-book]");
+    await page.waitForSelector('[data-module-ready][data-module="book"]');
+    assert.equal(await page.locator("[data-pay]").isDisabled(), true, "pay is disabled until a slot is chosen");
+    await page.fill("[data-book-name]", "Kabir Testwala");
+    await page.locator(".yh-slot:not([disabled]) >> nth=0").click();
+    await page.waitForSelector("[data-pay]:not([disabled])");
+    assert.match(await page.textContent("[data-module-ready]"), /₹500/);
+    await page.click("[data-pay]");
+    await page.waitForSelector("[data-booking-confirmed]");
+    const bid = await page.getAttribute("[data-booking-confirmed]", "data-booking-confirmed");
+    assert.equal(await page.evaluate((id) => document.querySelector(".ax-app").__axApp.ctx.state.get().yhc.bookings.some((b) => b.id === id && b.name === "Kabir Testwala" && b.paid === 500 && b.scan.label), bid), true);
+
+    await setRole(page, "Doctor");
+    await page.click('.ax-nav-item[data-id="doctor-calendar"]');
+    await page.waitForSelector('[data-module-ready][data-module="doctor-calendar"]');
+    if (!(await page.locator('.cal-ev:has-text("Kabir Testwala")').count())) await page.click("[data-cal-next]");
+    await page.waitForSelector('.cal-ev:has-text("Kabir Testwala")');
+    await page.click('.cal-ev:has-text("Kabir Testwala")');
+    await page.click(".ov-foot >> text=Open consult room");
+    await page.waitForSelector('[data-module-ready][data-module="consult"]');
+    assert.match(await page.textContent(".yh-card:has-text('Intake summary')"), /Kabir Testwala/);
+    await page.click("[data-join]");
+    await page.waitForSelector('[data-video="live"]');
+    await page.click("[data-send-plan]");
+    await page.waitForSelector(".toast-err");
+    await page.check('[data-med="mnx"]');
+    await page.check('[data-med="bio"]');
+    await page.click("[data-send-plan]");
+    await page.waitForSelector("[data-send-plan][disabled]");
+    assert.match(await page.textContent('[data-module-ready][data-module="consult"]'), /Plan delivered/);
+
+    await setRole(page, "Sales");
+    await page.click('.ax-nav-item[data-id="sales-leads"]');
+    await page.waitForSelector('.bd-col[data-col="plan"] .bd-card:has-text("Kabir Testwala")');
+    assert.equal(await page.locator('.bd-col[data-col="booked"] .bd-card:has-text("Kabir Testwala")').count(), 0);
+
+    await setRole(page, "Doctor");
+    await page.click('.ax-nav-item[data-id="patients"]');
+    await page.fill(".tbl-search", "Kabir");
+    await page.waitForSelector('.tbl tbody tr:has-text("Kabir Testwala")');
+    await setRole(page, "Admin");
+    await page.click('.ax-nav-item[data-id="audit"]');
+    await page.waitForSelector('.tbl tbody tr:has-text("Prescription signed")');
+    await setRole(page, "Customer");
+    await page.click('.ax-nav-item[data-id="account"]');
+    await page.waitForSelector("[data-plan]");
+    assert.match(await page.textContent("[data-plan]"), /Minoxidil/);
+    assert.deepEqual(clean(errors), []);
+  } finally { await close(); }
+});
+
+test("yhc: role switcher limits the sidebar to that role's modules", async () => {
+  const { page, close } = await sweep("yhc");
+  try {
+    await setRole(page, "Doctor");
+    const ids = await page.$$eval(".ax-nav-item[data-id]", (n) => n.map((x) => x.getAttribute("data-id")));
+    assert.deepEqual(ids.sort(), ["consult", "doctor-calendar", "followups", "patients", "revenue"]);
+    await setRole(page, "Sales");
+    assert.deepEqual((await page.$$eval(".ax-nav-item[data-id]", (n) => n.map((x) => x.getAttribute("data-id")))).sort(), ["care", "sales-leads"]);
+  } finally { await close(); }
+});
+
+test("yhc: refill care sequence pauses for customer confirmation and continues on Approve; a follow-up can be closed", async () => {
+  const { page, close } = await sweep("yhc");
+  try {
+    await openModule(page, "care");
+    await page.click(".pl-actions button:has-text(\"Start\")");
+    await page.waitForSelector(".pl-approve", { timeout: 20000 });
+    assert.match(await page.textContent(".pl-stage.st-blocked"), /Day 28/);
+    await page.click(".pl-approve");
+    await page.waitForFunction(() => document.querySelectorAll(".pl-stage.st-done").length === 6, null, { timeout: 20000 });
+    await openModule(page, "followups");
+    const before = await page.locator('.tbl tbody tr:has(.yh-pill.info)').count();
+    assert.ok(before > 0);
+    await page.click('.tbl tbody tr:has(.yh-pill.info) >> nth=0 >> text=Mark done');
+    await page.waitForFunction((n) => document.querySelectorAll('.tbl tbody tr .yh-pill.info').length === n - 1, before);
+  } finally { await close(); }
+});
+
+test("yhc: 390px fits", async () => {
+  const m = await sweep("yhc", { width: 390, height: 800 });
+  try {
+    for (const id of ["scan", "book", "account", "consult", "doctor-calendar", "sales-leads"]) {
+      await openModule(m.page, id);
+      assert.equal(await noOverflow(m.page), true, id + " fits at 390");
+    }
+  } finally { await m.close(); }
+});
