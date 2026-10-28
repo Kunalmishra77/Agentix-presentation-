@@ -113,7 +113,7 @@
   ];
 
   var team = [
-    ["Meera Kapoor", "Admin"], ["Rohit Sharma", "Content manager"], ["Isha Bhatia", "Designer"], ["Aditya Sethi", "Support agent"], ["Pooja Joshi", "Analyst"], ["Neel Reddy", "Support agent"]
+    ["Meera Kapoor", "Admin"], ["Rohit Menon", "Content manager"], ["Isha Bhatia", "Designer"], ["Aditya Sethi", "Support agent"], ["Pooja Joshi", "Analyst"], ["Neel Reddy", "Support agent"]
   ].map(function (t, n) { return { id: "tm" + n, name: t[0], role: t[1], email: t[0].toLowerCase().replace(/ /g, ".") + "@example.in", status: F.pick("tms" + n, ["Active", "Active", "Invited"]), replies: F.int("tmr" + n, 20, 400) }; });
 
   AX.data.socialflow = {

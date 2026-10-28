@@ -118,7 +118,7 @@
   }
 
   var team = [
-    ["Meera Kapoor", "Owner", "Active"], ["Rohit Sharma", "Manager", "Active"], ["Pooja Joshi", "Sales agent", "Active"],
+    ["Meera Kapoor", "Owner", "Active"], ["Rohit Menon", "Manager", "Active"], ["Pooja Joshi", "Sales agent", "Active"],
     ["Sahil Arora", "Sales agent", "Active"], ["Nisha Gupta", "Front desk", "Active"], ["Dr. Kavya Rao", "Doctor", "Active"],
     ["Aditya Sethi", "Marketing", "Invited"], ["Isha Bhatia", "Sales agent", "Away"], ["Tanya Das", "Front desk", "Active"], ["Neel Reddy", "Support", "Active"]
   ].map(function (t, n) {

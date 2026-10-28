@@ -6,6 +6,13 @@
   var el = AX.el, fmt = AX.fmt;
   var ACCENT = "#C13584";
 
+  function scope(css, slug) {
+    var pre = '.ax-app[data-slug="' + slug + '"] ';
+    return css.replace(/(^|[{}])\s*([^{}@]+?)\s*\{/g, function (m, b, sel) {
+      if (sel.indexOf(".ax-app") === 0) return m;
+      return b + sel.split(",").map(function (s) { return pre + s.trim() + "," + pre.replace(".ax-app", ".demo-scope") + s.trim(); }).join(",") + "{";
+    });
+  }
   var CSS = [
     ".ax-app[data-slug=socialflow] .ax-logo{background:linear-gradient(45deg,#F58529,#DD2A7B 55%,#8134AF)}",
     ".sf-pill{display:inline-block;font:600 11px var(--font-body);padding:2px 9px;border-radius:999px;background:rgba(11,31,51,.08);color:#2b3a4b;white-space:nowrap}",
@@ -32,7 +39,7 @@
     ".cap-variant{background:#fff;border:1px solid var(--ax-line);border-radius:10px;padding:12px;margin-top:10px}.cap-variant p{margin:0 0 6px;white-space:pre-wrap}",
     ".sf-tog{display:flex;justify-content:space-between;align-items:center;gap:12px}.sf-tog input{width:40px;height:22px;accent-color:var(--ax-accent)}"
   ].join("");
-  (function () { if (document.getElementById("sf-demo-css")) return; var s = document.createElement("style"); s.id = "sf-demo-css"; s.textContent = CSS; document.head.appendChild(s); })();
+  (function () { if (document.getElementById("sf-demo-css")) return; var s = document.createElement("style"); s.id = "sf-demo-css"; s.textContent = scope(CSS, "socialflow"); document.head.appendChild(s); })();
 
   var TONE = { Live: "good", Paused: "warn", Draft: "info", Sent: "good", Running: "good", Scheduled: "info", Paid: "good", Shipped: "info", Delivered: "good", "COD pending": "warn", Refunded: "bad",
     Active: "good", Invited: "warn", Shortlisted: "info", Contacted: "info", Negotiating: "warn", Completed: "good", "Opted in": "good", Pending: "warn", Yes: "good", No: "warn", Connected: "good", "Not connected": "info" };
@@ -96,8 +103,15 @@
 
   var modules = [];
   function tint() { var a = document.querySelector('.ax-app[data-slug="socialflow"]'); if (a) a.style.setProperty("--orange", ACCENT); }
+  function wrapView(v) {
+    if (v && typeof v.drawer === "function" && !v.__wrapped) {
+      var d = v.drawer;
+      v = Object.assign({}, v, { __wrapped: true, drawer: function (r, c) { return el("div", { class: "demo-scope", "data-slug": "socialflow", style: { "--ax-accent": ACCENT, "--ax-line": "rgba(11,31,51,.12)", "--orange": ACCENT } }, d(r, c)); } });
+    }
+    return v;
+  }
   function M(group, id, label, icon, view) {
-    modules.push({ id: id, label: label, icon: icon, group: group, view: function (ctx) { tint(); return typeof view === "function" ? view(ctx) : view; } });
+    modules.push({ id: id, label: label, icon: icon, group: group, view: function (ctx) { tint(); return wrapView(typeof view === "function" ? view(ctx) : view); } });
   }
 
   /* ---------------- Inbox ---------------- */

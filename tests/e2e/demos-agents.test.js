@@ -101,3 +101,49 @@ test("socialflow at 390px has no horizontal overflow", async () => {
   const { page, close } = await walkAll("socialflow", 0, { width: 390, height: 800 });
   await close();
 });
+
+test("agentix: copilot Apply fires a sim toast, gbp Draft AI reply fills the reply", async () => {
+  const { page, errors, close } = await openPage("/index.html#/demo/agentix/walkthrough", { reducedMotion: true });
+  try {
+    await page.waitForSelector("[data-module-ready]");
+    await page.click('.ax-nav-item[data-id="copilot"]');
+    await page.waitForSelector('[data-module-ready][data-module="copilot"] [data-apply]');
+    await page.click("[data-apply]");
+    await page.waitForSelector(".toast-sim");
+    assert.equal((await page.textContent("[data-apply]")).trim(), "Applied");
+    await page.click('.ax-nav-item[data-id="gbp"]');
+    await page.waitForSelector('[data-module-ready][data-module="gbp"] [data-draft]');
+    assert.equal(await page.inputValue(".agx-reply"), "");
+    await page.click("[data-draft]");
+    await page.waitForFunction(() => document.querySelector(".agx-reply").value.length > 20);
+    assert.deepEqual(errors, []);
+  } finally { await close(); }
+});
+
+test("agentix: injected demo css is scoped to its own app", async () => {
+  const { page, close } = await openPage("/index.html#/demo/agentix/walkthrough", { reducedMotion: true });
+  try {
+    await page.waitForSelector("[data-module-ready]");
+    const bad = await page.evaluate(() => {
+      const s = document.getElementById("agx-demo-css");
+      return Array.from(s.sheet.cssRules).flatMap((r) => r.cssRules ? Array.from(r.cssRules) : [r]).filter((r) => r.selectorText && !r.selectorText.split(",").every((x) => /\[data-slug="agentix"\]/.test(x))).length;
+    });
+    assert.equal(bad, 0);
+  } finally { await close(); }
+});
+
+test("socialflow: dragging a design layer changes its position", async () => {
+  const { page, errors, close } = await openPage("/index.html#/demo/socialflow/walkthrough/design", { reducedMotion: true });
+  try {
+    await page.waitForSelector('[data-module-ready][data-module="design"] .sf-layer');
+    const layer = page.locator('.sf-layer[data-layer="l1"]');
+    const before = await layer.boundingBox();
+    await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(before.x + before.width / 2 + 60, before.y + before.height / 2 + 80, { steps: 6 });
+    await page.mouse.up();
+    const after = await page.locator('.sf-layer[data-layer="l1"]').boundingBox();
+    assert.ok(Math.abs(after.x - before.x) > 30 && Math.abs(after.y - before.y) > 30, "layer moved");
+    assert.deepEqual(errors, []);
+  } finally { await close(); }
+});

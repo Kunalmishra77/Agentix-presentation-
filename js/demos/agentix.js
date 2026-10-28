@@ -5,6 +5,13 @@
   AX.demos = AX.demos || {};
   var el = AX.el, fmt = AX.fmt;
 
+  function scope(css, slug) {
+    var pre = '.ax-app[data-slug="' + slug + '"] ';
+    return css.replace(/(^|[{}])\s*([^{}@]+?)\s*\{/g, function (m, b, sel) {
+      if (sel.indexOf(".ax-app") === 0) return m;
+      return b + sel.split(",").map(function (s) { return pre + s.trim() + "," + pre.replace(".ax-app", ".demo-scope") + s.trim(); }).join(",") + "{";
+    });
+  }
   var CSS = [
     ".agx-pill{display:inline-block;font:600 11px var(--font-body);padding:2px 9px;border-radius:999px;background:rgba(11,31,51,.08);color:#2b3a4b;white-space:nowrap}",
     ".agx-pill.good{background:#dff3e6;color:#17663b}.agx-pill.warn{background:#fdf0d2;color:#7a4e00}.agx-pill.bad{background:#fbe0de;color:#9c1f19}.agx-pill.hot{background:#fde3d4;color:#a8400b}.agx-pill.info{background:#dcebfb;color:#164a85}",
@@ -36,7 +43,7 @@
 
   function injectCss() {
     if (document.getElementById("agx-demo-css")) return;
-    var s = document.createElement("style"); s.id = "agx-demo-css"; s.textContent = CSS; document.head.appendChild(s);
+    var s = document.createElement("style"); s.id = "agx-demo-css"; s.textContent = scope(CSS, "agentix"); document.head.appendChild(s);
   }
   injectCss();
 
@@ -97,7 +104,17 @@
   }
 
   var modules = [];
-  function M(group, id, label, icon, view, role) { var m = { id: id, label: label, icon: icon, group: group, view: view }; if (role) m.role = role; modules.push(m); }
+  /* Drawers render outside .ax-app, so wrap their body in a scope node that carries the slug and accent. */
+  function wrapView(v) {
+    if (v && typeof v.drawer === "function" && !v.__wrapped) {
+      var d = v.drawer;
+      v = Object.assign({}, v, { __wrapped: true, drawer: function (r, c) { return el("div", { class: "demo-scope", "data-slug": "agentix", style: { "--ax-accent": "#EE6A24", "--ax-line": "rgba(11,31,51,.12)" } }, d(r, c)); } });
+    }
+    return v;
+  }
+  function M(group, id, label, icon, view0, role) {
+    var view = typeof view0 === "function" ? function (ctx) { return wrapView(view0(ctx)); } : wrapView(view0);
+    var m = { id: id, label: label, icon: icon, group: group, view: view }; if (role) m.role = role; modules.push(m); }
 
   /* ---------------- Workspace ---------------- */
   M("Workspace", "dashboard", "Dashboard", "dashboard", function (ctx) {
