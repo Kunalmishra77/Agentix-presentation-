@@ -68,6 +68,7 @@ test("voicecrm: lead drawer has stepper and WhatsApp send fires a sim toast", as
     await go(page, "leads");
     await page.click(".tbl-row");
     await page.waitForSelector(".ov-drawer .vc-stepper");
+    assert.equal(await page.$eval(".ov-drawer .vc-wa-send", (b) => getComputedStyle(b).backgroundColor), "rgb(79, 70, 229)");
     await page.fill(".ov-drawer .vc-wa-input", "Namaste, following up on your enquiry.");
     await page.click(".ov-drawer .vc-wa-send");
     await page.waitForSelector(".toast-sim");
@@ -124,16 +125,18 @@ test("socialpush: compose, toggle 3 platforms, schedule -> calendar + posts Queu
     assert.equal(await page.getAttribute('.sp-preview[data-plat="x"]', "data-ratio"), "16:9");
     await page.click(".sp-ai");
     await page.waitForFunction(() => document.querySelector(".sp-text").value.length > 60);
+    const t0 = Date.now();
     await page.click(".sp-schedule");
     await page.waitForSelector(".toast-sim");
+    await go(page, "posts");
+    const S = (st) => '.tbl-row:has-text("Diwali sale starts tonight") .sp-status[data-status="' + st + '"]';
+    await page.waitForSelector(S("Queued"), { timeout: 3000 });
+    await page.waitForSelector(S("Publishing"), { timeout: 4000 });
+    await page.waitForSelector(S("Published"), { timeout: 4000 });
+    assert.ok(Date.now() - t0 < 4000, "published within 4s of Schedule: " + (Date.now() - t0));
     await go(page, "calendar");
     await page.waitForSelector('.cal-ev[data-id^="new-"]');
-    await go(page, "posts");
-    const row = page.locator(".tbl-row", { hasText: "Diwali sale starts tonight" }).first();
-    await row.waitFor();
-    await page.waitForSelector(".tbl-row:has-text(\"Diwali sale starts tonight\") .sp-status");
-    await page.waitForSelector('.tbl-row:has-text("Diwali sale starts tonight") .sp-status[data-status="Publishing"]', { timeout: 4000 });
-    await page.waitForSelector('.tbl-row:has-text("Diwali sale starts tonight") .sp-status[data-status="Published"]', { timeout: 4000 });
+    assert.ok((await page.textContent(".cal-title")).includes("November") || (await page.textContent(".cal-title")).includes("Nov"));
   } finally { await close(); }
 });
 
@@ -144,6 +147,7 @@ test("socialpush: accounts OAuth modal connects a platform; comments + assistant
     assert.equal(await page.locator(".sp-acct").count(), 7);
     await page.click('.sp-acct[data-plat="pinterest"] .sp-connect');
     await page.waitForSelector(".ov-modal");
+    assert.equal(await page.$eval(".ov-modal .sp-oauth-allow", (b) => getComputedStyle(b).backgroundColor), "rgb(14, 165, 233)");
     await page.click(".ov-modal .sp-oauth-allow");
     await page.waitForSelector(".toast-sim");
     await go(page, "assistant");
@@ -169,6 +173,32 @@ test("yt-automation: Generate -> pipeline blocks at Human QA; Approve -> Schedul
     await page.waitForSelector('.pl-stage[data-id="scheduled"].st-done', { timeout: 10000 });
     await go(page, "calendar");
     await page.waitForSelector(".cal-ev.tone-good, .cal-ev.tone-orange");
+  } finally { await close(); }
+});
+
+test("yt-automation: accent applies to pipeline controls; approve fires exactly once after module switches", async () => {
+  const { page, close } = await openDemo("yt-automation");
+  try {
+    await go(page, "pipeline");
+    await go(page, "scenes");
+    await go(page, "pipeline");
+    await go(page, "library");
+    await go(page, "pipeline");
+    await page.click(".pl-head .btn-primary");
+    await page.waitForSelector('.pl-stage[data-id="qa"].st-blocked', { timeout: 20000 });
+    assert.equal(await page.$eval(".pl-approve", (b) => getComputedStyle(b).backgroundColor), "rgb(225, 29, 72)");
+    await page.click(".pl-approve");
+    await page.waitForSelector('.pl-stage[data-id="scheduled"].st-done', { timeout: 10000 });
+    const toasts = await page.$$eval(".toast-sim", (n) => n.map((x) => x.textContent).filter((t) => t.includes("approved; upload")));
+    assert.equal(toasts.length, 1);
+    await go(page, "calendar");
+    await page.waitForSelector(".cal-ev");
+    assert.equal(await page.locator('.cal-ev[data-id="e-new"]').count(), 1);
+    // drawer scope: character drawer button is accent-coloured
+    await go(page, "characters");
+    await page.click(".tbl-row");
+    await page.waitForSelector(".ov-drawer .yt-btn");
+    assert.equal(await page.$eval(".ov-drawer .yt-btn", (b) => getComputedStyle(b).backgroundColor), "rgb(225, 29, 72)");
   } finally { await close(); }
 });
 

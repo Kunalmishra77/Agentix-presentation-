@@ -26,9 +26,17 @@
     ".yt-note{font-size:13px;color:var(--ink-3);margin:0 0 12px}",
     ".yt-res{background:#fff;border:1px solid var(--ax-line);border-radius:12px;padding:14px;font-size:14px}"
   ].join("\n");
+  var ACCENT = "#E11D48";
   function injectCss() {
     if (document.getElementById("yt-css")) return;
-    var s = document.createElement("style"); s.id = "yt-css"; s.textContent = CSS; document.head.appendChild(s);
+    var s = document.createElement("style"); s.id = "yt-css";
+    s.textContent = CSS + '\n.ax-app[data-slug="yt-automation"],.demo-scope[data-slug="yt-automation"]{--orange:' + ACCENT + '}';
+    document.head.appendChild(s);
+  }
+  injectCss();
+  /* Drawers and modals mount outside .ax-app, so they carry their own scoped tokens. */
+  function drawBox() {
+    return el("div", { class: "demo-scope yt-draw", "data-slug": "yt-automation", style: { "--ax-accent": ACCENT, "--ax-line": "rgba(11,31,51,.12)", "--orange": ACCENT } }, Array.prototype.slice.call(arguments));
   }
   function st(s) { return el("span", { class: "yt-st " + s }, s); }
   function money(n) { return "$" + n.toFixed(2); }
@@ -82,17 +90,20 @@
     host.appendChild(grid);
   }
 
-  function installApprove(ctx) {
-    if (ctx.__ytApprove) return;
-    ctx.__ytApprove = true;
-    var h = function (e) {
-      var b = e.target && e.target.closest && e.target.closest(".pl-approve");
-      if (!b) return;
-      if (!document.querySelector('.ax-app[data-slug="yt-automation"]')) { document.removeEventListener("click", h, true); ctx.__ytApprove = false; return; }
+  /* Pipeline module: the engine sits in an inner node; the Approve listener lives on the module's own
+     wrapper, so it goes away with the module (no document-level listeners). */
+  function pipelineView(host, ctx) {
+    var inner = el("div", {});
+    host.appendChild(inner);
+    var api = AX.pipeline.create(inner, { stages: STAGES, gate: "qa", cap: 4, currency: "$" });
+    ctx.__ytPipe = api;
+    function onClick(e) {
+      if (!(e.target && e.target.closest && e.target.closest(".pl-approve"))) return;
       ctx.state.set({ approved: true });
       AX.ui.toast("Simulated — approved; upload would be scheduled for 3 Nov, 6:30 PM", { kind: "sim" });
-    };
-    document.addEventListener("click", h, true);
+    }
+    host.addEventListener("click", onClick);
+    AX.mount(host, function () { host.removeEventListener("click", onClick); if (ctx.__ytPipe === api) ctx.__ytPipe = null; });
   }
 
   AX.demos["yt-automation"] = {
@@ -113,22 +124,18 @@
           onSubmit: function (v, c) {
             c.state.set({ job: v, approved: false });
             c.open("pipeline");
-            var go = document.querySelector('[data-module="pipeline"] .pl-head .btn-primary');
-            if (go) go.click();
+            if (c.__ytPipe) c.__ytPipe.start();
             return null;
           } };
       } },
-      { id: "pipeline", label: "Pipeline", icon: "pipeline", group: "Create", view: function (ctx) {
-        installApprove(ctx);
-        return { type: "pipeline", stages: STAGES, gate: "qa", cap: 4, currency: "$" };
-      } },
+      { id: "pipeline", label: "Pipeline", icon: "pipeline", group: "Create", view: { type: "custom", render: pipelineView } },
       { id: "scenes", label: "Scenes", icon: "board", group: "Create", view: { type: "custom", render: scenesView } },
       { id: "characters", label: "Characters", icon: "users", group: "Create", view: function (ctx) {
         injectCss();
         return { type: "table", rows: ctx.data.characters, qKeys: ["name", "role", "voice"],
           columns: [{ key: "name", label: "Character", sortable: true }, { key: "role", label: "Role" }, { key: "voice", label: "Voice", sortable: true }, { key: "lang", label: "Language" }, { key: "scenes", label: "Scenes" }],
           drawer: function (r) {
-            return el("div", { class: "yt-draw" }, el("img", { src: r.img, alt: r.name }), kv("Look", r.look), kv("Voice", r.voice + " (" + r.lang + ")"), kv("Appears in scenes", r.scenes),
+            return drawBox(el("img", { src: r.img, alt: r.name }), kv("Look", r.look), kv("Voice", r.voice + " (" + r.lang + ")"), kv("Appears in scenes", r.scenes),
               el("button", { type: "button", class: "yt-btn", on: { click: function () { AX.ui.toast("Simulated — voice sample not played", { kind: "sim" }); } } }, "Play voice sample"));
           } };
       } },
@@ -170,20 +177,20 @@
       { id: "prompts", label: "Prompt library", icon: "file", group: "Setup", view: function (ctx) {
         return { type: "table", rows: ctx.data.prompts, qKeys: ["name", "key", "text"],
           columns: [{ key: "name", label: "Stage", sortable: true }, { key: "key", label: "Template" }, { key: "version", label: "Version" }, { key: "tokens", label: "Avg tokens", sortable: true }, { key: "cost", label: "Cost / run", sortable: true, render: function (r) { return money(r.cost); } }],
-          drawer: function (r) { return el("div", { class: "yt-draw" }, kv("Template", r.key), kv("Prompt", r.text), kv("Updated", r.updated + " · avg " + r.tokens + " tokens · " + money(r.cost) + " per run")); } };
+          drawer: function (r) { return drawBox(kv("Template", r.key), kv("Prompt", r.text), kv("Updated", r.updated + " · avg " + r.tokens + " tokens · " + money(r.cost) + " per run")); } };
       } },
       { id: "api", label: "API & spend", icon: "wallet", group: "Operate", view: function (ctx) {
         var total = ctx.data.api.reduce(function (a, r) { return a + r.spend; }, 0);
         return { type: "table", rows: ctx.data.api, qKeys: ["provider", "use"],
           filters: [{ key: "status", label: "status", options: ["Operational", "Degraded"] }],
           columns: [{ key: "provider", label: "Provider", sortable: true }, { key: "use", label: "Used for" }, { key: "calls", label: "Calls / video", sortable: true }, { key: "spend", label: "Spend / video (total " + money(total) + ")", sortable: true, render: function (r) { return r.spendText; } }, { key: "status", label: "Status", render: function (r) { return st(r.status); } }],
-          drawer: function (r) { return el("div", { class: "yt-draw" }, kv("Provider", r.provider), kv("Used for", r.use), kv("Per-video spend", r.spendText + " across " + r.calls + " calls"), kv("Hard ceiling", "Pipeline stops and asks for approval if a video would exceed $4.00")); } };
+          drawer: function (r) { return drawBox(kv("Provider", r.provider), kv("Used for", r.use), kv("Per-video spend", r.spendText + " across " + r.calls + " calls"), kv("Hard ceiling", "Pipeline stops and asks for approval if a video would exceed $4.00")); } };
       } },
       { id: "logs", label: "Logs", icon: "file", group: "Operate", view: function (ctx) {
         return { type: "table", pageSize: 10, rows: ctx.data.logs, qKeys: ["message", "stage", "job"],
           filters: [{ key: "level", label: "level", options: ["INFO", "WARN", "ERROR"] }, { key: "stage", label: "stage", options: ["research", "script", "voice", "keyframes", "motion", "assembly", "qa", "publish", "cost"] }],
           columns: [{ key: "at", label: "Time", sortable: true }, { key: "level", label: "Level", render: function (r) { return st(r.level); } }, { key: "stage", label: "Stage" }, { key: "job", label: "Job" }, { key: "message", label: "Message" }],
-          drawer: function (r) { return el("div", { class: "yt-draw" }, kv("Time", r.at), kv("Job / stage", r.job + " · " + r.stage), kv("Message", r.message)); } };
+          drawer: function (r) { return drawBox(kv("Time", r.at), kv("Job / stage", r.job + " · " + r.stage), kv("Message", r.message)); } };
       } },
       { id: "health", label: "System health", icon: "heart", group: "Operate", view: function (ctx) {
         return { type: "dashboard",

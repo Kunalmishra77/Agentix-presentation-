@@ -5,17 +5,19 @@
 
   /* Pure helper (unit-tested): RFC-4180 style CSV text from column defs + rows. */
   function toCsv(cols, rows) {
-    function q(v) {
+    function q(v, raw) {
+      var isText = typeof v === "string";
       v = v == null ? "" : String(v);
+      if (isText && !raw && /^[\r=+\-@]/.test(v)) v = "'" + v;   // spreadsheet formula-injection guard
       return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
     }
     return [cols.map(function (c) { return q(c.label); }).join(",")].concat(rows.map(function (r) {
-      return cols.map(function (c) { return q(typeof c.get === "function" ? c.get(r) : r[c.key]); }).join(",");
+      return cols.map(function (c) { return q(typeof c.get === "function" ? c.get(r) : r[c.key], c.raw); }).join(",");
     })).join("\r\n") + "\r\n";
   }
   AX.voicecrm = { toCsv: toCsv };
 
-  if (typeof document === "undefined" || !document.createElement) return;
+  if (typeof document === "undefined" || !document.getElementById) return;
   var el = AX.el;
 
   var CSS = [
@@ -67,9 +69,17 @@
     ".vc-prev{overflow:auto;border:1px solid var(--ax-line);border-radius:8px}.vc-prev table{border-collapse:collapse;font-size:12px;width:100%}.vc-prev th,.vc-prev td{padding:6px 10px;border-bottom:1px solid var(--ax-line);text-align:left;white-space:nowrap}",
     ".vc-tcard{display:flex;flex-direction:column;gap:4px}.vc-tcard b{font-size:13px}.vc-tcard small{color:var(--ink-3);font-size:12px}"
   ].join("\n");
+  var ACCENT = "#4F46E5";
   function injectCss() {
     if (document.getElementById("vc-css")) return;
-    var s = document.createElement("style"); s.id = "vc-css"; s.textContent = CSS; document.head.appendChild(s);
+    var s = document.createElement("style"); s.id = "vc-css";
+    s.textContent = CSS + '\n.ax-app[data-slug="voicecrm"],.demo-scope[data-slug="voicecrm"]{--orange:' + ACCENT + '}';
+    document.head.appendChild(s);
+  }
+  injectCss();
+  /* Drawers and modals mount outside .ax-app, so they carry their own scoped tokens. */
+  function scope() {
+    return el("div", { class: "demo-scope", "data-slug": "voicecrm", style: { "--ax-accent": ACCENT, "--ax-line": "rgba(11,31,51,.12)", "--orange": ACCENT } }, Array.prototype.slice.call(arguments));
   }
 
   function chip(v, cls) { return el("span", { class: "vc-chip " + (cls || v) }, v); }
@@ -160,11 +170,11 @@
   /* ---- export ---- */
   var DATASETS = {
     Calls: { file: "voicecrm-calls", rows: function (d) { return d.calls; }, cols: [
-      { key: "id", label: "call_id" }, { key: "customer", label: "customer_name" }, { key: "phone", label: "phone_number" }, { key: "started", label: "started_at" },
+      { key: "id", label: "call_id" }, { key: "customer", label: "customer_name" }, { key: "phone", label: "phone_number", raw: true }, { key: "started", label: "started_at" },
       { get: function (r) { return r.duration; }, label: "duration_sec" }, { key: "agent", label: "agent" }, { key: "sentiment", label: "sentiment" },
       { key: "bucket", label: "lead_bucket" }, { key: "score", label: "lead_score" }, { key: "concern", label: "concern" }, { key: "outcome", label: "outcome" }] },
     Leads: { file: "voicecrm-leads", rows: function (d) { return d.leads; }, cols: [
-      { key: "id", label: "lead_id" }, { key: "name", label: "name" }, { key: "phone", label: "phone_number" }, { key: "email", label: "email" }, { key: "city", label: "city" },
+      { key: "id", label: "lead_id" }, { key: "name", label: "name" }, { key: "phone", label: "phone_number", raw: true }, { key: "email", label: "email" }, { key: "city", label: "city" },
       { key: "stageLabel", label: "stage" }, { key: "bucket", label: "bucket" }, { key: "score", label: "score" }, { key: "owner", label: "owner" }] },
     Tasks: { file: "voicecrm-tasks", rows: function (d) { return d.tasks; }, cols: [
       { key: "id", label: "task_id" }, { key: "title", label: "title" }, { key: "sub", label: "lead" }, { key: "col", label: "status" }, { key: "prio", label: "priority" }, { key: "meta", label: "due_owner" }] }
@@ -226,7 +236,7 @@
               { key: "sentiment", label: "Sentiment", render: function (r) { return chip(r.sentiment); } },
               { key: "score", label: "Score", sortable: true, render: function (r) { return chip(r.bucket + " · " + r.score, r.bucket); } },
               { key: "concern", label: "Concern" }, { key: "outcome", label: "Outcome", render: function (r) { return chip(r.outcome); } }],
-            drawer: function (r) { return callDrawer(r); } };
+            drawer: function (r) { return scope(callDrawer(r)); } };
         } },
         { id: "insights", label: "Call insights", icon: "star", group: "Calls", view: function (ctx) {
           var d = ctx.data, s = count(d.calls, "sentiment"), b = count(d.calls, "bucket"), cn = count(d.calls, "concern");
@@ -247,7 +257,7 @@
               { key: "name", label: "Lead", sortable: true }, { key: "phone", label: "Phone" },
               { key: "stageLabel", label: "Stage", sortable: true }, { key: "score", label: "Score", sortable: true, render: function (r) { return chip(r.bucket + " · " + r.score, r.bucket); } },
               { key: "concern", label: "Concern" }, { key: "calls", label: "Calls", sortable: true }, { key: "owner", label: "Owner" }],
-            drawer: function (r, c) { return leadDrawer(r, c); } };
+            drawer: function (r, c) { return scope(leadDrawer(r, c)); } };
         } },
         { id: "tasks", label: "Follow-up tasks", icon: "board", group: "Sales", view: function (ctx) {
           return { type: "board",
@@ -262,7 +272,7 @@
             kpis: [{ label: "Calls (30d)", value: 1184, delta: 9, format: "num" }, { label: "Answered by AI", value: "96%", delta: 1 }, { label: "Avg score", value: 58, delta: 2, format: "num" }, { label: "Bookings", value: 47, delta: 14, format: "num" }],
             charts: [
               { type: "line", title: "Conversion rate trend (%)", wide: true, labels: d.labels14, series: [{ name: "Conversion %", points: d.convPerDay }, { name: "Qualified %", points: d.convPerDay.map(function (v, i) { return v + 18 + (i % 3); }) }] },
-              { type: "bar", title: "Leads handled per executive", labels: ["Rhea", "Kunal", "Mansi", "Simran", "Dev"], values: [72, 60, 68, 56, 36] },
+              { type: "bar", title: "Leads handled per executive", labels: ["Rhea", "Tarun", "Mansi", "Simran", "Dev"], values: [72, 60, 68, 56, 36] },
               { type: "gauge", title: "AI answer rate", value: 96, label: "Answered" }
             ] };
         } },
@@ -273,9 +283,9 @@
             columns: [{ key: "name", label: "Name", sortable: true }, { key: "role", label: "Role" }, { key: "handled", label: "Calls handled", sortable: true },
               { key: "conversion", label: "Conversion %", sortable: true }, { key: "avgScore", label: "Avg lead score", sortable: true }, { key: "status", label: "Status", render: function (r) { return chip(r.status); } }],
             drawer: function (r) {
-              return el("div", {}, el("div", { class: "vc-meta" }, chip(r.status), el("span", { class: "vc-chip Cold" }, r.role)),
+              return scope(el("div", {}, el("div", { class: "vc-meta" }, chip(r.status), el("span", { class: "vc-chip Cold" }, r.role)),
                 sec("Contact", el("p", {}, r.email)), sec("This month", el("p", {}, r.handled + " calls handled · " + r.conversion + "% conversion · avg score " + r.avgScore)),
-                sec("Permissions", el("p", {}, r.role === "Voice agent" ? "Inbound calls, auto-summaries, WhatsApp brochure send" : "Calls, leads, tasks, WhatsApp, exports")));
+                sec("Permissions", el("p", {}, r.role === "Voice agent" ? "Inbound calls, auto-summaries, WhatsApp brochure send" : "Calls, leads, tasks, WhatsApp, exports"))));
             } };
         } }
       ]

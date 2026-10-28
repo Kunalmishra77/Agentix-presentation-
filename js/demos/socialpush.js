@@ -37,9 +37,17 @@
     ".sp-empty{padding:24px;text-align:center;color:var(--ink-3);font-size:13px;border:1px dashed var(--ax-line);border-radius:10px}",
     ".sp-oauth{display:flex;flex-direction:column;gap:12px;font-size:14px}.sp-oauth ul{margin:0;padding-left:18px;color:var(--ink-2)}"
   ].join("\n");
+  var ACCENT = "#0EA5E9";
   function injectCss() {
     if (document.getElementById("sp-css")) return;
-    var s = document.createElement("style"); s.id = "sp-css"; s.textContent = CSS; document.head.appendChild(s);
+    var s = document.createElement("style"); s.id = "sp-css";
+    s.textContent = CSS + '\n.ax-app[data-slug="socialpush"],.demo-scope[data-slug="socialpush"]{--orange:' + ACCENT + '}';
+    document.head.appendChild(s);
+  }
+  injectCss();
+  /* Drawers and modals mount outside .ax-app, so they carry their own scoped tokens. */
+  function scope() {
+    return el("div", { class: "demo-scope", "data-slug": "socialpush", style: { "--ax-accent": ACCENT, "--ax-line": "rgba(11,31,51,.12)", "--orange": ACCENT } }, Array.prototype.slice.call(arguments));
   }
   function P(ctx, id) { return ctx.data.platforms.filter(function (p) { return p.id === id; })[0]; }
   function M(ctx, id) { return ctx.data.media.filter(function (m) { return m.id === id; })[0]; }
@@ -61,8 +69,18 @@
     var inp = document.querySelector('[data-module="posts"] .tbl-search');
     if (inp) inp.dispatchEvent(new Event("input"));
   }
+  /* Simulated publish worker timers; cleared as soon as the demo is no longer mounted. */
+  var timers = [];
+  function later(fn, ms) {
+    var t = setTimeout(function () {
+      timers = timers.filter(function (x) { return x !== t; });
+      if (!document.querySelector('.ax-app[data-slug="socialpush"]')) { timers.forEach(clearTimeout); timers = []; return; }
+      fn();
+    }, ms);
+    timers.push(t);
+  }
   function track(post, plan) {
-    plan.forEach(function (st) { setTimeout(function () { post.status = st[1]; if (st[1] === "Published") post.reach = 1800 + post.platforms.length * 950; refreshPosts(); }, st[0]); });
+    plan.forEach(function (st) { later(function () { post.status = st[1]; if (st[1] === "Published") post.reach = 1800 + post.platforms.length * 950; refreshPosts(); }, st[0]); });
   }
 
   function accountsView(host, ctx) {
@@ -84,13 +102,13 @@
     }
     function oauth(p, a) {
       var m = AX.ui.modal({ title: "Connect " + p.name,
-        body: el("div", { class: "sp-oauth" },
+        body: scope(el("div", { class: "sp-oauth" },
           el("div", { class: "sp-logo", style: { background: p.color } }, p.short),
           el("p", { style: { margin: 0 } }, el("b", {}, "SocialPush"), " wants to access your " + p.name + " account (fictional consent screen)."),
           el("ul", {}, el("li", {}, "Publish posts and media on your behalf"), el("li", {}, "Read comments and basic analytics"), el("li", {}, "Refresh access automatically")),
           el("div", { class: "sp-row" },
             el("button", { type: "button", class: "sp-btn sp-oauth-allow", on: { click: function () { a.connected = true; a.expiring = false; m.close(); draw(); AX.ui.toast("Simulated — " + p.name + " connected, no real login happened", { kind: "sim" }); } } }, "Allow"),
-            el("button", { type: "button", class: "sp-btn ghost", on: { click: function () { m.close(); } } }, "Cancel"))) });
+            el("button", { type: "button", class: "sp-btn ghost", on: { click: function () { m.close(); } } }, "Cancel")))) });
     }
     draw();
   }
@@ -146,11 +164,11 @@
       if (!text) { AX.ui.toast("Write something first", { kind: "err" }); return; }
       if (!sel.length) { AX.ui.toast("Pick at least one platform", { kind: "err" }); return; }
       var list = posts(ctx), seq = ctx.state.get().seq || 1;
-      ctx.state.set({ seq: seq + 1 });
+      ctx.state.set({ seq: seq + 1, calMonth: (now ? "2026-10-28" : dateInp.value || "2026-11-14").slice(0, 7) });
       var post = { id: "new-" + seq, name: "Post NEW-" + seq + " · just now", title: text, platforms: sel.map(function (p) { return p.id; }), date: now ? "2026-10-28" : dateInp.value || "2026-11-14",
         time: now ? "now" : timeInp.value || "10:00", status: "Queued", media: st.media, by: "You (demo)", reach: 0, error: "" };
       list.unshift(post);
-      track(post, now ? [[800, "Publishing"], [2400, "Published"]] : [[1800, "Publishing"], [3700, "Published"]]);
+      track(post, now ? [[800, "Publishing"], [2400, "Published"]] : [[1500, "Publishing"], [3300, "Published"]]);
       AX.ui.toast(now ? "Simulated — publishing to " + sel.length + " platforms, nothing was sent" : "Simulated — scheduled for " + post.date + ", nothing was sent", { kind: "sim" });
       ta.value = ""; drawPrev();
     }
@@ -220,13 +238,13 @@
           actions: [{ label: "Retry", onClick: function (r) {
             if (r.status !== "Failed") { AX.ui.toast("Simulated — only failed posts can be retried", { kind: "sim" }); return; }
             r.status = "Retried"; r.error = ""; refreshPosts();
-            setTimeout(function () { r.status = "Published"; r.reach = 2400; refreshPosts(); }, 1500);
+            later(function () { r.status = "Published"; r.reach = 2400; refreshPosts(); }, 1500);
             AX.ui.toast("Simulated — retry queued, nothing was sent", { kind: "sim" });
           } }],
-          drawer: function (r, c) { return postDrawer(r, c); } };
+          drawer: function (r, c) { return scope(postDrawer(r, c)); } };
       } },
       { id: "calendar", label: "Calendar", icon: "calendar", group: "Publish", view: function (ctx) {
-        return { type: "calendar", month: "2026-11",
+        return { type: "calendar", month: ctx.state.get().calMonth || "2026-11",
           events: posts(ctx).map(function (p) { return { id: p.id, title: p.platforms.map(function (id) { return P(ctx, id).short; }).join("·") + " " + (p.title.length > 22 ? p.title.slice(0, 22) + "…" : p.title), date: p.date, tone: TONE[p.status] || "navy" }; }),
           onDrop: function (id, date) {
             var p = posts(ctx).filter(function (x) { return x.id === id; })[0];
@@ -235,7 +253,7 @@
           },
           onOpen: function (ev) {
             var p = posts(ctx).filter(function (x) { return x.id === ev.id; })[0];
-            if (p) AX.ui.drawer({ title: p.id.toUpperCase() + " · " + p.date, body: postDrawer(p, ctx) });
+            if (p) AX.ui.drawer({ title: p.id.toUpperCase() + " · " + p.date, body: scope(postDrawer(p, ctx)) });
           } };
       } },
       { id: "analytics", label: "Analytics", icon: "chart", group: "Grow", view: function (ctx) {
@@ -266,8 +284,8 @@
           filters: [{ key: "role", label: "role", options: ["Owner", "Editor", "Approver", "Analyst", "Client (view only)"] }],
           columns: [{ key: "name", label: "Name", sortable: true }, { key: "role", label: "Role" }, { key: "email", label: "Email" }, { key: "posts", label: "Posts", sortable: true }, { key: "last", label: "Last active" }, { key: "status", label: "Status" }],
           drawer: function (r) {
-            return el("div", { style: { lineHeight: 1.7 } }, el("p", {}, r.role + " · " + r.status), el("p", {}, r.email), el("p", {}, r.posts + " posts created · last active " + r.last),
-              el("p", { style: { color: "var(--ink-3)", fontSize: "13px" } }, r.role === "Approver" ? "Posts from Editors wait for this person's approval before they are queued." : "Can compose and schedule posts on connected accounts."));
+            return scope(el("div", { style: { lineHeight: 1.7 } }, el("p", {}, r.role + " · " + r.status), el("p", {}, r.email), el("p", {}, r.posts + " posts created · last active " + r.last),
+              el("p", { style: { color: "var(--ink-3)", fontSize: "13px" } }, r.role === "Approver" ? "Posts from Editors wait for this person's approval before they are queued." : "Can compose and schedule posts on connected accounts.")));
           } };
       } }
     ]

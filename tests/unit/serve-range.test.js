@@ -42,6 +42,24 @@ test("dev server honours single Range requests", async () => {
     assert.equal(clamp.status, 206);
     assert.deepEqual(clamp.body, full.body);
 
+    const big = await get(port, "/package.json", { Range: "bytes=-999999" });
+    assert.equal(big.status, 206);
+    assert.equal(big.headers["content-range"], "bytes 0-" + (size - 1) + "/" + size);
+    assert.deepEqual(big.body, full.body);
+
+    const inverted = await get(port, "/package.json", { Range: "bytes=5-2" });
+    assert.equal(inverted.status, 200);
+    assert.deepEqual(inverted.body, full.body);
+
+    const head = await new Promise((resolve, reject) => {
+      http.request({ host: "127.0.0.1", port, path: "/package.json", method: "HEAD", headers: { Range: "bytes=0-3" } }, (res) => {
+        let n = 0; res.on("data", (c) => { n += c.length; }); res.on("end", () => resolve({ status: res.statusCode, headers: res.headers, n }));
+      }).on("error", reject).end();
+    });
+    assert.equal(head.status, 206);
+    assert.equal(head.headers["content-length"], "4");
+    assert.equal(head.n, 0);
+
     const bad = await get(port, "/package.json", { Range: "bytes=" + (size + 50) + "-" });
     assert.equal(bad.status, 416);
     assert.equal(bad.headers["content-range"], "bytes */" + size);

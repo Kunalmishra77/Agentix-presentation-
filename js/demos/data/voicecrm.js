@@ -9,7 +9,7 @@
   var CONCERNS = ["Price & payment plan", "Site visit booking", "Home-loan eligibility", "Possession date", "Location & connectivity", "Amenities", "Unit availability"];
   var STAGES = ["New", "InProgress", "FollowUpScheduled", "Converted", "NotInterested", "Closed"];
   var STAGE_LABEL = { New: "New", InProgress: "In progress", FollowUpScheduled: "Follow-up scheduled", Converted: "Converted", NotInterested: "Not interested", Closed: "Closed" };
-  var AGENTS = ["Aria (AI voice bot)", "Rhea Kapoor", "Kunal Bhatia", "Mansi Verma"];
+  var AGENTS = ["Aria (AI voice bot)", "Rhea Kapoor", "Tarun Pillai", "Mansi Verma"];
 
   var CUST = {
     "Price & payment plan": [
@@ -127,7 +127,7 @@
   });
 
   var employees = [
-    ["Rhea Kapoor", "Sales lead", 18, 41], ["Kunal Bhatia", "Sales executive", 15, 33], ["Mansi Verma", "Sales executive", 17, 38],
+    ["Rhea Kapoor", "Sales lead", 18, 41], ["Tarun Pillai", "Sales executive", 15, 33], ["Mansi Verma", "Sales executive", 17, 38],
     ["Dev Saxena", "Loan desk", 9, 52], ["Tanya Joshi", "Site-visit coordinator", 12, 47], ["Neel Menon", "CRM admin", 0, 0],
     ["Aria (AI voice bot)", "Voice agent", 212, 19], ["Simran Rao", "Sales executive", 14, 36]
   ].map(function (e, k) {

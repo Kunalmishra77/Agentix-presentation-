@@ -15,6 +15,7 @@ const MIME = {
 function parseRange(header, size) {
   const m = /^bytes=(\d*)-(\d*)$/.exec(String(header).trim());
   if (!m || (m[1] === "" && m[2] === "")) return null;
+  if (m[1] !== "" && m[2] !== "" && Number(m[2]) < Number(m[1])) return null;   // malformed (end before start): ignore the header
   let start, end;
   if (m[1] === "") { const n = Number(m[2]); if (n === 0) return "bad"; start = Math.max(0, size - n); end = size - 1; }
   else { start = Number(m[1]); end = m[2] === "" ? size - 1 : Math.min(Number(m[2]), size - 1); }
