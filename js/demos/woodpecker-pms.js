@@ -100,7 +100,7 @@
     return ctx.state.get().wp;
   }
   function logAudit(ctx, action, entity, ref) {
-    S(ctx).audit.unshift({ id: "aud-n" + Math.random().toString(36).slice(2, 7), at: ctx.data.today + " " + AX.fmt.time(new Date()), user: "You (demo)", role: "Front Desk", action: action, entity: entity, ref: ref || "", ip: "10.0.0.xx" });
+    S(ctx).audit.unshift({ id: "aud-n" + (S(ctx).seq++), at: ctx.data.today + " " + AX.fmt.time(new Date()), user: "You (demo)", role: "Front Desk", action: action, entity: entity, ref: ref || "", ip: "10.0.0.xx" });
   }
   function bookingById(ctx, id) { return S(ctx).bookings.filter(function (b) { return b.id === id; })[0]; }
   function unitOf(ctx, id) { return ctx.data.units.filter(function (u) { return u.id === id; })[0]; }
@@ -362,7 +362,7 @@
           body.appendChild(h("li", {}, h("span", {}, m.name, " · ", inr(m.price)), btn("Add", function () {
             var ex = f.pos.filter(function (l) { return l.id === m.id; })[0];
             if (ex) ex.qty++; else f.pos.push({ id: m.id, name: m.name, price: m.price, qty: 1 });
-            wp.posTickets.unshift({ id: "kot-n" + Date.now() + m.id, col: "new", title: "KOT #" + (510 + wp.seq++) + " · " + b.unit, sub: m.name + " x1", meta: "Placed just now", tags: ["Room service"] });
+            wp.posTickets.unshift({ id: "kot-n" + wp.seq + m.id, col: "new", title: "KOT #" + (510 + wp.seq++) + " · " + b.unit, sub: m.name + " x1", meta: "Placed just now", tags: ["Room service"] });
             logAudit(ctx, "Folio charge added", "Folio", b.id);
             AX.ui.toast(m.name + " added to folio", { kind: "ok" }); draw();
           }, "sm")));

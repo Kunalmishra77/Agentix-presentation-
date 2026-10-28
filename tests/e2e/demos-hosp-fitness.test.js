@@ -127,6 +127,10 @@ test("max-register: renew in 3 taps produces a receipt number MF/YYYY-YY/NNNNNN"
   const { page, errors, close } = await sweep("max-register");
   try {
     await openModule(page, "renew");
+    const st = () => page.evaluate((id) => { const a = document.querySelector(".ax-app").__axApp.ctx; const m = a.state.get().mx.members.find((x) => x.id === id); return Math.round((Date.parse(m.paidTill) - Date.parse(a.data.today)) / 86400000); }, mid);
+    const mid = await page.getAttribute("[data-member] >> nth=0", "data-member");
+    const leftBefore = await st();
+    assert.ok(leftBefore < 0, "first listed member is the most overdue: " + leftBefore);
     await page.click("[data-member] >> nth=0");
     await page.click("[data-plan] >> nth=1");
     await page.click('[data-mode="UPI"]');
@@ -134,6 +138,13 @@ test("max-register: renew in 3 taps produces a receipt number MF/YYYY-YY/NNNNNN"
     const no = (await page.textContent("[data-receipt-no]")).trim();
     assert.match(no, /^MF\/\d{4}-\d{2}\/\d{6}$/);
     assert.equal(no.slice(-6), "000123");
+    const leftAfter = await st();
+    assert.ok(leftAfter > leftBefore && leftAfter > 7, "days left increased into the green band: " + leftBefore + " -> " + leftAfter);
+    const name = await page.evaluate((id) => document.querySelector(".ax-app").__axApp.ctx.state.get().mx.members.find((x) => x.id === id).name, mid);
+    await openModule(page, "members");
+    await page.fill(".tbl-search", name);
+    await page.waitForSelector(".tbl tbody tr .mx-band.green");
+    assert.equal(await page.locator(".tbl tbody tr .mx-band.red").count(), 0);
     assert.deepEqual(errors, []);
   } finally { await close(); }
 });
@@ -145,6 +156,10 @@ test("max-register: advancing 3 days adds a WhatsApp reminder", async () => {
     const before = await page.locator('[data-rem="sent"]').count();
     for (let i = 0; i < 3; i++) await page.click("text=1 दिन आगे बढ़ाएँ");
     await page.waitForFunction((b) => document.querySelectorAll('[data-rem="sent"]').length > b, before);
+    const sent = await page.locator('[data-rem="sent"]').allTextContents();
+    assert.equal(sent.length, before + 1);
+    assert.match(sent[sent.length - 1], /7 दिन पहले/);
+    assert.ok(!sent.some((t) => /आखिरी 3 दिन/.test(t)), "last-3-days reminder not yet due");
   } finally { await close(); }
 });
 
@@ -174,6 +189,8 @@ test("max-register: leads board moves update the funnel; verify queue approves",
     await page.keyboard.press("m");
     await page.click(".bd-menu-item >> text=जॉइन");
     await page.waitForFunction((b) => document.querySelector("[data-funnel]").textContent !== b, before);
+    await page.waitForSelector('.bd-col[data-col="joined"] .bd-card[data-id="L-501"]');
+    assert.equal(await page.locator('.bd-col[data-col="new"] .bd-card[data-id="L-501"]').count(), 0);
     await openModule(page, "verify");
     const n = await page.locator("[data-vcard]").count();
     await page.click("[data-vcard] >> nth=0 >> text=मंज़ूर");
@@ -194,4 +211,27 @@ test("max-register: phone frame on desktop, full-bleed at 390 without overflow",
       assert.equal(await m.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, id + " fits");
     }
   } finally { await m.close(); }
+});
+
+test("woodpecker-pms: tariff above 7,500 invoices at 9% + 9% and tax arithmetic adds up", async () => {
+  const { page, errors, close } = await sweep("woodpecker-pms");
+  try {
+    const b = await page.evaluate(() => AX.data["woodpecker-pms"].bookings.find((x) => x.status === "checked-in" && x.tariff > 7500));
+    assert.ok(b, "demo has an in-house booking above the 7,500 slab");
+    await openModule(page, "folio");
+    await page.selectOption('select[aria-label="In-house guest"]', b.id);
+    await page.click("text=Add POS charge");
+    await page.click("[data-pos-menu] li:has-text('Chicken Biryani') button");
+    await page.click(".ov-foot >> text=Done");
+    await page.click("text=Generate GST invoice");
+    await page.waitForSelector("[data-invoice]");
+    const txt = await page.textContent("[data-invoice]");
+    assert.match(txt, /CGST @ 9%/);
+    assert.match(txt, /SGST @ 9%/);
+    const total = +(await page.getAttribute("[data-invoice-total]", "data-invoice-total"));
+    const room = b.tariff * b.nights, pos = 380;
+    const expectedTax = Math.round(room * 0.18) + Math.round(pos * 0.05);
+    assert.equal(total - (room + pos), expectedTax, "invoice tax = room x 18% + POS x 5%");
+    assert.deepEqual(errors, []);
+  } finally { await close(); }
 });

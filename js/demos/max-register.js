@@ -126,7 +126,7 @@
     return ctx.state.get().mx;
   }
   function logAudit(ctx, action, ref) {
-    S(ctx).audit.unshift({ id: "au-n" + Math.random().toString(36).slice(2, 7), at: ctx.data.today + " " + AX.fmt.time(new Date()), user: "Reception (demo)", action: action, ref: ref || "" });
+    S(ctx).audit.unshift({ id: "au-n" + (S(ctx).seq++), at: ctx.data.today + " " + AX.fmt.time(new Date()), user: "Reception (demo)", action: action, ref: ref || "" });
   }
   function left(ctx, m) { return diff(m.paidTill, ctx.data.today); }
   function band(ctx, m) { var l = left(ctx, m); return l > 7 ? "green" : l >= 0 ? "amber" : "red"; }
@@ -509,7 +509,7 @@
         });
       }
       host.appendChild(card(t("Gym gallery", "जिम गैलरी"), h("div", {}, h("div", { class: "mx-row", style: { marginBottom: "12px" } }, btn(t("Upload photo", "फोटो जोड़ें"), function () {
-        mx.gallery.unshift({ id: "gn" + Date.now(), cap: t("New photo " + (mx.gallery.length + 1), "नई फोटो " + (mx.gallery.length + 1)), c1: "#E8833A", c2: "#7a1411" }); sim(); draw();
+        mx.gallery.unshift({ id: "gn" + (mx.seq++), cap: t("New photo " + (mx.gallery.length + 1), "नई फोटो " + (mx.gallery.length + 1)), c1: "#E8833A", c2: "#7a1411" }); sim(); draw();
       }, "primary sm")), grid)));
       draw();
     } };
@@ -523,7 +523,7 @@
       function draw() { list.textContent = ""; mx.announcements.forEach(function (a) { list.appendChild(h("div", { class: "mx-ann" }, h("b", {}, a.title), h("div", {}, a.body), h("small", { style: { color: "var(--ink-3)" } }, a.aud + " · " + AX.fmt.date(a.at)))); }); }
       host.appendChild(card(t("New announcement", "नई घोषणा"), h("div", { style: { display: "grid", gap: "10px" } }, title, body, lab(t("Send to", "किसे भेजें"), aud), h("div", {}, btn(t("Send to members", "मेंबर्स को भेजें"), function () {
         if (!title.value.trim()) { AX.ui.toast(t("Add a title", "शीर्षक डालें"), { kind: "err" }); return; }
-        mx.announcements.unshift({ id: "an" + Date.now(), title: title.value.trim(), body: body.value.trim() || "-", aud: aud.value, at: ctx.data.today });
+        mx.announcements.unshift({ id: "an" + (mx.seq++), title: title.value.trim(), body: body.value.trim() || "-", aud: aud.value, at: ctx.data.today });
         title.value = ""; body.value = ""; sim("Simulated — WhatsApp message not sent"); draw();
       }, "primary")))));
       host.appendChild(h("div", { style: { marginTop: "12px" } }, card(t("Sent announcements", "भेजी गई घोषणाएँ"), list)));
