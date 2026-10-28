@@ -259,3 +259,24 @@ test("pipeline approve keeps a cost-blocked stage's pending log lines", async ()
     assert.ok(lines.includes("line-one") && lines.includes("line-two"), JSON.stringify(lines));
   } finally { await close(); }
 });
+
+test("chat: two rapid sends without play pick distinct scripted replies; event fires once", async () => {
+  const { page, errors, close } = await openPage(URL_, RM);
+  try {
+    const r = await page.evaluate(async () => {
+      const ev = [];
+      const h = document.createElement("div"); document.body.appendChild(h);
+      const c = AX.chat.create(h, { threads: [{ id: "q", name: "Q", channel: "web", messages: [] }],
+        scripts: { q: [{ from: "ai", text: "reply-one" }, { from: "ai", text: "reply-two", event: "booked" }, { from: "ai", text: "reply-three" }] },
+        onEvent: (e) => ev.push(e) });
+      await Promise.all([c.send("q", "hi"), c.send("q", "again")]);
+      await c.play("q");
+      return { ev, texts: Array.from(h.querySelectorAll(".cht-msg .cht-text")).map((n) => n.textContent) };
+    });
+    assert.deepEqual(r.ev, ["booked"]);
+    assert.equal(r.texts.filter((t) => t === "reply-one").length, 1);
+    assert.equal(r.texts.filter((t) => t === "reply-two").length, 1);
+    assert.equal(r.texts.filter((t) => t === "reply-three").length, 1);
+    assert.equal(errors.length, 0, errors.join(" "));
+  } finally { await close(); }
+});

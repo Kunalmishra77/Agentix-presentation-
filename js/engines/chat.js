@@ -14,6 +14,7 @@
       return Object.assign({}, t, { messages: (t.messages || []).map(function (m) { return Object.assign({}, m); }) });
     });
     var scripts = opt.scripts || {};
+    var claimed = {};           // claimed[threadId][i] = picked by a reply/play (may still be in its typing delay)
     var done = {};              // done[threadId][i] = scripted item i has rendered
     var playing = {};           // playing[threadId] = in-flight play() promise
     var timers = [], waiters = [];
@@ -87,7 +88,8 @@
       });
     }
 
-    function isDone(id, i) { return !!(done[id] && done[id][i]); }
+    function isDone(id, i) { return !!((done[id] && done[id][i]) || (claimed[id] && claimed[id][i])); }
+    function claim(id, i) { (claimed[id] = claimed[id] || [])[i] = true; }
     function markDone(id, i) { (done[id] = done[id] || [])[i] = true; }
 
     /** Render one scripted item (typing delay for ai/agent), then mark it done; returns Promise. */
@@ -118,6 +120,7 @@
         var i = 0;
         while (i < items.length && isDone(id, i)) i++;
         if (i >= items.length) return Promise.resolve();
+        claim(id, i);
         return playItem(t, items[i], i).then(function (ok) { return ok ? next() : undefined; });
       }
       var p = next().then(function () { delete playing[id]; }, function (e) { delete playing[id]; throw e; });
@@ -130,10 +133,10 @@
       var items = scripts[t.id] || [];
       var i = 0;
       while (i < items.length && (isDone(t.id, i) || items[i].from === "user")) {
-        if (!isDone(t.id, i)) markDone(t.id, i);   // the user just typed this line themselves
+        if (!isDone(t.id, i)) claim(t.id, i);   // the user just typed this line themselves
         i++;
       }
-      if (i < items.length) return playItem(t, items[i], i);
+      if (i < items.length) { claim(t.id, i); return playItem(t, items[i], i); }
       return playItem(t, { from: "ai", text: "AI reply (simulated)" }, -1);
     }
 

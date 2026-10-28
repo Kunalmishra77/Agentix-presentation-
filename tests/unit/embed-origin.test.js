@@ -16,6 +16,11 @@ test("wildcard matches subdomains only, same scheme", () => {
   assert.equal(E.originAllowed("https://evilai-agentix.com", p), false);
   assert.equal(E.originAllowed("http://demo.ai-agentix.com", p), false);
 });
+test("lookalike hosts are rejected", () => {
+  const p = ["https://*.ai-agentix.com", "https://ai-agentix.com"];
+  assert.equal(E.originAllowed("https://evil-ai-agentix.com", p), false);
+  assert.equal(E.originAllowed("https://ai-agentix.com.evil.com", p), false);
+});
 test("file:// origin is the string null", () => {
   assert.equal(E.originAllowed("null", ["https://ai-agentix.com", "https://*.ai-agentix.com"]), false);
   assert.equal(E.originAllowed("null", ["null"]), true);
