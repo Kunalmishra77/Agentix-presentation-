@@ -131,6 +131,7 @@
     var host = root.querySelector(".shell-pane");
     var note = root.querySelector(".shell-note");
     var panes = { overview: paneOverview, how: paneHow, screens: paneScreens, tech: paneTech };
+    if (route.tab === "walkthrough" && p.demo && AX.appShell && AX.appShell.sync && AX.appShell.sync(host, p, route)) return;
     host.textContent = "";
     root.querySelector(".shell-body").scrollTop = 0;
     if (route.tab === "walkthrough") renderWalkthrough(host, p, route);

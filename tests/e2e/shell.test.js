@@ -118,7 +118,7 @@ test("stale overlays: lightbox + Back, reopen, one Esc closes shell", async () =
 });
 
 test("walkthrough mounts once (loaded and cold)", async () => {
-  const stub = () => { window.AX = window.AX || {}; window.__m = 0; AX.appShell = { mount(w) { window.__m++; w.textContent = "mounted"; } }; };
+  const stub = () => { window.__m = 0; document.addEventListener("DOMContentLoaded", () => { AX.appShell = { mount(w) { window.__m++; w.textContent = "mounted"; } }; }); };
   // cold: deep link, demo not yet loaded
   let r = await openPage("/index.html#/");
   try {

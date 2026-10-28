@@ -9,7 +9,7 @@
       var v = attrs[k];
       if (v == null || v === false) return;
       if (k === "class") n.className = v;
-      else if (k === "style" && typeof v === "object") Object.assign(n.style, v);
+      else if (k === "style" && typeof v === "object") Object.keys(v).forEach(function (sk) { if (sk.indexOf("--") === 0) n.style.setProperty(sk, v[sk]); else n.style[sk] = v[sk]; });
       else if (k === "on" && typeof v === "object") Object.keys(v).forEach(function (e) { n.addEventListener(e, v[e]); });
       else if (k === "html") n.innerHTML = v;
       else n.setAttribute(k, v === true ? "" : v);

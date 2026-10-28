@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AppShell fixture</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/engines.css">
+<link rel="stylesheet" href="../../css/appshell.css">
+</head>
+<body>
+<div id="toasts" aria-live="polite"></div>
+<div id="app" style="height:100vh"></div>
+<script src="../../js/core/ax.js"></script>
+<script src="../../js/core/ui.js"></script>
+<script src="../../js/engines/charts.js"></script>
+<script src="../../js/engines/table.js"></script>
+<script src="../../js/engines/board.js"></script>
+<script src="../../js/engines/chat.js"></script>
+<script src="../../js/engines/flow.js"></script>
+<script src="../../js/engines/pipeline.js"></script>
+<script src="../../js/engines/calendar.js"></script>
+<script src="../../js/engines/store.js"></script>
+<script src="../../js/engines/embed.js"></script>
+<script src="../../js/engines/appshell.js"></script>
+<script>
+(function () {
+  AX.data = AX.data || {};
+  AX.data.fx = { rows: [
+    { id: "L1", name: "Priya Nair", status: "Hot" },
+    { id: "L2", name: "Arjun Rao", status: "Warm" },
+    { id: "L3", name: "Meera Iyer", status: "Cold" }
+  ] };
+  var app = AX.appShell.create(document.getElementById("app"), {
+    slug: "fx",
+    brand: { name: "Fixture CRM", accent: "#1F9E8F" },
+    hash: function (id) { return "#/m/" + id; },
+    lang: { options: ["en", "hi"] },
+    modules: [
+      { id: "dashboard", label: "Dashboard", icon: "dashboard", group: "Overview", view: {
+        type: "dashboard",
+        kpis: [{ label: "Leads", value: 120, delta: 5, format: "num" }],
+        charts: [{ type: "bar", title: "Leads by month", labels: ["Jan", "Feb"], values: [4, 9] }] } },
+      { id: "table", label: "Leads", icon: "users", group: "Sales", role: "Sales", view: {
+        type: "table", columns: [{ key: "name", label: "Name" }, { key: "status", label: "Status" }],
+        rows: function (ctx) { return ctx.data.rows; },
+        drawer: function (row, ctx) { return AX.el("div", { class: "fx-drawer" }, "Detail " + row.name); } } },
+      { id: "custom", label: "Custom", icon: "settings", group: "Sales", role: "Ops", view: {
+        type: "custom", render: function (el, ctx) {
+          el.appendChild(AX.el("p", { class: "fx-custom" }, ctx.t("Hello custom", "नमस्ते")));
+        } } },
+      { id: "form", label: "Book", icon: "form", group: "Sales", view: {
+        type: "form", fields: [{ key: "n", label: "Name", type: "text" }],
+        submit: function (ctx) { return ctx.t("Book", "बुक"); },
+        onSubmit: function () {} } }
+    ]
+  });
+  window.__app = app;
+  function sync() {
+    var m = /^#\/m\/(.+)$/.exec(location.hash);
+    app.open(m ? decodeURIComponent(m[1]) : null);
+  }
+  window.addEventListener("hashchange", sync);
+  sync();
+})();
+</script>
+</body>
+</html>
