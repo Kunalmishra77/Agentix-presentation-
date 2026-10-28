@@ -112,13 +112,13 @@
   });
 
   var campaigns = [];
-  var camp = ["Diwali refurbishment offer", "Hotel GM intro sequence", "Warranty expiry reminder", "Before/after case study", "Pilot room invitation", "Summer occupancy low-season", "Referral credit nudge", "Google lead follow-up", "Meta lead nurture", "Banquet-hall bathrooms"];
+  var camp = ["Diwali refurbishment offer", "Hotel GM intro sequence", "Warranty expiry reminder", "Before/after case study", "Pilot room invitation", "Summer occupancy low-season", "Referral credit nudge", "Google lead follow-up", "Meta lead nurture", "Banquet-hall bathrooms", "Festival-season booking push", "Resort owners intro", "Hospital guest-house outreach", "Pilot room case study", "Churned lead win-back", "GST invoice explainer"];
   camp.forEach(function (n, k) {
-    campaigns.push({ id: "CP-" + (301 + k), name: n, channel: k % 3 === 0 ? "Email" : "WhatsApp", audience: F.pick("rx-aud" + k, ["Hotels - Delhi NCR", "Hotels - Jaipur", "Past customers", "Open leads", "Warranty < 60 days"]), sent: F.int("rx-snt" + k, 120, 2400), replies: F.int("rx-rep" + k, 8, 190), status: k < 6 ? "Sent" : k < 8 ? "Scheduled" : "Draft" });
+    campaigns.push({ id: "CP-" + (301 + k), name: n, channel: k % 3 === 0 ? "Email" : "WhatsApp", audience: F.pick("rx-aud" + k, ["Hotels - Delhi NCR", "Hotels - Jaipur", "Past customers", "Open leads", "Warranty < 60 days"]), sent: F.int("rx-snt" + k, 120, 2400), replies: F.int("rx-rep" + k, 8, 190), status: k < 9 ? "Sent" : k < 12 ? "Scheduled" : "Draft" });
   });
 
   var invoices = [], payments = [];
-  for (var v = 0; v < 14; v++) {
+  for (var v = 0; v < 20; v++) {
     var amt = F.int("rx-inv" + v, 18, 260) * 1000;
     var paid = v % 3 !== 0;
     invoices.push({ id: "INV-" + (7101 + v), hotel: HOTELS[(v + 4) % 20], amount: amt, due: dayIso(paid ? -v * 3 : 6 - v), status: paid ? "Paid" : v % 2 ? "Overdue" : "Sent", kind: v % 2 ? "Final" : "Advance 50%" });
@@ -136,6 +136,13 @@
     { id: "OB-2", at: "10:12", channel: "WhatsApp", to: "Hotel Kesar Palace", template: "Survey confirmed", text: "Your free assessment is booked for tomorrow, 11:00 AM. Surveyor: " + surveyors[0] + ".", buttons: ["Reschedule"] },
     { id: "OB-3", at: "10:15", channel: "Email", to: "Hotel Kesar Palace", template: "Survey confirmation", text: "Survey confirmation email with address, slot and surveyor contact.", buttons: [] }
   ];
+  var OBT = [["Enquiry received", "WhatsApp", "Thanks for your enquiry. Your care executive will call you shortly.", ["Call me now"]], ["Survey confirmed", "WhatsApp", "Your free assessment is booked. The surveyor will message when on the way.", ["Reschedule"]],
+    ["Quote sent", "WhatsApp", "Your quotation is ready. View and approve it in your customer portal.", ["View quote"]], ["Job update", "WhatsApp", "Your fittings are now in restoration. Expected completion in 3 days.", ["View tracker"]],
+    ["Invoice sent", "Email", "Your GST invoice is attached with a UPI payment link.", []], ["Warranty issued", "WhatsApp", "Your 24 month warranty cards are now in the customer portal.", ["Open portal"]]];
+  for (var ob = 0; ob < 12; ob++) {
+    var ot = OBT[ob % OBT.length];
+    outbox.push({ id: "OB-" + (4 + ob), at: pad(8 + (ob % 3)) + ":" + pad((ob * 11) % 60), channel: ot[1], to: HOTELS[(ob + 5) % 20], template: ot[0], text: ot[2], buttons: ot[3] });
+  }
 
   var warranty = [
     { id: "WR-11", item: "Basin mixer - Chrome (Room 301)", months: 24, left: 21 },

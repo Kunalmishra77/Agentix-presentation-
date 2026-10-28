@@ -51,6 +51,7 @@
     ".yh-grid2{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px}@media(max-width:900px){.yh-grid2{grid-template-columns:minmax(0,1fr)}}",
     ".yh-video{position:relative;aspect-ratio:16/9;border-radius:14px;background:linear-gradient(135deg,#0d1b2d,#1d3a5e);color:#fff;display:grid;place-items:center;text-align:center;padding:14px;overflow:hidden}.yh-video b{display:block;font:700 1.1rem var(--font-display)}.yh-video small{opacity:.8}",
     ".yh-self{position:absolute;right:10px;bottom:10px;width:84px;aspect-ratio:4/3;border-radius:8px;background:#34567f;border:2px solid rgba(255,255,255,.5);display:grid;place-items:center;font-size:11px}",
+    "@media(max-width:560px){.yh-self{display:none}}",
     ".yh-live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff5a4f;margin-right:6px}",
     ".yh-rx label.yh-chk{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--ax-line);font-size:13px}",
     ".yh-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.yh-photo{aspect-ratio:3/4;border-radius:12px;display:flex;align-items:flex-end;padding:8px;color:#fff;font:600 12px var(--font-body)}",
@@ -297,18 +298,11 @@
     type: "custom",
     render: function (host, ctx) {
       var y = Y(ctx), d = ctx.data;
-      var nav = h("div", { class: "yh-calnav" });
       var calHost = h("div", {});
-      host.appendChild(nav); host.appendChild(calHost);
-      function shift(n) { var p = y.calMonth.split("-"), dt = new Date(+p[0], +p[1] - 1 + n, 1); y.calMonth = dt.getFullYear() + "-" + pad(dt.getMonth() + 1); draw(); }
+      host.appendChild(h("p", { class: "yh-muted" }, d.doctor.name + " - new bookings appear here automatically. Drag a booking to reschedule, click it to open the consult room."));
+      host.appendChild(calHost);
       function draw() {
-        nav.textContent = "";
-        var p = y.calMonth.split("-");
-        nav.appendChild(btn("‹", function () { shift(-1); }, "sm", { "aria-label": "Previous month", "data-cal-prev": "" }));
-        nav.appendChild(h("b", {}, ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][+p[1] - 1] + " " + p[0]));
-        nav.appendChild(btn("›", function () { shift(1); }, "sm", { "aria-label": "Next month", "data-cal-next": "" }));
-        nav.appendChild(h("span", { class: "yh-muted" }, d.doctor.name + " · drag a booking to reschedule"));
-        AX.calendar.month(calHost, { month: y.calMonth, events: bookingEvents(ctx),
+        AX.calendar.month(calHost, { month: d.month, events: bookingEvents(ctx),
           onDrop: function (id, date) {
             var b = y.bookings.filter(function (x) { return x.id === id; })[0];
             if (b) b.date = date; else { var e = y.events.filter(function (x) { return x.id === id; })[0]; if (e) e.date = date; }
@@ -422,7 +416,7 @@
     var r = ctx.data.revenue, y = Y(ctx), extra = y.bookings.filter(function (b) { return !b.seed; }).length;
     var consultNow = r.consults[5] + extra, shopNow = r.shopRev[5];
     return { type: "dashboard",
-      kpis: [{ label: "Consults this month", value: consultNow, delta: 12 }, { label: "Consult revenue", value: consultNow * 500, format: "inr", delta: 12 }, { label: "Shop revenue", value: shopNow, format: "inr", delta: 8 }, { label: "Plans sent", value: 41 + y.bookings.filter(function (b) { return b.plan; }).length, delta: 5 }],
+      kpis: [{ label: "Consults this month", value: consultNow, delta: 12 }, { label: "Consult revenue", value: consultNow * 500, format: "inr", delta: 12 }, { label: "Shop revenue", value: "₹" + (shopNow / 100000).toFixed(2) + " L", delta: 8 }, { label: "Plans sent", value: 41 + y.bookings.filter(function (b) { return b.plan; }).length, delta: 5 }],
       charts: [
         { type: "line", title: "Consults per month", labels: r.months, series: [{ name: "Consults", points: r.consults }] },
         { type: "bar", title: "Shop revenue by month (₹)", labels: r.months, values: r.shopRev },

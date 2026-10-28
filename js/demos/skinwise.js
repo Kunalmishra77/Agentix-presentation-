@@ -103,6 +103,7 @@
     ".sk-badge{display:inline-block;font:700 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:#9A3412;background:#FFE7D5;border-radius:6px;padding:3px 8px}",
     ".sk-chat-in{display:flex;gap:8px;margin-top:10px}.sk-in{font:400 14px var(--font-body);padding:9px 12px;border:1px solid var(--ax-line);border-radius:999px;background:#fff;color:var(--ink);flex:1;min-width:0}",
     ".sk-sugg{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}",
+    ".sk-solo .cht{grid-template-columns:minmax(0,1fr)}.sk-solo .cht-list{display:none}",
     ".ax-app[data-slug=skinwise] .bd{overflow-x:auto}"
   ].join("\n"));
   var ROOTCSS = '.ax-app[data-slug="skinwise"]{--orange:' + ACCENT + ';--ax-accent:' + ACCENT + '}.demo-scope[data-slug="skinwise"]{--orange:' + ACCENT + ';--ax-accent:' + ACCENT + ';--ax-line:rgba(11,31,51,.12)}';
@@ -272,7 +273,7 @@
   M("Customer", "assistant", "Dr. Vivek assistant", "chat", {
     type: "custom",
     render: function (host) {
-      var chatHost = h("div", {}), api;
+      var chatHost = h("div", { class: "sk-solo" }), api;
       api = AX.chat.create(chatHost, { composer: false, threads: [{ id: "vivek", name: "Dr. Vivek", channel: "web", preview: "Ask about your skin",
         messages: [{ from: "ai", text: "Hi, I am Dr. Vivek, Skinwise's skin assistant. Ask me about acne, pigmentation, dark circles, dryness or products. I give general guidance, not a diagnosis." }] }] });
       var input = h("input", { class: "sk-in", type: "text", placeholder: "Ask Dr. Vivek...", "aria-label": "Message Dr. Vivek", "data-assistant-input": "" });

@@ -79,7 +79,7 @@
   }
 
   var guarantee = [];
-  for (var g = 0; g < 14; g++) {
+  for (var g = 0; g < 16; g++) {
     var gp = patients[g];
     var day = F.int("yhc-gd" + g, 8, 170);
     var photos = Math.min(3, Math.floor(day / 45));
@@ -89,7 +89,7 @@
 
   var audit = [];
   var ACT = ["Prescription signed", "Plan sent to patient", "Refund approved", "Catalog price changed", "Doctor slot opened", "Role changed: Sales", "Lead reassigned", "Order marked shipped"];
-  for (var a = 0; a < 14; a++) {
+  for (var a = 0; a < 18; a++) {
     audit.push({ id: "AU-" + (500 + a), at: dayIso(-Math.floor(a / 3)) + " " + pad(9 + (a % 8)) + ":" + pad((a * 7) % 60), user: F.pick("yhc-au" + a, [doctor.name, "Sales desk", "Admin (demo)", "System"]), action: ACT[a % ACT.length], ref: "REF-" + (7000 + a * 13) });
   }
 

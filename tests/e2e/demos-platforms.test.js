@@ -114,8 +114,10 @@ test("redux: website enquiry creates a routed lead with an SLA chip and a WhatsA
     assert.match(await first.textContent(), /→/);
     // an already breached lead exists
     assert.ok((await page.locator(".rx-sla.late").count()) >= 1);
+    const title = (await first.locator(".bd-title").textContent()).trim();
     await openModule(page, "outbox");
-    await page.waitForSelector('.tbl tbody tr:has-text("Enquiry received")');
+    await page.fill(".tbl-search", title);
+    await page.waitForSelector('.tbl tbody tr:has-text("Enquiry received"):has-text("' + title + '")');
     assert.deepEqual(errors, []);
   } finally { await close(); }
 });
@@ -125,12 +127,14 @@ test("redux: moving a job on the board logs a WhatsApp job update; 390px fits", 
   try {
     await openModule(page, "jobs");
     const id = await page.getAttribute('.bd-col[data-col="scheduled"] .bd-card >> nth=0', "data-id");
+    const jobTitle = (await page.locator('.bd-col[data-col="scheduled"] .bd-card >> nth=0').locator(".bd-title").textContent()).trim();
     await page.focus('.bd-col[data-col="scheduled"] .bd-card >> nth=0');
     await page.keyboard.press("m");
     await page.click(".bd-menu-item >> text=Dismantled");
     await page.waitForSelector('.bd-col[data-col="dismantled"] .bd-card[data-id="' + id + '"]');
     await openModule(page, "outbox");
-    await page.waitForSelector('.tbl tbody tr:has-text("Job update")');
+    await page.fill(".tbl-search", jobTitle);
+    await page.waitForSelector('.tbl tbody tr:has-text("Job update"):has-text("' + id + '")');
     assert.deepEqual(errors, []);
   } finally { await close(); }
   const m = await sweep("redux", { width: 390, height: 800 });
@@ -188,7 +192,7 @@ test("yhc: customer books a ₹500 consult, doctor sees it on the calendar, Send
     await setRole(page, "Doctor");
     await page.click('.ax-nav-item[data-id="doctor-calendar"]');
     await page.waitForSelector('[data-module-ready][data-module="doctor-calendar"]');
-    if (!(await page.locator('.cal-ev:has-text("Kabir Testwala")').count())) await page.click("[data-cal-next]");
+    if (!(await page.locator('.cal-ev:has-text("Kabir Testwala")').count())) await page.click('.cal-head [aria-label="Next month"]');
     await page.waitForSelector('.cal-ev:has-text("Kabir Testwala")');
     await page.click('.cal-ev:has-text("Kabir Testwala")');
     await page.click(".ov-foot >> text=Open consult room");
