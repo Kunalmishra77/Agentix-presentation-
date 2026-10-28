@@ -11,6 +11,18 @@ const MIME = {
   ".woff2": "font/woff2", ".mp4": "video/mp4", ".webp": "image/webp", ".ico": "image/x-icon",
 };
 
+/** Single byte range: returns {start,end}, "bad" when unsatisfiable, or null to ignore the header. */
+function parseRange(header, size) {
+  const m = /^bytes=(\d*)-(\d*)$/.exec(String(header).trim());
+  if (!m || (m[1] === "" && m[2] === "")) return null;
+  if (m[1] !== "" && m[2] !== "" && Number(m[2]) < Number(m[1])) return null;   // malformed (end before start): ignore the header
+  let start, end;
+  if (m[1] === "") { const n = Number(m[2]); if (n === 0) return "bad"; start = Math.max(0, size - n); end = size - 1; }
+  else { start = Number(m[1]); end = m[2] === "" ? size - 1 : Math.min(Number(m[2]), size - 1); }
+  if (start >= size || start > end) return "bad";
+  return { start, end };
+}
+
 function createServer() {
   return http.createServer((req, res) => {
     let rel;
@@ -29,10 +41,20 @@ function createServer() {
     if (file !== ROOT && !file.startsWith(ROOT + path.sep)) { res.writeHead(403); return res.end("Forbidden"); }
     fs.stat(file, (err, st) => {
       if (err || !st.isFile()) { res.writeHead(404, { "Content-Type": "text/plain" }); return res.end("Not found"); }
-      res.writeHead(200, {
+      const base = {
         "Content-Type": MIME[path.extname(file).toLowerCase()] || "application/octet-stream",
-        "Content-Length": st.size, "Cache-Control": "no-cache",
-      });
+        "Cache-Control": "no-cache", "Accept-Ranges": "bytes",
+      };
+      const range = req.headers.range ? parseRange(req.headers.range, st.size) : null;
+      if (range === "bad") {
+        res.writeHead(416, { ...base, "Content-Range": "bytes */" + st.size });
+        return res.end();
+      }
+      if (range) {
+        res.writeHead(206, { ...base, "Content-Range": `bytes ${range.start}-${range.end}/${st.size}`, "Content-Length": range.end - range.start + 1 });
+        return fs.createReadStream(file, { start: range.start, end: range.end }).pipe(res);
+      }
+      res.writeHead(200, { ...base, "Content-Length": st.size });
       fs.createReadStream(file).pipe(res);
     });
   });
