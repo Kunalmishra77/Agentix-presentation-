@@ -34,7 +34,7 @@
   ] };
   var app = AX.appShell.create(document.getElementById("app"), {
     slug: "fx",
-    brand: { name: "Fixture CRM", accent: "#EE6A24" },
+    brand: { name: "Fixture CRM", accent: "#1F9E8F" },
     hash: function (id) { return "#/m/" + id; },
     lang: { options: ["en", "hi"] },
     modules: [
@@ -49,7 +49,11 @@
       { id: "custom", label: "Custom", icon: "settings", group: "Sales", role: "Ops", view: {
         type: "custom", render: function (el, ctx) {
           el.appendChild(AX.el("p", { class: "fx-custom" }, ctx.t("Hello custom", "नमस्ते")));
-        } } }
+        } } },
+      { id: "form", label: "Book", icon: "form", group: "Sales", view: {
+        type: "form", fields: [{ key: "n", label: "Name", type: "text" }],
+        submit: function (ctx) { return ctx.t("Book", "बुक"); },
+        onSubmit: function () {} } }
     ]
   });
   window.__app = app;

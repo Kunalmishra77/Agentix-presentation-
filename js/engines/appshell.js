@@ -33,11 +33,12 @@
   };
   function icon(name) {
     return el("span", { class: "ax-ico", "aria-hidden": "true",
-      html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || ICONS.generic) + "</svg>" });
+      html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (Object.prototype.hasOwnProperty.call(ICONS, name) ? ICONS[name] : ICONS.generic) + "</svg>" });
   }
 
-  /* Callback-style keys are passed through untouched; any other function value is evaluated as (ctx) -> value. */
-  var CALLBACK = /^(on[A-Z]|render|drawer|format|submit|validate|sort|filter$|match|compare)/;
+  /* Exact callback keys are passed through untouched; any other top-level function value is evaluated as (ctx) -> value.
+     Items inside arrays (charts[], fields[], columns[]...) are NOT function-resolved. */
+  var CALLBACK = /^(on[A-Z]\w*|render|renderCard|drawer|format|validate|filter|sort|match|compare)$/;
   function resolve(view, ctx) {
     if (typeof view === "function") view = view(ctx);
     var out = {};
@@ -123,6 +124,9 @@
 
   VIEWS.custom = function (host, v, ctx) { if (v.render) v.render(host, ctx); };
 
+  var COLOR = /^(#[0-9a-f]{3,8}|(rgb|hsl)a?\([\d\s.,%\/-]+\))$/i;
+  function safeColor(c) { return typeof c === "string" && COLOR.test(c.trim()) ? c.trim() : "#EE6A24"; }
+
   function create(host, opt) {
     var slug = opt.slug || "";
     var brand = opt.brand || { name: "App" };
@@ -143,7 +147,7 @@
     };
 
     host.textContent = "";
-    var root = el("div", { class: "ax-app", "data-slug": slug, style: { "--ax-accent": brand.accent || "#EE6A24" } });
+    var root = el("div", { class: "ax-app", "data-slug": slug, style: { "--ax-accent": safeColor(brand.accent) } });
     host.appendChild(root);
 
     var nav = el("nav", { class: "ax-nav", "aria-label": "Modules" });
@@ -159,7 +163,7 @@
         el("span", { class: "ax-brand-name" }, brand.name || ""),
         el("i", { class: "ax-dot", "aria-hidden": "true" })),
       roleBox, nav);
-    var scrim = el("div", { class: "ax-scrim", on: { click: function () { setSheet(false); } } });
+    var scrim = el("div", { class: "ax-scrim", on: { click: function () { setSheet(false, menuBtn); } } });
     var menuBtn = el("button", { type: "button", class: "ax-menu-btn", "aria-expanded": "false", "aria-controls": side.id,
       on: { click: function () { setSheet(!root.classList.contains("sheet-open")); } } }, "☰ Modules");
     var title = el("h2", { class: "ax-title", tabindex: "-1" });
@@ -178,10 +182,16 @@
       el("header", { class: "ax-head" }, menuBtn, title, search, langBox), content);
     root.appendChild(side); root.appendChild(scrim); root.appendChild(main);
 
-    function setSheet(on) {
+    function setSheet(on, focusTo) {
       root.classList.toggle("sheet-open", on);
       menuBtn.setAttribute("aria-expanded", String(on));
+      main.inert = on;
+      if (on) { var first = nav.querySelector(".ax-nav-item"); if (first) first.focus(); }
+      else if (focusTo) focusTo.focus({ preventScroll: true });
     }
+    root.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && root.classList.contains("sheet-open")) { e.stopPropagation(); setSheet(false, menuBtn); }
+    });
     function visible() {
       var r = state.get().role;
       return all.filter(function (m) { return r === "All" || !m.role || m.role === r; });
@@ -200,7 +210,7 @@
         var sec = el("div", { class: "ax-group" }, g ? el("div", { class: "ax-group-title" }, g) : null);
         byGroup[g].forEach(function (m) {
           var b = el("button", { type: "button", class: "ax-nav-item", "data-id": m.id,
-            on: { click: function () { api.open(m.id); setSheet(false); } } }, icon(m.icon), el("span", { class: "ax-nav-label" }, m.label));
+            on: { click: function () { var sheet = root.classList.contains("sheet-open"); api.open(m.id); setSheet(false, sheet ? title : null); } } }, icon(m.icon), el("span", { class: "ax-nav-label" }, m.label));
           if (m.id === currentId) b.setAttribute("aria-current", "page");
           sec.appendChild(b);
         });
@@ -238,16 +248,18 @@
       var host_ = el("div", { class: "ax-module", "data-module": id });
       content.appendChild(host_);
       title.textContent = m ? m.label : "";
+      var failed = false;
       try {
         var view = resolve(m.view, ctx);
         var fn = VIEWS[view.type];
         if (!fn) throw new Error("Unknown view type: " + view.type);
         fn(host_, view, ctx);
       } catch (e) {
+        failed = true;
         host_.appendChild(el("div", { class: "ax-empty" }, "This module could not be rendered."));
         if (w.console) console.warn("[appShell] " + id + ":", e);
       }
-      if (token === curRender) host_.setAttribute("data-module-ready", "");
+      if (token === curRender) host_.setAttribute(failed ? "data-module-error" : "data-module-ready", "");
       content.scrollTop = 0;
     }
 
@@ -302,7 +314,7 @@
   function sync(host, p, route) {
     var app = host.querySelector(".ax-app");
     if (!app || !app.__axApp || app.getAttribute("data-slug") !== p.slug) return false;
-    app.__axApp.open(route && route.module);
+    if (route && route.module) app.__axApp.open(route.module);
     return true;
   }
 

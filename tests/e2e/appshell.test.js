@@ -74,3 +74,39 @@ test("at 390px the sidebar is hidden and the menu button opens it", async () => 
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   } finally { await close(); }
 });
+
+test("brand accent is applied as a CSS custom property", async () => {
+  const { page, close } = await openPage(URL_);
+  try {
+    await page.waitForSelector(READY);
+    const v = await page.evaluate(() => getComputedStyle(document.querySelector(".ax-app")).getPropertyValue("--ax-accent").trim());
+    assert.equal(v.toLowerCase(), "#1f9e8f");
+  } finally { await close(); }
+});
+
+test("non-callback function opts are evaluated with ctx (form submit label, lang)", async () => {
+  const { page, close } = await openPage(URL_);
+  try {
+    await page.click('.ax-nav-item[data-id="form"]');
+    await page.waitForSelector('[data-module-ready][data-module="form"] button[type=submit]');
+    assert.equal((await page.textContent("button[type=submit]")).trim(), "Book");
+    await page.click('.ax-lang [data-lang="hi"]');
+    await page.waitForFunction(() => document.querySelector("button[type=submit]").textContent.trim() === "बुक");
+  } finally { await close(); }
+});
+
+test("bottom sheet: focus, Esc, inert main, focus to title after pick", async () => {
+  const { page, close } = await openPage(URL_, { width: 390, height: 800 });
+  try {
+    await page.waitForSelector(READY);
+    await page.click(".ax-menu-btn");
+    await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains("ax-nav-item"));
+    assert.equal(await page.evaluate(() => document.querySelector(".ax-main").inert), true);
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains("ax-menu-btn"));
+    assert.equal(await page.evaluate(() => document.querySelector(".ax-main").inert), false);
+    await page.click(".ax-menu-btn");
+    await page.click('.ax-nav-item[data-id="custom"]');
+    await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains("ax-title"));
+  } finally { await close(); }
+});
