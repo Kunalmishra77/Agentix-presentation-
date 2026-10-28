@@ -261,3 +261,141 @@ test("yhc: 390px fits", async () => {
     }
   } finally { await m.close(); }
 });
+
+/* ======================= SKINWISE ======================= */
+async function takeQuiz(page, vals) {
+  await openModule(page, "quiz");
+  for (let i = 0; i < 5; i++) {
+    await page.waitForSelector('[data-quiz-q="' + i + '"]');
+    await page.click('.sk-opt[data-val="' + vals[i] + '"]');
+  }
+  await page.waitForSelector("[data-quiz-result]");
+}
+
+test("skinwise: every module renders, and there is no voice module anywhere", async () => {
+  await walkAll("skinwise", 9);
+  const { page, close } = await sweep("skinwise");
+  try {
+    const ids = await page.$$eval(".ax-nav-item[data-id]", (n) => n.map((x) => x.getAttribute("data-id")));
+    assert.ok(!ids.includes("voice"));
+    assert.equal(await page.locator('[aria-label*="microphone" i], [aria-label*="mic" i], .ax-nav-item:has-text("Voice")').count(), 0);
+  } finally { await close(); }
+});
+
+test("skinwise: quiz while pregnant excludes retinoids and salicylic acid and shows the caution", async () => {
+  const { page, errors, close } = await sweep("skinwise");
+  try {
+    await takeQuiz(page, ["acne", "oily", "false", "true", "mid"]);
+    const txt = await page.textContent("[data-quiz-result]");
+    assert.match(txt, /Avoid retinoids during pregnancy/);
+    assert.doesNotMatch(txt, /Anti-Acne Cleanser|Night Retinol Serum/);
+    assert.match(txt, /Gentle Hydrating Cleanser/);
+    assert.equal(await page.locator("[data-routine-step]").count(), 4);
+    // the shown routine is exactly what the rules function returns
+    const expected = await page.evaluate(() => AX.skinwise.recommend({ concern: "acne", skinType: "oily", sensitivity: false, pregnant: true, budget: "mid" }).routine.map((r) => r.product.name));
+    const shown = await page.$$eval("[data-routine-step] b", (n) => n.map((x) => x.textContent));
+    assert.deepEqual(shown, expected);
+    // ordering the routine logs an order in admin
+    await page.click("[data-order-routine]");
+    await page.waitForSelector(".toast-sim");
+    await openModule(page, "admin-orders");
+    await page.fill(".tbl-search", "Quiz visitor");
+    await page.waitForSelector('.tbl tbody tr:has-text("Quiz visitor")');
+    await openModule(page, "admin-leads");
+    await page.fill(".tbl-search", "quiz visitor");
+    await page.waitForSelector('.tbl tbody tr:has-text("Quiz")');
+    assert.deepEqual(errors, []);
+  } finally { await close(); }
+});
+
+test("skinwise: quiz without pregnancy recommends the salicylic cleanser for oily acne-prone skin", async () => {
+  const { page, close } = await sweep("skinwise");
+  try {
+    await takeQuiz(page, ["acne", "oily", "false", "false", "mid"]);
+    const txt = await page.textContent("[data-quiz-result]");
+    assert.match(txt, /Anti-Acne Cleanser/);
+    assert.doesNotMatch(txt, /Avoid retinoids during pregnancy/);
+  } finally { await close(); }
+});
+
+test("skinwise: photo scan shows a 'Simulated analysis' scorecard with four 0-100 scores", async () => {
+  const { page, errors, close } = await sweep("skinwise");
+  try {
+    await openModule(page, "scan");
+    await page.click('[data-sample="1"]');
+    await page.click("[data-analyse]");
+    await page.waitForSelector("[data-scorecard]");
+    assert.match(await page.textContent("[data-scorecard]"), /Simulated analysis/);
+    for (const m of ["pigmentation", "acne", "texture", "hydration"]) {
+      const t = await page.textContent('[data-metric="' + m + '"]');
+      const n = +/(\d+)\/100/.exec(t)[1];
+      assert.ok(n >= 0 && n <= 100, m + " " + n);
+    }
+    const first = await page.getAttribute("[data-scorecard]", "data-scorecard");
+    await page.click("text=Scan again");
+    await page.click('[data-sample="2"]');
+    await page.click("[data-analyse]");
+    await page.waitForSelector("[data-scorecard]");
+    assert.equal(await page.getAttribute("[data-scorecard]", "data-scorecard") !== null, true);
+    assert.ok(first, "overall score present");
+    assert.deepEqual(errors, []);
+  } finally { await close(); }
+});
+
+test("skinwise: Dr. Vivek answers by topic with safety wording", async () => {
+  const { page, errors, close } = await sweep("skinwise");
+  try {
+    await openModule(page, "assistant");
+    await page.fill("[data-assistant-input]", "Is retinol safe in pregnancy?");
+    await page.click("[data-assistant-send]");
+    await page.waitForSelector('.cht-msg.from-ai:has-text("retinoids")');
+    assert.equal(await page.locator('.cht-msg.from-user:has-text("retinol safe")').count(), 1);
+    await page.click(".sk-sugg >> text=How to fade dark spots?");
+    await page.waitForSelector('.cht-msg.from-ai:has-text("sunscreen is the real treatment")');
+    assert.deepEqual(errors, []);
+  } finally { await close(); }
+});
+
+test("skinwise: store lists 12 products and adds one to the cart", async () => {
+  const { page, close } = await sweep("skinwise");
+  try {
+    await openModule(page, "products");
+    assert.equal(await page.locator(".st-card").count(), 12);
+    await page.click(".st-card >> nth=0 >> text=View");
+    await page.click(".st-add");
+    await page.waitForFunction(() => document.querySelector(".st-count").textContent === "1");
+  } finally { await close(); }
+});
+
+test("skinwise: consultation request lands in admin consultations and leads", async () => {
+  const { page, errors, close } = await sweep("skinwise");
+  try {
+    await openModule(page, "consultation");
+    await page.fill('.ax-form input[type="text"] >> nth=0', "Meher Testwala");
+    await page.fill('.ax-form input[type="text"] >> nth=1', "+91 98xxx x1111");
+    await page.check(".ax-toggle");
+    await page.click('.ax-form button[type="submit"]');
+    await page.waitForSelector("[data-consult-confirmed]");
+    assert.match(await page.textContent("[data-consult-confirmed]"), /Meher/);
+    assert.match(await page.textContent("[data-consult-confirmed]"), /retinoids/);
+    await openModule(page, "admin-consults");
+    await page.fill(".tbl-search", "Meher");
+    await page.waitForSelector('.tbl tbody tr:has-text("Meher Testwala"):has-text("Requested")');
+    await page.click('.tbl tbody tr:has-text("Meher Testwala") >> text=Confirm');
+    await page.waitForSelector('.tbl tbody tr:has-text("Meher Testwala"):has-text("Confirmed")');
+    await openModule(page, "admin-leads");
+    await page.fill(".tbl-search", "Meher");
+    await page.waitForSelector('.tbl tbody tr:has-text("Consultation form")');
+    assert.deepEqual(errors, []);
+  } finally { await close(); }
+});
+
+test("skinwise: 390px fits", async () => {
+  const m = await sweep("skinwise", { width: 390, height: 800 });
+  try {
+    for (const id of ["quiz", "scan", "assistant", "products", "consultation", "admin-orders"]) {
+      await openModule(m.page, id);
+      assert.equal(await noOverflow(m.page), true, id + " fits at 390");
+    }
+  } finally { await m.close(); }
+});
