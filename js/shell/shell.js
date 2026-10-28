@@ -3,7 +3,8 @@
   var AX = w.AX = w.AX || {};
   var el = AX.el;
   var TAB_LABELS = { overview: "Overview", walkthrough: "Walkthrough", how: "How it works", screens: "Screens", tech: "Tech" };
-  var root, cur = { slug: null, tab: null }, pendingRect = null, renderToken = 0;
+  var root, cur = { slug: null, tab: null }, pendingRect = null, renderToken = 0, cameFromHome = false, prevFocus = null;
+  function demoLoaded(p) { return !p.demo || !!(AX.demos && AX.demos[p.slug]); }
 
   function reduced() { return w.matchMedia && w.matchMedia("(prefers-reduced-motion: reduce)").matches; }
   function project(slug) { return (AX.projects || []).filter(function (p) { return p.slug === slug; })[0]; }
@@ -39,12 +40,16 @@
   function openLightbox(shots, idx) {
     var img = el("img", { class: "lb-img", alt: "" });
     var cap = el("p", { class: "lb-cap" });
-    var removeEsc, box;
+    var removeEsc, box, opener = document.activeElement;
     function show(i) {
       idx = (i + shots.length) % shots.length;
       img.src = shots[idx].src; img.alt = shots[idx].caption || ""; cap.textContent = shots[idx].caption || "";
     }
-    function close() { removeEsc(); if (box.parentNode) box.parentNode.removeChild(box); }
+    function close() {
+      removeEsc();
+      if (box.parentNode) box.parentNode.removeChild(box);
+      if (opener && opener.isConnected && opener.focus) opener.focus();
+    }
     function nav(label, cls, ch, d) {
       return shots.length > 1 ? el("button", { class: "lb-nav " + cls, type: "button", "aria-label": label,
         on: { click: function (e) { e.stopPropagation(); show(idx + d); } } }, ch) : null;
@@ -54,7 +59,7 @@
       nav("Previous", "lb-prev", "‹", -1),
       el("figure", { class: "lb-fig", on: { click: function (e) { e.stopPropagation(); } } }, img, cap),
       nav("Next", "lb-next", "›", 1));
-    removeEsc = AX.ui.pushEsc(close);
+    removeEsc = AX.ui.pushEsc(close, box);
     show(idx);
     root.appendChild(box);
     box.querySelector(".lb-x").focus();
@@ -82,6 +87,7 @@
     host.textContent = "";
     var wrap = el("div", { class: "pane pane-walk" });
     host.appendChild(wrap);
+    if (p.demo && !demoLoaded(p)) { wrap.appendChild(el("div", { class: "walk-placeholder" }, "Interactive walkthrough loading…")); return; }
     if (p.demo && AX.appShell && AX.appShell.mount) { AX.appShell.mount(wrap, p, route); return; }
     if (p.embed && AX.embed && AX.embed.mount) { AX.embed.mount(wrap, p, route); return; }
     if (!p.demo && !p.embed) { wrap.appendChild(section("How it works", flow(p))); return; }
@@ -98,19 +104,20 @@
   }
 
   function build(p) {
+    AX.ui.closeAll();
     root.textContent = "";
-    var back = el("a", { class: "back", href: "#/", on: { click: function (e) { e.preventDefault(); AX.router.go("#/"); } } }, "← All projects");
+    var back = el("a", { class: "back", href: "#/", on: { click: function (e) { e.preventDefault(); close(); } } }, "← All projects");
     var bar = el("header", { class: "shell-bar" },
       el("div", { class: "bar-brand" }, AX.ui.mark("bar-mark"), el("span", { class: "bar-word" }, "AGENTiX")),
-      el("div", { class: "bar-title" }, el("h2", { class: "bar-name" }, p.name), el("span", { class: "bar-cat" }, catTitle(p.category))),
+      el("div", { class: "bar-title" }, el("h2", { class: "bar-name", tabindex: "-1" }, p.name), el("span", { class: "bar-cat" }, catTitle(p.category))),
       el("div", { class: "bar-meta" }, AX.ui.statusChip(p.status), el("span", { class: "sim-pill" }, "Demo data · Simulated"), AX.ui.agentixBadge({ size: "sm" }), back));
-    var tabs = el("nav", { class: "tabs", role: "tablist", "aria-label": "Project sections" });
+    var tabs = el("nav", { class: "tabs", "aria-label": "Project sections" });
     AX.router.TABS.forEach(function (t) {
-      tabs.appendChild(el("button", { class: "tab", role: "tab", type: "button", "data-tab": t, "aria-selected": "false",
-        on: { click: function () { AX.router.go("#/demo/" + p.slug + (t === "overview" ? "" : "/" + t)); } } }, TAB_LABELS[t]));
+      tabs.appendChild(el("button", { class: "tab", type: "button", "data-tab": t,
+        on: { click: function () { AX.router.go("#/demo/" + p.slug + (t === "overview" ? "" : "/" + t), { replace: true }); } } }, TAB_LABELS[t]));
     });
     root.appendChild(bar); root.appendChild(tabs);
-    root.appendChild(el("div", { class: "shell-note", role: "status", hidden: true }));
+    root.appendChild(el("div", { class: "shell-note", "aria-live": "polite", hidden: true }));
     root.appendChild(el("main", { class: "shell-body", id: "shell-main" }, el("div", { class: "shell-pane" })));
   }
 
@@ -118,7 +125,7 @@
     var token = ++renderToken;
     Array.prototype.forEach.call(root.querySelectorAll(".tab"), function (b) {
       var on = b.getAttribute("data-tab") === route.tab;
-      b.setAttribute("aria-selected", on ? "true" : "false");
+      if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
       b.classList.toggle("on", on);
     });
     var host = root.querySelector(".shell-pane");
@@ -128,21 +135,23 @@
     root.querySelector(".shell-body").scrollTop = 0;
     if (route.tab === "walkthrough") renderWalkthrough(host, p, route);
     else host.appendChild(panes[route.tab](p));
-    if (p.demo) {
+    if (p.demo && !demoLoaded(p)) {
       ensureDemo(p).then(function () {
         if (token !== renderToken) return;
         note.hidden = true;
-        if (route.tab === "walkthrough" && AX.appShell && AX.demos && AX.demos[p.slug]) renderWalkthrough(host, p, route);
+        if (route.tab === "walkthrough") renderWalkthrough(host, p, route);
       }).catch(function () {
         if (token !== renderToken) return;
+        var msg = "The interactive demo could not be loaded. The overview is still available.";
         note.hidden = false;
-        note.textContent = "The interactive demo could not be loaded. The overview is still available.";
+        note.textContent = msg;
+        var ph = host.querySelector(".walk-placeholder");
+        if (ph) ph.textContent = msg;
       });
     }
   }
 
-  function animateIn() {
-    var r = pendingRect; pendingRect = null;
+  function animateIn(r) {
     if (reduced() || !root.animate) return;
     var vw = w.innerWidth, vh = w.innerHeight, kf;
     if (r && r.width > 0) {
@@ -156,14 +165,20 @@
     root.animate(kf, { duration: 420, easing: "cubic-bezier(.2,.7,.2,1)" });
   }
 
-  function show(p, route) {
+  function show(p, route, rect) {
     var wasHidden = root.hidden;
     if (wasHidden || cur.slug !== p.slug) {
+      if (wasHidden) prevFocus = document.activeElement;
       build(p);
       root.hidden = false;
+      root.setAttribute("role", "dialog");
+      root.setAttribute("aria-modal", "true");
+      root.setAttribute("aria-label", p.name);
+      var landing = document.getElementById("landing"); if (landing) landing.inert = true;
       document.body.classList.add("shell-open");
       cur.slug = p.slug;
-      if (wasHidden) animateIn();
+      if (wasHidden) animateIn(rect);
+      var title = root.querySelector(".bar-name"); if (title) title.focus({ preventScroll: true });
     }
     cur.tab = route.tab;
     document.title = p.name + " — AI Agentix";
@@ -171,27 +186,37 @@
   }
 
   function hide() {
+    AX.ui.closeAll();
     if (root.hidden) return;
     root.hidden = true;
+    root.removeAttribute("role"); root.removeAttribute("aria-modal"); root.removeAttribute("aria-label");
+    var landing = document.getElementById("landing"); if (landing) landing.inert = false;
     root.textContent = "";
     cur = { slug: null, tab: null };
     document.body.classList.remove("shell-open");
     document.title = "AI Agentix — Products & Work";
+    var f = prevFocus; prevFocus = null;
+    if (f && f.isConnected && f.focus) { try { f.focus(); } catch (e) {} }
   }
 
   function onRoute(route) {
-    if (route.view !== "demo") { hide(); return; }
+    var rect = pendingRect; pendingRect = null;
+    if (route.view !== "demo") { cameFromHome = true; hide(); return; }
     var p = project(route.slug);
     if (!p) { hide(); AX.router.go("#/", { replace: true }); return; }
-    show(p, route);
+    show(p, route, rect);
   }
 
   function open(slug, tab, module, originRect) {
     pendingRect = originRect || null;
     var path = "#/demo/" + slug + (tab && tab !== "overview" ? "/" + tab + (tab === "walkthrough" && module ? "/" + module : "") : "");
-    if (w.location.hash === path) onRoute(AX.router.parse(path)); else AX.router.go(path);
+    if (w.location.hash === path) { onRoute(AX.router.parse(path)); pendingRect = null; } else AX.router.go(path);
   }
-  function close() { if (!root.hidden) AX.router.go("#/"); }
+  function close() {
+    if (root.hidden) return;
+    if (cameFromHome && w.history.length > 1) w.history.back();
+    else AX.router.go("#/", { replace: true });
+  }
 
   function init() {
     root = document.getElementById("shell");

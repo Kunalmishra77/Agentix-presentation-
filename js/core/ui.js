@@ -6,15 +6,22 @@
   var SIM_DEFAULT = "Simulated — nothing was sent or saved.";
   var STATUS = { live: "Live", active: "In development", proto: "Prototype", concept: "Concept" };
 
-  function pushEsc(fn) { escStack.push(fn); return function () { var i = escStack.indexOf(fn); if (i >= 0) escStack.splice(i, 1); }; }
-  /** Closes the top-most overlay; returns true when something was closed. */
-  function closeTop() { var fn = escStack[escStack.length - 1]; if (!fn) return false; fn(); return true; }
+  /** Register an Esc-closable overlay; node (optional) lets stale entries be detected. */
+  function pushEsc(fn, node) {
+    var entry = { fn: fn, node: node || null };
+    escStack.push(entry);
+    return function () { var i = escStack.indexOf(entry); if (i >= 0) escStack.splice(i, 1); };
+  }
+  function prune() { escStack = escStack.filter(function (e) { return !e.node || e.node.isConnected; }); }
+  /** Closes the top-most live overlay; returns true when something was closed. */
+  function closeTop() { prune(); var e = escStack[escStack.length - 1]; if (!e) return false; e.fn(); return true; }
+  function closeAll() { escStack.slice().reverse().forEach(function (e) { e.fn(); }); escStack = []; }
 
   function toast(text, opts) {
     var kind = (opts && opts.kind) || "ok";
     var host = document.getElementById("toasts") || document.body;
     var msg = text || (kind === "sim" ? SIM_DEFAULT : "");
-    var t = el("div", { class: "toast toast-" + kind, role: "status" },
+    var t = el("div", { class: "toast toast-" + kind },
       el("span", { class: "toast-dot", "aria-hidden": "true" }), el("span", { class: "toast-text" }, msg));
     host.appendChild(t);
     requestAnimationFrame(function () { t.classList.add("in"); });
@@ -50,7 +57,7 @@
     var shell = document.getElementById("shell");
     (shell && !shell.hidden ? shell : document.body).appendChild(root);
     requestAnimationFrame(function () { root.classList.add("in"); panel.focus(); });
-    removeEsc = pushEsc(close);
+    removeEsc = pushEsc(close, root);
     return { close: close, el: panel };
   }
 
@@ -74,6 +81,6 @@
     toast: toast, statusChip: statusChip, agentixBadge: agentixBadge, mark: mark,
     drawer: function (o) { return overlay("drawer", o); },
     modal: function (o) { return overlay("modal", o); },
-    pushEsc: pushEsc, closeTop: closeTop, STATUS: STATUS, SIM_DEFAULT: SIM_DEFAULT
+    pushEsc: pushEsc, closeTop: closeTop, closeAll: closeAll, STATUS: STATUS, SIM_DEFAULT: SIM_DEFAULT
   };
 })(window);

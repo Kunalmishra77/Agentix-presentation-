@@ -22,3 +22,8 @@ test("unknown tab maps to overview", () => {
 test("known tabs", () => {
   ["overview", "walkthrough", "how", "screens", "tech"].forEach((t) => assert.equal(p("#/demo/x/" + t).tab, t));
 });
+
+test("malformed escape returns home", () => {
+  assert.deepEqual(p("#/demo/%E0"), { view: "home" });
+  assert.deepEqual(p("#/demo/agentix/walkthrough/%E0"), { view: "home" });
+});

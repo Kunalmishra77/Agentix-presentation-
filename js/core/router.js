@@ -8,9 +8,13 @@
     var h = String(hash || "").replace(/^#/, "");
     var parts = h.split("/").filter(Boolean);
     if (parts[0] !== "demo" || !parts[1]) return { view: "home" };
-    var tab = TABS.indexOf(parts[2]) >= 0 ? parts[2] : "overview";
-    var mod = tab === "walkthrough" && parts[3] ? decodeURIComponent(parts[3]) : null;
-    return { view: "demo", slug: decodeURIComponent(parts[1]), tab: tab, module: mod };
+    try {
+      var tab = TABS.indexOf(parts[2]) >= 0 ? parts[2] : "overview";
+      var mod = tab === "walkthrough" && parts[3] ? decodeURIComponent(parts[3]) : null;
+      return { view: "demo", slug: decodeURIComponent(parts[1]), tab: tab, module: mod };
+    } catch (e) {
+      return { view: "home" };
+    }
   }
 
   function current() { return parse(w.location.hash); }

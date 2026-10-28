@@ -26,7 +26,7 @@ test("overview lists capability grid; tabs switch; Esc closes", async () => {
   const { page, errors, close } = await openPage("/index.html#/demo/agentix");
   try {
     await page.waitForSelector(".shell .cap-group");
-    await page.click('.shell [role=tab][data-tab=how]');
+    await page.click('.shell .tab[data-tab=how]');
     await page.waitForFunction(() => location.hash === "#/demo/agentix/how");
     assert.ok((await page.locator(".shell .flow-step").count()) >= 3);
     await page.keyboard.press("Escape");
@@ -65,5 +65,108 @@ test("delivery entry (no demo/embed) shows how-it-works in walkthrough", async (
     await page.evaluate((s) => { location.hash = "#/demo/" + s + "/walkthrough"; }, slug);
     await page.waitForSelector(".shell .flow-step");
     assert.equal(errors.length, 0, errors.join("\n"));
+  } finally { await close(); }
+});
+
+test("history: tab switch replaces; Back from tech returns home in one step", async () => {
+  const { page, errors, close } = await openPage("/index.html#/");
+  try {
+    await page.evaluate(() => AX.shell.open("agentix"));
+    await page.waitForSelector(".shell .cap-group");
+    await page.click(".shell .tab[data-tab=tech]");
+    await page.waitForFunction(() => location.hash === "#/demo/agentix/tech");
+    await page.goBack();
+    await page.waitForFunction(() => location.hash === "#/");
+    assert.equal(await page.locator("#shell").isHidden(), true);
+    assert.equal(errors.length, 0, errors.join("\n"));
+  } finally { await close(); }
+});
+
+test("Esc after opening from home goes back (no extra history entry)", async () => {
+  const { page, close } = await openPage("/index.html#/");
+  try {
+    const before = await page.evaluate(() => history.length);
+    await page.evaluate(() => AX.shell.open("agentix"));
+    await page.waitForSelector(".shell .cap-group");
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => location.hash === "#/");
+    await page.waitForFunction((n) => history.length <= n + 1, before);
+    await page.goForward();
+    await page.waitForFunction(() => location.hash.startsWith("#/demo"));
+  } finally { await close(); }
+});
+
+test("stale overlays: lightbox + Back, reopen, one Esc closes shell", async () => {
+  const { page, close } = await openPage("/index.html#/");
+  try {
+    await page.evaluate(() => AX.shell.open("agentix", "screens"));
+    await page.click(".shell .shot");
+    await page.waitForSelector(".lightbox");
+    await page.goBack();
+    await page.waitForFunction(() => location.hash === "#/");
+    assert.equal(await page.locator("#shell").isHidden(), true);
+    await page.evaluate(() => AX.shell.open("agentix"));
+    await page.waitForSelector(".shell .cap-group");
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => location.hash === "#/");
+    assert.equal(await page.locator("#shell").isHidden(), true);
+  } finally { await close(); }
+});
+
+test("walkthrough mounts once (loaded and cold)", async () => {
+  const stub = () => { window.AX = window.AX || {}; window.__m = 0; AX.appShell = { mount(w) { window.__m++; w.textContent = "mounted"; } }; };
+  // cold: deep link, demo not yet loaded
+  let r = await openPage("/index.html#/");
+  try {
+    await r.page.addInitScript(stub);
+    await r.page.goto("http://127.0.0.1:4310/index.html#/demo/agentix/walkthrough");
+    await r.page.reload();
+    await r.page.waitForFunction(() => window.__m >= 1);
+    await r.page.waitForTimeout(400);
+    assert.equal(await r.page.evaluate(() => window.__m), 1);
+  } finally { await r.close(); }
+  // warm: demo already loaded via overview, then switch tab
+  r = await openPage("/index.html#/");
+  try {
+    await r.page.addInitScript(stub);
+    await r.page.reload();
+    await r.page.evaluate(() => AX.shell.open("agentix"));
+    await r.page.waitForFunction(() => AX.demos && AX.demos.agentix);
+    await r.page.click(".shell .tab[data-tab=walkthrough]");
+    await r.page.waitForTimeout(400);
+    assert.equal(await r.page.evaluate(() => window.__m), 1);
+  } finally { await r.close(); }
+});
+
+test("a11y: dialog role, focus inside shell, landing inert, focus restored", async () => {
+  const { page, close } = await openPage("/index.html#/");
+  try {
+    await page.evaluate(() => {
+      const b = document.createElement("button"); b.id = "opener"; b.textContent = "open";
+      document.getElementById("landing").appendChild(b); b.focus();
+    });
+    await page.evaluate(() => AX.shell.open("agentix"));
+    await page.waitForSelector(".shell .cap-group");
+    assert.equal(await page.evaluate(() => document.getElementById("shell").contains(document.activeElement)), true);
+    assert.equal(await page.getAttribute("#shell", "role"), "dialog");
+    assert.equal(await page.getAttribute("#shell", "aria-modal"), "true");
+    assert.equal(await page.evaluate(() => document.getElementById("landing").inert), true);
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => location.hash === "#/");
+    assert.equal(await page.evaluate(() => document.activeElement.id), "opener");
+    assert.equal(await page.evaluate(() => document.getElementById("landing").inert), false);
+  } finally { await close(); }
+});
+
+test("lightbox close restores focus to the shot", async () => {
+  const { page, close } = await openPage("/index.html#/demo/agentix/screens");
+  try {
+    await page.waitForSelector(".shell .shot");
+    await page.focus(".shell .shot");
+    await page.keyboard.press("Enter");
+    await page.waitForSelector(".lightbox");
+    await page.keyboard.press("Escape");
+    await page.waitForSelector(".lightbox", { state: "detached" });
+    assert.equal(await page.evaluate(() => document.activeElement.classList.contains("shot")), true);
   } finally { await close(); }
 });
