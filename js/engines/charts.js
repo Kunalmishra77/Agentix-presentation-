@@ -157,8 +157,8 @@
   }
 
   function spark(host, pts) {
-    var VW = 120, VH = 36, max = Math.max.apply(null, pts), min = Math.min.apply(null, pts), rng = max - min || 1;
     pts = (pts || []).map(num0);
+    var VW = 120, VH = 36, max = Math.max.apply(null, pts), min = Math.min.apply(null, pts), rng = max - min || 1;
     var svg = root(VW, VH, "Sparkline"); svg.setAttribute("class", "ch ch-spark");
     var step = pts.length > 1 ? (VW - 4) / (pts.length - 1) : 0;
     var path = pts.map(function (v, i) { return (i ? "L" : "M") + (2 + i * step).toFixed(1) + " " + (VH - 4 - (VH - 8) * (v - min) / rng).toFixed(1); }).join(" ");

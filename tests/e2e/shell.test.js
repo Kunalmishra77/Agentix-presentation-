@@ -31,7 +31,8 @@ test("overview lists capability grid; tabs switch; Esc closes", async () => {
     assert.ok((await page.locator(".shell .flow-step").count()) >= 3);
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => location.hash === "#/");
-    assert.equal(await page.locator("#shell").isHidden(), true);
+    // hash is updated synchronously by location.replace; hashchange (which hides the shell) fires later, so wait for the state itself
+    await page.locator("#shell").waitFor({ state: "hidden" });
     assert.equal(errors.length, 0, errors.join("\n"));
   } finally { await close(); }
 });
@@ -77,7 +78,8 @@ test("history: tab switch replaces; Back from tech returns home in one step", as
     await page.waitForFunction(() => location.hash === "#/demo/agentix/tech");
     await page.goBack();
     await page.waitForFunction(() => location.hash === "#/");
-    assert.equal(await page.locator("#shell").isHidden(), true);
+    // hash is updated synchronously by location.replace; hashchange (which hides the shell) fires later, so wait for the state itself
+    await page.locator("#shell").waitFor({ state: "hidden" });
     assert.equal(errors.length, 0, errors.join("\n"));
   } finally { await close(); }
 });
@@ -104,12 +106,14 @@ test("stale overlays: lightbox + Back, reopen, one Esc closes shell", async () =
     await page.waitForSelector(".lightbox");
     await page.goBack();
     await page.waitForFunction(() => location.hash === "#/");
-    assert.equal(await page.locator("#shell").isHidden(), true);
+    // hash is updated synchronously by location.replace; hashchange (which hides the shell) fires later, so wait for the state itself
+    await page.locator("#shell").waitFor({ state: "hidden" });
     await page.evaluate(() => AX.shell.open("agentix"));
     await page.waitForSelector(".shell .cap-group");
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => location.hash === "#/");
-    assert.equal(await page.locator("#shell").isHidden(), true);
+    // hash is updated synchronously by location.replace; hashchange (which hides the shell) fires later, so wait for the state itself
+    await page.locator("#shell").waitFor({ state: "hidden" });
   } finally { await close(); }
 });
 

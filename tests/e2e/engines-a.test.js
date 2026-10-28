@@ -119,16 +119,30 @@ test("chart guards: bad input never yields NaN", async () => {
       run((h) => AX.charts.bar(h, { labels: ["a", "b", "c"], values: [-5, undefined, 10] }));
       run((h) => AX.charts.bar(h, { labels: ["a", "b"], values: [-5, 3], horizontal: true }));
       run((h) => AX.charts.spark(h, [4]));
+      run((h) => AX.charts.spark(h, [3, NaN, undefined, 5]));
       run((h) => AX.charts.line(h, { labels: ["a"], series: [{ name: "s", points: [1, 2, 3] }] }));
       return {
         nan: hosts.some((h) => /NaN|undefined|Infinity/.test(h.innerHTML)),
         dot: hosts[5].querySelectorAll("circle").length,
-        title: hosts[6].querySelectorAll("title")[2].textContent
+        sparkPath: /^M[\d. L-]+$/.test(hosts[6].querySelector("path").getAttribute("d")),
+        title: hosts[7].querySelectorAll("title")[2].textContent
       };
     });
     assert.equal(out.nan, false);
+    assert.equal(out.sparkPath, true);
     assert.equal(out.dot, 1);
     assert.ok(out.title.includes("3"), out.title);
+    assert.equal(errors.length, 0, errors.join("\n"));
+  } finally { await close(); }
+});
+
+test("changing a table filter keeps focus on that select", async () => {
+  const { page, errors, close } = await openPage("/tests/fixtures/engines.html");
+  try {
+    await page.locator("#t .tbl-filter").focus();
+    await page.locator("#t .tbl-filter").selectOption("Hot");
+    assert.ok(await page.evaluate(() => document.activeElement.classList.contains("tbl-filter") && document.activeElement.value === "Hot"));
+    assert.ok((await page.locator("#t .tbl-range").innerText()).endsWith("of 14"));
     assert.equal(errors.length, 0, errors.join("\n"));
   } finally { await close(); }
 });
