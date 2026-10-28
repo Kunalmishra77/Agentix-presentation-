@@ -20,7 +20,7 @@
 .pc-chrome--browser i{width:8px;height:8px;border-radius:50%;background:#D3CDC2;flex:none}
 .pc-url{margin:0 auto;max-width:70%;font:500 .66rem var(--font-mono);color:var(--ink-3);background:rgba(255,255,255,.8);padding:3px 12px;border-radius:999px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .pc-media{border-radius:0}
-.pc-media img{transition:transform 6s cubic-bezier(.2,.6,.2,1),opacity .6s}
+.ax-motion .pc-media img{transition:transform 6s cubic-bezier(.2,.6,.2,1),opacity .6s}
 .pc-scrim{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(to top,rgba(7,20,37,.55),rgba(7,20,37,0));pointer-events:none;z-index:1}
 .pc-badge{position:absolute;left:12px;bottom:12px;z-index:2}
 .pc-badge .agentix-badge{background:rgba(255,255,255,.95);border-color:rgba(238,106,36,.45);color:#B9480C;box-shadow:0 2px 8px rgba(7,20,37,.18)}
@@ -36,7 +36,7 @@
 .pc-open{font:600 .84rem var(--font-body);color:var(--ink);white-space:nowrap;padding-bottom:2px;background:linear-gradient(var(--orange),var(--orange)) 0 100%/0 2px no-repeat;transition:background-size .35s var(--ease)}
 .pcard:hover .pc-open,.pcard:focus-visible .pc-open{background-size:100% 2px}
 /* device: slow Ken-Burns pan across the screen on hover */
-.pcard--device:hover .pc-media img,.pcard--control:hover .pc-media img{transform:scale(1.07) translateY(-2.5%)}
+.ax-motion .pcard--device:hover .pc-media img,.ax-motion .pcard--control:hover .pc-media img{transform:scale(1.07) translateY(-2.5%)}
 .pcard--device.is-lead .pc-name{font-size:1.45rem}
 
 /* ---------- flagship: sticky story + device cards ---------- */

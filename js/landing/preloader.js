@@ -24,13 +24,13 @@
     if (skip) { remember(); return Promise.resolve(false); }
     w.__axPreloaderShown = true;
 
-    var count = el("span", { class: "pl-count" }, "00");
+    var count = el("span", { class: "pl-count", "aria-hidden": "true" }, "00");
     var mark = AX.ui.mark("pl-mark");
     var root = el("div", { id: "preloader", class: "preloader", role: "status", "aria-label": "Loading the AI Agentix portfolio" },
       el("div", { class: "pl-inner" },
         mark,
         wordmark("wordmark pl-word"),
-        el("div", { class: "pl-meta" }, count, el("span", { class: "pl-of" }, " / " + total + " projects"))));
+        el("div", { class: "pl-meta", "aria-hidden": "true" }, count, el("span", { class: "pl-of" }, " / " + total + " projects"))));
     document.body.appendChild(root);
 
     return new Promise(function (resolve) {

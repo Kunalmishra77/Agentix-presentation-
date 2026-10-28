@@ -74,7 +74,8 @@
         el("a", { class: "nav-logo", href: "#/", "aria-label": "AI Agentix, back to top", on: { click: function (e) { e.preventDefault(); scrollTo(0); } } },
           AX.ui.mark("nav-mark"), AX.preloader.wordmark("wordmark nav-word")),
         el("button", { type: "button", class: "nav-cats", "aria-expanded": "false", "aria-controls": "nav-menu", on: { click: toggleMenu } }, "Categories"),
-        el("div", { id: "nav-find", class: "nav-find" }, el("label", { class: "nav-qwrap" }, el("span", { class: "nav-qicon", "aria-hidden": "true" }), q), status, count),
+        el("div", { id: "nav-find", class: "nav-find" }, el("label", { class: "nav-qwrap" }, el("span", { class: "nav-qicon", "aria-hidden": "true" }), q), status, count,
+          el("span", { id: "filter-status", class: "sr-only", role: "status", "aria-live": "polite" })),
         findToggle,
         el("a", { class: "nav-cta", href: CONTACT, target: "_blank", rel: "noopener" }, "Start a project")),
       buildMenu());
@@ -104,6 +105,8 @@
       count.textContent = res.shown ? "Show " + res.shown + " of " + res.total : "No matches";
       count.disabled = !res.shown;
     } else count.hidden = true;
+    var live = document.getElementById("filter-status");
+    if (live) live.textContent = !res || !active ? "" : res.shown ? res.shown + (res.shown === 1 ? " project matches" : " projects match") : "No projects match";
     document.documentElement.classList.toggle("is-filtering", active);
     clearTimeout(refreshT);
     refreshT = setTimeout(function () { if (w.ScrollTrigger) w.ScrollTrigger.refresh(); }, 140);
@@ -132,11 +135,15 @@
 
   /* --- scroll + shell -------------------------------------------------------- */
   function onRoute(r) {
+    var html = document.documentElement;
     if (r.view === "demo") {
       if (savedY == null && inited) savedY = w.scrollY || 0;
+      // html (not body) is the page scroller here, so the lock goes on html; Lenis stops too
+      html.classList.add("ax-locked");
       if (ctx.lenis) ctx.lenis.stop();
       return;
     }
+    html.classList.remove("ax-locked");
     if (ctx.lenis) ctx.lenis.start();
     if (savedY != null) {
       var y = savedY; savedY = null;

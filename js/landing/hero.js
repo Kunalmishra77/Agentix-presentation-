@@ -6,6 +6,8 @@
   var el = AX.el;
   var FAN = ["agentix", "woodpecker-pms", "agentix-hims", "max-register", "socialflow", "aurelle", "yt-automation"];
   var LINES = ["AI Applied,", "Growth Multiplied."];
+  // The three lightest fan screenshots (measured 115-132 KB) load eagerly; the rest (incl. the 1 MB aurelle PNG) stay lazy.
+  var EAGER = ["socialflow", "yt-automation", "agentix-hims"];
   var root, fan, stage, cards = [];
 
   function fanCard(p, eager) {
@@ -16,6 +18,7 @@
     var a = el("a", { class: "fan-card", href: "#/demo/" + p.slug, "data-demo": p.slug, "aria-label": "Open " + p.name },
       el("div", { class: "fan-deal" }, face));
     a.addEventListener("click", function (e) {
+      if (AX.lx.modified(e)) return;
       e.preventDefault();
       AX.shell.open(p.slug, "overview", null, face.getBoundingClientRect());
     });
@@ -24,13 +27,10 @@
 
   function build() {
     var n = (AX.projects || []).length;
-    var eagerLeft = 3;
     cards = FAN.map(function (slug) {
       var p = AX.lx.project(slug);
       if (!p) return null;
-      var eager = eagerLeft > 0 && p.shots && p.shots.length > 0;
-      if (eager) eagerLeft--;
-      return fanCard(p, eager);
+      return fanCard(p, EAGER.indexOf(slug) >= 0 && !!(p.shots && p.shots.length));
     }).filter(Boolean);
     fan = el("div", { class: "fan" }, cards);
     stage = el("div", { class: "fan-stage" }, fan);
@@ -39,6 +39,7 @@
       e.preventDefault(); AX.landing.scrollTo(document.getElementById("index") ? "#index" : "#work");
     } } }, "Explore the work");
     var watch = el("a", { class: "btn-x btn-line", href: "#/demo/agentix/walkthrough/conversations", "data-demo": "agentix", on: { click: function (e) {
+      if (AX.lx.modified(e)) return;
       e.preventDefault(); AX.router.go("#/demo/agentix/walkthrough/conversations");
     } } }, el("span", { class: "btn-pulse", "aria-hidden": "true" }), "Watch an agent close a lead");
 
@@ -60,6 +61,10 @@
     var d = i - (cards.length - 1) / 2, wd = cardW();
     return { x: d * wd * 0.6, y: d * d * wd * 0.05, rotation: d * 7, scale: 1, opacity: 1 };
   }
+  /* Same state with x/y as functions, so invalidateOnRefresh recomputes them after a resize. */
+  function fanVars(i) {
+    return { x: function () { return fanState(i).x; }, y: function () { return fanState(i).y; }, rotation: fanState(i).rotation, scale: 1, opacity: 1 };
+  }
   function gridState(i) {
     var wd = cardW(), s = 0.62, cw = wd * s, ch = cw * 0.7, gap = wd * 0.08;
     var row = i < 4 ? 0 : 1, col = row ? i - 4 : i, cols = row ? cards.length - 4 : 4;
@@ -74,7 +79,7 @@
   function setup(ctx) {
     var gsap = w.gsap;
     if (ctx.reduced || !gsap) { fan.classList.add("is-grid"); return; }
-    cards.forEach(function (c, i) { gsap.set(c, fanState(i)); });
+    cards.forEach(function (c, i) { gsap.set(c, fanVars(i)); });
 
     // Hidden until the intro plays.
     gsap.set(root.querySelectorAll(".line-in"), { yPercent: 115 });
@@ -86,7 +91,7 @@
       scrollTrigger: { id: "hero", trigger: root, start: "top top", end: "+=120%", pin: true, scrub: 0.6, invalidateOnRefresh: true }
     });
     cards.forEach(function (c, i) {
-      tl.fromTo(c, fanState(i), Object.assign(gridState(i), { duration: 0.7, ease: "power2.inOut",
+      tl.fromTo(c, fanVars(i), Object.assign(gridState(i), { duration: 0.7, ease: "power2.inOut",
         x: function () { return gridState(i).x; }, y: function () { return gridState(i).y; } }), 0);
       tl.to(c, { opacity: 0, duration: 0.3, ease: "power1.in" }, 0.62 + i * 0.012);
     });

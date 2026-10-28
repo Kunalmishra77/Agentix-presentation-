@@ -288,3 +288,10 @@ body.shell-open .cursor{display:none}
 /* bare anchors when sections.js is absent */
 .cat-stub{padding:80px var(--gutter);border-top:1px solid var(--line)}
 @media (min-width:1200px) and (min-height:780px){.onelead:not(.is-static) .beat-ui{zoom:1.15}}
+
+/* ---------- review fixes: scroll lock, a11y helpers, paused loops ---------- */
+html{scrollbar-gutter:stable}
+html.ax-locked{overflow:hidden}
+.shell-body,.shell .ov-body,.shell .lightbox{overscroll-behavior:contain}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+body.shell-open #landing *,body.shell-open #landing *::before,body.shell-open #landing *::after{animation-play-state:paused!important}

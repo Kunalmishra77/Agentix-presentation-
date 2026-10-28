@@ -3,7 +3,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { openPage } = require("../helpers/browser");
 
-const ready = (page) => page.waitForFunction(() => document.documentElement.classList.contains("ax-ready"), null, { timeout: 15000 });
+const { ready, settled } = require("../helpers/landing");
 const visibleSlugs = (page) => page.evaluate(() => Array.from(document.querySelectorAll("#work .pcard[data-demo]"))
   .filter((n) => n.offsetParent !== null).map((n) => n.getAttribute("data-demo")).sort());
 
@@ -52,19 +52,19 @@ test("open a card mid-page, Esc: scroll restored within 40px and the next pin st
   try {
     await ready(page);
     await page.evaluate(() => AX.landing.scrollTo("#cat-hospitality", { immediate: true }));
-    await page.waitForTimeout(400);
+    await settled(page);
     const card = page.locator('#work .pcard[data-demo="woodpecker-pms"]');
     await card.hover();
-    await page.waitForTimeout(300);
+    await settled(page);
     const y0 = await page.evaluate(() => scrollY);
     assert.ok(y0 > 2000, "opened from the middle of the page, y=" + y0);
     await card.click();
     await page.locator("#shell").waitFor({ state: "visible" });
     await page.waitForFunction(() => location.hash === "#/demo/woodpecker-pms");
-    await page.waitForTimeout(500);
+    await settled(page);
     await page.keyboard.press("Escape");
     await page.locator("#shell").waitFor({ state: "hidden" });
-    await page.waitForTimeout(500);
+    await settled(page);
     const y1 = await page.evaluate(() => scrollY);
     assert.ok(Math.abs(y1 - y0) <= 40, "scroll restored: before " + y0 + " after " + y1);
     // the websites rail (the next pinned section) still pins and scrubs
@@ -113,11 +113,59 @@ test("phone 390: no horizontal overflow; the rail scrolls inside its container",
     await ready(page);
     for (const id of ["#cat-agents", "#cat-websites", "#cat-ecommerce", "#cat-delivery", "#footer"]) {
       await page.evaluate((s) => AX.landing.scrollTo(s, { immediate: true }), id);
-      await page.waitForTimeout(150);
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390, "overflow near " + id);
+      await settled(page);
+      // scrollbar-gutter:stable reserves the scrollbar lane, so compare against the html client width
+      const ov = await page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
+      assert.ok(ov[0] <= ov[1] && ov[1] <= 390, "overflow near " + id + ": " + ov);
     }
     const vp = await page.evaluate(() => { const v = document.querySelector("#cat-websites .rail-viewport"); return [v.scrollWidth, v.clientWidth, getComputedStyle(v).overflowX]; });
     assert.ok(vp[0] > vp[1] && vp[2] === "auto", "rail scrolls inside its container: " + vp);
     assert.equal(errors.length, 0, errors.join("\n"));
+  } finally { await close(); }
+});
+
+test("rail keyboard: tabbing through the pinned rail keeps every focused card inside the viewport", async () => {
+  const { page, errors, close } = await openPage("/index.html");
+  try {
+    await ready(page);
+    const st = await page.evaluate(() => { const s = ScrollTrigger.getById("rail-websites"); return [s.start, s.end]; });
+    await page.evaluate((y) => AX.landing.scrollTo(y, { immediate: true }), st[0]);
+    await settled(page);
+    await page.focus("#cat-websites .rail-viewport");
+    const n = await page.locator("#cat-websites .pcard").count();
+    for (let i = 0; i < n; i++) {
+      await page.keyboard.press("Tab");
+      await page.waitForFunction((k) => {
+        const a = document.activeElement, cards = document.querySelectorAll("#cat-websites .pcard");
+        if (a !== cards[k]) return false;
+        const r = a.getBoundingClientRect(), vp = document.querySelector("#cat-websites .rail-viewport");
+        return vp.scrollLeft === 0 && r.left >= -1 && r.right <= innerWidth + 1 && r.top >= -1 && r.bottom <= innerHeight + 1;
+      }, i, { timeout: 5000 });
+    }
+    assert.equal(errors.length, 0, errors.join("\n"));
+  } finally { await close(); }
+});
+
+test("background is scroll-locked while the shell is open", async () => {
+  const { page, close } = await openPage("/index.html");
+  try {
+    await ready(page);
+    await page.evaluate(() => AX.landing.scrollTo("#cat-crm", { immediate: true }));
+    await settled(page);
+    const y0 = await page.evaluate(() => scrollY);
+    await page.evaluate(() => AX.shell.open("agentix"));
+    await page.waitForSelector(".shell .cap-group");
+    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).overflowY), "hidden");
+    const bar = await page.locator(".shell .shell-bar").boundingBox();
+    await page.mouse.move(bar.x + bar.width / 2, bar.y + bar.height / 2);
+    for (let i = 0; i < 4; i++) await page.mouse.wheel(0, 900);
+    const body = await page.locator(".shell .shell-body").boundingBox();
+    await page.mouse.move(body.x + body.width / 2, body.y + body.height / 2);
+    for (let i = 0; i < 12; i++) await page.mouse.wheel(0, 1200);
+    await settled(page, 400);
+    assert.equal(await page.evaluate(() => scrollY), y0, "page behind the shell did not move");
+    await page.keyboard.press("Escape");
+    await page.locator("#shell").waitFor({ state: "hidden" });
+    assert.notEqual(await page.evaluate(() => getComputedStyle(document.documentElement).overflowY), "hidden");
   } finally { await close(); }
 });

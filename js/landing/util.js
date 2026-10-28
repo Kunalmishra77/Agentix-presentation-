@@ -56,5 +56,8 @@
     return box;
   }
 
-  AX.lx = { ACCENT: ACCENT, reduced: reduced, finePointer: finePointer, cat: cat, inCat: inCat, project: project, accent: accent, img: img, media: media, fallback: fallback, mq: mq };
+  /** True for clicks the browser should handle itself (new tab/window, middle click). */
+  function modified(e) { return !!(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e.button != null && e.button !== 0)); }
+
+  AX.lx = { modified: modified, ACCENT: ACCENT, reduced: reduced, finePointer: finePointer, cat: cat, inCat: inCat, project: project, accent: accent, img: img, media: media, fallback: fallback, mq: mq };
 })(window);

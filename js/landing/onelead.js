@@ -116,6 +116,7 @@
     var data = beatData(p);
     beats = data.map(function (b, i) {
       var link = el("a", { class: "beat-link", href: "#/demo/" + b.slug, "data-demo": b.slug, on: { click: function (e) {
+        if (AX.lx.modified(e)) return;
         e.preventDefault(); AX.shell.open(b.slug, "overview", null, e.currentTarget.closest(".beat").querySelector(".beat-ui").getBoundingClientRect());
       } } }, "Open the " + b.product + " demo");
       return el("article", { class: "beat", "data-beat": String(i + 1) },

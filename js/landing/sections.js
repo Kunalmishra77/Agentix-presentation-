@@ -57,7 +57,7 @@
         el("p", { class: "pc-sum" }, p.summary),
         el("div", { class: "pc-foot" }, el("div", { class: "pc-tags" }, tags(p)), el("span", { class: "pc-open" }, "Open demo →"))));
     a.addEventListener("click", function (e) {
-      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      if (AX.lx.modified(e)) return;
       e.preventDefault();
       AX.shell.open(p.slug, "overview", null, a.querySelector(".pc-frame").getBoundingClientRect());
     });
@@ -109,6 +109,7 @@
     if (!reduced) {
       var t = { strip: strip, timer: null, on: false };
       t.tick = function () {
+        if (document.body.classList.contains("shell-open") || document.hidden) return; // paused behind the demo shell
         items.forEach(function (x) {
           var step = x.d[2] === "hrs" ? 0.1 : x.d[2] === "pct" || x.d[2] === "min" ? 1 : Math.max(1, Math.round(x.d[1] * 0.004));
           var dir = Math.random() < 0.62 ? 1 : -1;
@@ -135,7 +136,7 @@
   function rail(c, list) {
     var cs = list.map(function (p) { return render(p, "browser"); });
     var track = el("div", { class: "rail-track" }, cs);
-    return { node: el("div", { class: "rail-pin" }, head(c, list, el("p", { class: "rail-hint", "aria-hidden": "true" }, "Scroll to move along the rail")), el("div", { class: "rail-viewport", tabindex: "0", "aria-label": c.title + " projects" }, track)), cards: cs };
+    return { node: el("div", { class: "rail-pin" }, head(c, list, el("p", { class: "rail-hint", "aria-hidden": "true" }, "Scroll to move along the rail")), el("div", { class: "rail-viewport", role: "region", tabindex: "0", "aria-label": c.title + " projects" }, track)), cards: cs };
   }
 
   function poster(c, list) {
@@ -201,10 +202,32 @@
       if (lay === "rail") {
         var pin = s.sec.querySelector(".rail-pin"), track = s.sec.querySelector(".rail-track"), vp = s.sec.querySelector(".rail-viewport");
         mm.add("(min-width: 768px)", function () {
-          var dist = function () { return Math.max(0, track.scrollWidth - vp.clientWidth); };
-          gsap.to(track, { x: function () { return -dist(); }, ease: "none",
+          // travel so the last card ends at the right gutter (clientWidth includes the viewport's side padding)
+          var dist = function () {
+            var cs = getComputedStyle(vp);
+            return Math.max(0, track.scrollWidth + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) - vp.clientWidth);
+          };
+          var tw = gsap.to(track, { x: function () { return -dist(); }, ease: "none",
             scrollTrigger: { id: "rail-" + s.cat.id, trigger: pin, start: "top top", end: function () { return "+=" + Math.max(1, dist()); },
               pin: true, scrub: 0.6, invalidateOnRefresh: true } });
+          // Keyboard: focusing an off-screen card must not scroll the viewport on top of the transform.
+          // Instead scroll the page to the pinned progress that centres that card.
+          function onFocus(e) {
+            var card = e.target.closest && e.target.closest(".pcard");
+            vp.scrollLeft = 0;
+            if (!card) return;
+            var st = tw.scrollTrigger, d = dist();
+            var left = card.getBoundingClientRect().left - track.getBoundingClientRect().left; // both share the transform
+            var want = Math.max(0, Math.min(d, left + card.offsetWidth / 2 - vp.clientWidth / 2));
+            var ratio = d ? want / d : 0;
+            AX.landing.scrollTo(st.start + ratio * (st.end - st.start), { immediate: true });
+            st.animation.progress(ratio); // jump the scrubbed track too, so the focused card is visible now
+            requestAnimationFrame(function () { vp.scrollLeft = 0; });
+          }
+          function onScroll() { if (vp.scrollLeft) vp.scrollLeft = 0; }
+          track.addEventListener("focusin", onFocus);
+          vp.addEventListener("scroll", onScroll);
+          return function () { track.removeEventListener("focusin", onFocus); vp.removeEventListener("scroll", onScroll); };
         });
       }
       if (lay === "poster") {
@@ -228,7 +251,7 @@
         var hay = norm(p.name) + " " + norm(p.client) + " " + norm(s.cat.title);
         var ok = (!q || hay.indexOf(q) >= 0) && (!status || p.status === status);
         k.hidden = !ok;
-        var li = s.sec.querySelector('.cat-names li[data-for="' + p.slug + '"]'); if (li) li.hidden = !ok;
+        var li = s.sec.querySelector('.cat-names li[data-for="' + (w.CSS && CSS.escape ? CSS.escape(p.slug) : p.slug) + '"]'); if (li) li.hidden = !ok;
         if (ok) n++;
       });
       s.sec.hidden = active && n === 0;

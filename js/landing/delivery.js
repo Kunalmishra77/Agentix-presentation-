@@ -43,6 +43,7 @@
       el("li", null, el("b", null, "Live"), el("span", null, "Monitored and backed up")));
     var items = list.map(function (p) {
       return el("a", { class: "pipe-proj", href: "#/demo/" + p.slug, "data-demo": p.slug, on: { click: function (e) {
+        if (AX.lx.modified(e)) return;
         e.preventDefault(); AX.shell.open(p.slug, "overview", null, e.currentTarget.getBoundingClientRect());
       } } }, el("b", null, p.name), el("span", null, p.summary), el("span", { class: "pipe-open" }, "How it works →"));
     });
@@ -63,8 +64,9 @@
     var live = P.filter(function (p) { return p.status === "live"; }).length;
     counters = [[P.length, "projects in this portfolio"], [C.length, "categories, from agents to cinematic sites"], [live, "live in production today"]];
     var nums = counters.map(function (x) {
-      var n = el("span", { class: "ft-num", "data-to": String(x[0]) }, String(x[0]));
-      return el("div", { class: "ft-stat" }, n, el("span", { class: "ft-lbl" }, x[1]));
+      // the animated number is decorative; screen readers get the final value at once
+      var n = el("span", { class: "ft-num", "data-to": String(x[0]), "aria-hidden": "true" }, String(x[0]));
+      return el("div", { class: "ft-stat" }, n, el("span", { class: "sr-only" }, String(x[0]) + " "), el("span", { class: "ft-lbl" }, x[1]));
     });
     footerEl = el("footer", { id: "footer", class: "footer" },
       el("div", { class: "ft-stats" }, nums),
@@ -91,7 +93,8 @@
       tl.to(draws[0], { strokeDashoffset: 0, duration: 0.3, ease: "none" }, 0);
       Array.prototype.slice.call(draws, 1).forEach(function (d, i) { tl.to(d, { strokeDashoffset: 0, duration: 0.35, ease: "none" }, 0.3 + (i % 2) * 0.35 + Math.floor(i / 2) * 0.04); });
       tl.from(strip.querySelectorAll(".pipe-node"), { opacity: 0, scale: 0.85, duration: 0.15, stagger: 0.1 }, 0);
-      ST.create({ trigger: strip, start: "top 70%", onEnter: function () { strip.classList.add("is-flowing"); } });
+      // packets only flow while the strip is on screen (CSS also pauses them while the shell is open)
+      ST.create({ trigger: strip, start: "top bottom", end: "bottom top", toggleClass: { targets: strip, className: "is-flowing" } });
     }
     if (footerEl) {
       var nums = footerEl.querySelectorAll(".ft-num");
