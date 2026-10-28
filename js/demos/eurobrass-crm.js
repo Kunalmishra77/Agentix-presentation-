@@ -4,6 +4,7 @@
   AX.demos = AX.demos || {};
   AX.eurobrass = AX.eurobrass || {};
   var SLUG = "eurobrass-crm";
+  var ACCENT = "#8C6A3E";
   var GST = 0.18;
 
   /* ============ pure helpers (no DOM) ============ */
@@ -33,7 +34,7 @@
     ".eb-pill.good{background:rgba(15,122,61,.12);color:#0F7A3D}.eb-pill.warn{background:rgba(224,168,0,.32);color:#7A5B00}.eb-pill.bad{background:rgba(192,50,43,.14);color:#A32620}.eb-pill.brass{background:rgba(140,106,62,.16);color:#6B4F2A}",
     ".eb-kv{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px 12px;font-size:.85rem;margin:0}.eb-kv dt{color:#5a6676;font:500 .72rem var(--font-mono);text-transform:uppercase}.eb-kv dd{margin:0;overflow-wrap:anywhere}",
     ".eb-h{margin:18px 0 8px;font:600 .8rem var(--font-mono);text-transform:uppercase;color:#5a6676}",
-    ".eb-btn{appearance:none;font:600 .85rem var(--font-body);padding:9px 16px;border-radius:999px;border:1px solid rgba(11,31,51,.2);background:#fff;color:#0B1F33;cursor:pointer}.eb-btn.primary{background:#8C6A3E;border-color:#8C6A3E;color:#fff}.eb-btn.dark{background:#0B1F33;border-color:#0B1F33;color:#fff}.eb-btn[disabled]{opacity:.5;cursor:default}",
+    ".eb-btn{appearance:none;font:600 .85rem var(--font-body);padding:9px 16px;border-radius:999px;border:1px solid rgba(11,31,51,.2);background:#fff;color:#0B1F33;cursor:pointer}.eb-btn.primary{background:var(--ax-accent);border-color:var(--ax-accent);color:#fff}.eb-btn.dark{background:#0B1F33;border-color:#0B1F33;color:#fff}.eb-btn[disabled]{opacity:.5;cursor:default}",
     ".eb-in,.eb-f select,.eb-f input{font:400 .86rem var(--font-body);padding:8px 10px;border:1px solid rgba(11,31,51,.2);border-radius:8px;background:#fff;width:100%;box-sizing:border-box;min-width:0}",
     ".eb-f{display:grid;gap:4px;font:500 .74rem var(--font-mono);color:#5a6676}",
     ".eb-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}",
@@ -78,7 +79,7 @@
   /* ============ shared helpers ============ */
   function E() { return AX.el.apply(null, arguments); }
   function D(ctx) { return ctx.data; }
-  function scope(children) { ensureCss(); return E("div", { class: "demo-scope", "data-slug": SLUG }, children); }
+  function scope(children) { ensureCss(); return E("div", { class: "demo-scope", "data-slug": SLUG, style: { "--ax-accent": ACCENT, "--ax-line": "rgba(11,31,51,.12)" } }, children); }
   function inr(n) { return AX.fmt.inr(n); }
   function pill(text, kind) { return E("span", { class: "eb-pill " + (kind || "") }, text); }
   function kv(pairs) {

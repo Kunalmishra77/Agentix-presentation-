@@ -143,6 +143,18 @@ test("agentix-crm: mobile has no horizontal overflow on the kanban", async () =>
   } finally { await close(); }
 });
 
+test("agentix-crm: drawer primary button uses the brand accent; completion delta is data-driven", async () => {
+  const { page, close } = await openDemo("agentix-crm");
+  try {
+    const delta = await page.locator(".kpi", { hasText: "Completion" }).locator(".kpi-delta").innerText();
+    assert.ok(/[0-9]+%/.test(delta), delta);
+    await go(page, "leads");
+    await page.locator("tbody tr").first().click();
+    const bg = await page.locator(".ov-panel .ac-btn.primary").first().evaluate((n) => getComputedStyle(n).backgroundColor);
+    assert.equal(bg, "rgb(11, 31, 51)");
+  } finally { await close(); }
+});
+
 /* ------------------------------ eurobrass-crm ------------------------------ */
 test("eurobrass-crm: every module renders", async () => {
   const { page, errors, close } = await openDemo("eurobrass-crm");
@@ -157,7 +169,7 @@ test("eurobrass-crm: no real customer names in the dataset", async () => {
   const { page, close } = await openDemo("eurobrass-crm");
   try {
     const s = await page.evaluate(() => JSON.stringify(AX.data["eurobrass-crm"]));
-    for (const bad of ["Westin", "Lalit", "Medanta", "DMRC", "Taj", "Hyatt", "Marriott", "Oberoi"]) assert.ok(!s.includes(bad), bad);
+    for (const bad of ["Westin", "Lalit", "Medanta", "DMRC", "Taj", "Hyatt", "Marriott", "Oberoi", "Sarovar", "Meridian", "Hilton", "Radisson"]) assert.ok(!s.includes(bad), bad);
   } finally { await close(); }
 });
 
@@ -260,5 +272,15 @@ test("eurobrass-crm: mobile quotations has no horizontal overflow", async () => 
   try {
     await go(page, "quotations");
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  } finally { await close(); }
+});
+
+test("eurobrass-crm: drawer primary button uses the brass accent", async () => {
+  const { page, close } = await openDemo("eurobrass-crm");
+  try {
+    await go(page, "dealers");
+    await page.locator("tbody tr").first().click();
+    const bg = await page.locator(".ov-panel .eb-btn.primary").first().evaluate((n) => getComputedStyle(n).backgroundColor);
+    assert.equal(bg, "rgb(140, 106, 62)");
   } finally { await close(); }
 });

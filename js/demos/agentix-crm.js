@@ -4,6 +4,7 @@
   AX.demos = AX.demos || {};
   AX.crm = AX.crm || {};
   var SLUG = "agentix-crm";
+  var ACCENT = "#0B1F33";
 
   /* ============ pure helpers (no DOM) ============ */
   function dayNum(iso) { var p = String(iso).split("-"); return Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
@@ -82,7 +83,7 @@
     ".ac-out h4{margin:6px 0 2px;font:600 .85rem var(--font-display)}.ac-out ul{margin:0;padding-left:18px;font-size:.86rem;display:grid;gap:4px}",
     ".ac-tag{display:inline-block;font:700 .68rem var(--font-mono);background:#0B1F33;color:#fff;border-radius:6px;padding:3px 8px;justify-self:start}",
     ".ac-email{margin-top:16px;border:1px solid rgba(11,31,51,.14);border-radius:12px;background:#fff;overflow:hidden}.ac-email header{padding:10px 14px;background:#0B1F33;color:#fff;font:600 .85rem var(--font-body)}.ac-email pre{margin:0;padding:14px;white-space:pre-wrap;font:400 .86rem var(--font-body)}",
-    ".ac-btn{appearance:none;font:600 .85rem var(--font-body);padding:9px 16px;border-radius:999px;border:1px solid rgba(11,31,51,.2);background:#fff;color:#0B1F33;cursor:pointer}.ac-btn.primary{background:#0B1F33;border-color:#0B1F33;color:#fff}.ac-btn.orange{background:#EE6A24;border-color:#EE6A24;color:#fff}",
+    ".ac-btn{appearance:none;font:600 .85rem var(--font-body);padding:9px 16px;border-radius:999px;border:1px solid rgba(11,31,51,.2);background:#fff;color:#0B1F33;cursor:pointer}.ac-btn.primary{background:var(--ax-accent);border-color:var(--ax-accent);color:#fff}.ac-btn.orange{background:#EE6A24;border-color:#EE6A24;color:#fff}",
     ".ac-in,.ac-form select,.ac-form textarea{font:400 .86rem var(--font-body);padding:8px 10px;border:1px solid rgba(11,31,51,.2);border-radius:8px;background:#fff;width:100%;box-sizing:border-box}",
     ".ac-form{display:grid;gap:10px}.ac-form label{display:grid;gap:4px;font:500 .74rem var(--font-mono);color:#5a6676}",
     ".ac-ann{border-left:4px solid rgba(11,31,51,.25);padding:10px 14px;background:#fff;border-radius:0 10px 10px 0;margin-bottom:10px}.ac-ann.pinned{border-left-color:#EE6A24}.ac-ann h4{margin:0 0 4px;font:600 .95rem var(--font-display)}.ac-ann p{margin:0 0 6px;font-size:.86rem}.ac-ann small{color:#5a6676;font:500 .72rem var(--font-mono)}",
@@ -112,7 +113,7 @@
   /* ============ shared helpers ============ */
   function E() { return AX.el.apply(null, arguments); }
   function D(ctx) { return ctx.data; }
-  function scope(children) { ensureCss(); return E("div", { class: "demo-scope", "data-slug": SLUG }, children); }
+  function scope(children) { ensureCss(); return E("div", { class: "demo-scope", "data-slug": SLUG, style: { "--ax-accent": ACCENT, "--ax-line": "rgba(11,31,51,.12)" } }, children); }
   function stories(ctx) {
     var s = ctx.state.get();
     if (!s.stories) { ctx.state.set({ stories: D(ctx).stories.map(function (x) { return Object.assign({}, x); }) }); s = ctx.state.get(); }
@@ -126,6 +127,11 @@
   function completion(ctx) {
     var s = stories(ctx), d = s.filter(function (x) { return x.status === "done"; }).length;
     return Math.round(d / s.length * 1000) / 10;
+  }
+  /* Change vs a week ago: stories in the seed data that were done and due before today-7 count as the baseline. */
+  function completionDelta(ctx) {
+    var d = D(ctx), base = d.stories.filter(function (x) { return x.status === "done" && daysLeft(x.due, d.today) <= -7; }).length;
+    return Math.round(completion(ctx) - base / d.stories.length * 100);
   }
   function dueBadge(ctx, st) {
     var kind = deadlineKind(st.due, D(ctx).today, thresholds(ctx), st.status), n = daysLeft(st.due, D(ctx).today);
@@ -160,7 +166,7 @@
       type: "dashboard",
       kpis: [
         { label: "Active clients", value: d.clients.length },
-        { label: "Completion", value: completion(ctx), format: "pct", delta: 4 },
+        { label: "Completion", value: completion(ctx), format: "pct", delta: completionDelta(ctx) },
         { label: "Revenue (Oct)", value: rev.actual[last], format: "inr", delta: Math.round((rev.actual[last] / rev.actual[last - 1] - 1) * 100) },
         { label: "Due soon / overdue", value: overdue }
       ],

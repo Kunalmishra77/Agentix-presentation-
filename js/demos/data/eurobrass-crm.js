@@ -39,7 +39,7 @@
     });
   });
 
-  var CUST = [["Hotel Aranya Grand", "Hotel"], ["Sarovar Heights", "Hotel"], ["Lotus Bay Resorts", "Hotel"], ["Kailash Towers Hospitality", "Hotel"], ["Meridian Court Suites", "Hotel"],
+  var CUST = [["Hotel Aranya Grand", "Hotel"], ["Sundar Heights", "Hotel"], ["Lotus Bay Resorts", "Hotel"], ["Kailash Towers Hospitality", "Hotel"], ["Maple Court Suites", "Hotel"],
     ["Silverleaf Hospital", "Hospital"], ["CityCare Medical Centre", "Hospital"], ["Orchid Heart Institute", "Hospital"], ["Shreeji Builders", "Builder"], ["Dhruv Constructions", "Builder"],
     ["Anand Infra Projects", "Builder"], ["Studio Anvay Architects", "Architect"], ["Kalpana Design Studio", "Architect"], ["Palmgrove Residency", "Residential"], ["Skyline Metro Offices", "Commercial"],
     ["Verdant Valley Villas", "Residential"], ["Harmony Bay Apartments", "Residential"], ["Crescent Mall Management", "Commercial"], ["Nilgiri Homestays", "Hotel"], ["Ashoka Educational Trust", "Institution"]];
