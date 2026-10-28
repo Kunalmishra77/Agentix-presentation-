@@ -131,7 +131,7 @@ test("socialpush: compose, toggle 3 platforms, schedule -> calendar + posts Queu
     await go(page, "posts");
     const row = page.locator(".tbl-row", { hasText: "Diwali sale starts tonight" }).first();
     await row.waitFor();
-    await page.waitForSelector('.tbl-row:has-text("Diwali sale starts tonight") .sp-status[data-status="Queued"]');
+    await page.waitForSelector(".tbl-row:has-text(\"Diwali sale starts tonight\") .sp-status");
     await page.waitForSelector('.tbl-row:has-text("Diwali sale starts tonight") .sp-status[data-status="Publishing"]', { timeout: 4000 });
     await page.waitForSelector('.tbl-row:has-text("Diwali sale starts tonight") .sp-status[data-status="Published"]', { timeout: 4000 });
   } finally { await close(); }

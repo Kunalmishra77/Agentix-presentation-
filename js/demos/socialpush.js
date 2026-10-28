@@ -150,7 +150,7 @@
       var post = { id: "new-" + seq, name: "Post NEW-" + seq + " · just now", title: text, platforms: sel.map(function (p) { return p.id; }), date: now ? "2026-10-28" : dateInp.value || "2026-11-14",
         time: now ? "now" : timeInp.value || "10:00", status: "Queued", media: st.media, by: "You (demo)", reach: 0, error: "" };
       list.unshift(post);
-      track(post, now ? [[800, "Publishing"], [2400, "Published"]] : [[1600, "Publishing"], [3600, "Published"]]);
+      track(post, now ? [[800, "Publishing"], [2400, "Published"]] : [[1800, "Publishing"], [3700, "Published"]]);
       AX.ui.toast(now ? "Simulated — publishing to " + sel.length + " platforms, nothing was sent" : "Simulated — scheduled for " + post.date + ", nothing was sent", { kind: "sim" });
       ta.value = ""; drawPrev();
     }
