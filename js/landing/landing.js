@@ -146,6 +146,13 @@
     }
   }
 
+  /* Minimal category anchors, used only if sections.js is not loaded, so the index always has targets. */
+  var STUB = { build: function () {
+    return el("div", { id: "work" }, (AX.categories || []).map(function (c) {
+      return el("section", { id: "cat-" + c.id, class: "cat cat-stub" }, el("h2", null, c.num + " " + c.title), el("p", null, c.statement));
+    }));
+  } };
+
   function navScroll() {
     var on = (w.scrollY || 0) > 24;
     if (on !== nav.classList.contains("is-scrolled")) nav.classList.toggle("is-scrolled", on);
@@ -162,7 +169,7 @@
     var gsap = w.gsap, ST = w.ScrollTrigger;
     if (gsap && ST) gsap.registerPlugin(ST);
 
-    var modules = [AX.hero, AX.onelead, AX.indexList, AX.sections, AX.delivery].filter(function (m) { return m && m.build; });
+    var modules = [AX.hero, AX.onelead, AX.indexList, AX.sections || STUB, AX.delivery].filter(function (m) { return m && m.build; });
     host.appendChild(buildNav());
     var main = el("main", { id: "main", class: "landing-main" });
     modules.forEach(function (m) { var n = m.build(ctx); if (n) main.appendChild(n); });
@@ -182,6 +189,7 @@
     var shellEl = document.getElementById("shell"); if (shellEl) shellEl.setAttribute("data-lenis-prevent", "");
 
     modules.forEach(function (m) { if (m.setup) m.setup(ctx); });
+    if (AX.delivery && AX.delivery.setup && modules.indexOf(AX.delivery) < 0) AX.delivery.setup(ctx);
     cursor();
     w.addEventListener("scroll", navScroll, { passive: true });
     navScroll();

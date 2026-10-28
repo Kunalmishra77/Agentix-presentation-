@@ -8,7 +8,8 @@ const ready = (page) => page.waitForFunction(() => document.documentElement.clas
 test("preloader finishes and the hero headline is shown, with no errors", async () => {
   const { page, errors, close } = await openPage("/index.html");
   try {
-    await page.locator("#preloader").waitFor({ state: "attached", timeout: 5000 });
+    // the preloader may already have finished by the load event on a busy machine, so check the flag it sets
+    assert.equal(await page.evaluate(() => window.__axPreloaderShown === true), true, "preloader ran on first visit");
     await ready(page);
     await page.locator("#preloader").waitFor({ state: "detached" });
     assert.match(await page.locator("#hero h1").innerText(), /AI Applied/);
