@@ -118,12 +118,12 @@ test("stale overlays: lightbox + Back, reopen, one Esc closes shell", async () =
 });
 
 test("walkthrough mounts once (loaded and cold)", async () => {
-  const stub = () => { window.AX = window.AX || {}; window.__m = 0; AX.appShell = { mount(w) { window.__m++; w.textContent = "mounted"; } }; };
+  const stub = () => { window.__m = 0; document.addEventListener("DOMContentLoaded", () => { AX.appShell = { mount(w) { window.__m++; w.textContent = "mounted"; } }; }); };
   // cold: deep link, demo not yet loaded
   let r = await openPage("/index.html#/");
   try {
     await r.page.addInitScript(stub);
-    await r.page.goto("http://127.0.0.1:4310/index.html#/demo/agentix/walkthrough");
+    await r.page.goto(require("../helpers/browser").serverUrl + "/index.html#/demo/agentix/walkthrough");
     await r.page.reload();
     await r.page.waitForFunction(() => window.__m >= 1);
     await r.page.waitForTimeout(400);
