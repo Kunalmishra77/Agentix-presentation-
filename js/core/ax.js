@@ -14,11 +14,14 @@
       else if (k === "html") n.innerHTML = v;
       else n.setAttribute(k, v === true ? "" : v);
     });
-    for (var i = 2; i < arguments.length; i++) {
-      var c = arguments[i];
-      if (c == null || c === false) continue;
-      n.appendChild(typeof c === "object" ? c : document.createTextNode(String(c)));
-    }
+    (function add(list) {
+      for (var i = 0; i < list.length; i++) {
+        var c = list[i];
+        if (c == null || c === false) continue;
+        if (Array.isArray(c)) add(c);
+        else n.appendChild(typeof c === "object" ? c : document.createTextNode(String(c)));
+      }
+    })(Array.prototype.slice.call(arguments, 2));
     return n;
   };
 
