@@ -48,13 +48,37 @@
       return v == null ? "" : v;
     }
 
+    function focusSnapshot() {
+      var a = document.activeElement;
+      if (!a || !root.contains(a)) return null;
+      var cl = a.classList;
+      if (cl.contains("tbl-search")) return { t: "search" };
+      if (cl.contains("tbl-filter")) return { t: "filter", k: a.getAttribute("data-key") };
+      if (cl.contains("tbl-prev")) return { t: "prev" };
+      if (cl.contains("tbl-next")) return { t: "next" };
+      if (cl.contains("tbl-sort")) return { t: "sort", i: [].indexOf.call(root.querySelectorAll(".tbl-sort"), a) };
+      return null;
+    }
+    function restoreFocus(f) {
+      if (!f) return;
+      var n = null, all, i;
+      if (f.t === "search") n = root.querySelector(".tbl-search");
+      else if (f.t === "prev") n = root.querySelector(".tbl-prev");
+      else if (f.t === "next") n = root.querySelector(".tbl-next");
+      else if (f.t === "sort") n = root.querySelectorAll(".tbl-sort")[f.i];
+      else if (f.t === "filter") { all = root.querySelectorAll(".tbl-filter"); for (i = 0; i < all.length; i++) if (all[i].getAttribute("data-key") === f.k) n = all[i]; }
+      if (n && !n.disabled) {
+        n.focus();
+        if (f.t === "search") { try { n.setSelectionRange(n.value.length, n.value.length); } catch (e) {} }
+      }
+    }
+
     function draw() {
       var list = query(st.rows, { q: st.q, qKeys: opt.qKeys, filters: st.filters, sort: st.sort });
       var pages = Math.max(1, Math.ceil(list.length / pageSize));
       if (st.page >= pages) st.page = pages - 1;
       var start = st.page * pageSize, view = list.slice(start, start + pageSize);
-      var searchHadFocus = document.activeElement && document.activeElement.classList &&
-        document.activeElement.classList.contains("tbl-search");
+      var focusKey = focusSnapshot();
 
       var tools = [];
       if (opt.qKeys && opt.qKeys.length) {
@@ -116,15 +140,12 @@
       ];
       root.textContent = "";
       content.forEach(function (n) { if (n) root.appendChild(n); });
-      if (searchHadFocus) {
-        var s = root.querySelector(".tbl-search");
-        if (s) { s.focus(); try { s.setSelectionRange(s.value.length, s.value.length); } catch (e) {} }
-      }
+      restoreFocus(focusKey);
     }
 
     draw();
     return {
-      setRows: function (rows) { st.rows = rows || []; st.page = 0; draw(); },
+      setRows: function (rows) { st.rows = rows || []; draw(); },
       refresh: draw
     };
   }

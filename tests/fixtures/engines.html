@@ -16,6 +16,8 @@
   <div id="t"></div>
   <h2>Board</h2>
   <div id="b"></div>
+  <h2>Board with buttons</h2>
+  <div id="b2"></div>
 </main>
 <script src="../../js/core/ax.js"></script>
 <script src="../../js/core/ui.js"></script>
@@ -68,7 +70,7 @@
     actions: [{ label: "Call", onClick: function (r) { AX.ui.toast("Simulated call to " + r.name, { kind: "sim" }); } }]
   });
 
-  AX.board.create(document.getElementById("b"), {
+  window.__board = AX.board.create(document.getElementById("b"), {
     columns: [{ id: "new", label: "New", tone: "hot" }, { id: "qualified", label: "Qualified" }, { id: "won", label: "Won", tone: "good" }],
     cards: [
       { id: "c1", col: "new", title: "Priya Nair", sub: "Villa enquiry", tags: ["WhatsApp"], meta: AX.fmt.inr(450000) },
@@ -79,6 +81,16 @@
     ],
     onMove: function (card, to) { window.__onMove.push({ id: card.id, to: to }); },
     onOpen: function (card) { window.__onOpen.push(card.id); }
+  });
+  window.__btn = []; window.__onOpen2 = [];
+  AX.board.create(document.getElementById("b2"), {
+    columns: [{ id: "x", label: "X" }, { id: "y", label: "Y" }],
+    cards: [{ id: "z1", col: "x", title: "With button" }],
+    renderCard: function (c) {
+      return [el("div", { class: "bd-title" }, c.title),
+        el("button", { type: "button", class: "card-btn", on: { click: function () { window.__btn.push(c.id); } } }, "Call")];
+    },
+    onOpen: function (c) { window.__onOpen2.push(c.id); }
   });
 })();
 </script>

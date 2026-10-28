@@ -15,6 +15,7 @@
     }
     return n;
   }
+  function num0(v) { v = Number(v); return isFinite(v) && v > 0 ? v : 0; }
   function tip(text) { return S("title", null, text); }
   function mount(host, svg) { host.textContent = ""; host.appendChild(svg); return svg; }
   function root(vw, vh, label) {
@@ -63,7 +64,7 @@
       }
       svg.appendChild(S("path", { d: path, fill: "none", stroke: col, "stroke-width": 2.5, "stroke-linecap": "round", "stroke-linejoin": "round", pathLength: 1, class: "ch-line" }));
       pts.forEach(function (p, i) {
-        svg.appendChild(S("circle", { cx: p[0], cy: p[1], r: 4, fill: col, class: "ch-dot" }, tip(s.name + " · " + labels[i] + ": " + AX.fmt.num(s.points[i]))));
+        svg.appendChild(S("circle", { cx: p[0], cy: p[1], r: 4, fill: col, class: "ch-dot" }, tip(s.name + " · " + (labels[i] != null ? labels[i] : i + 1) + ": " + AX.fmt.num(s.points[i]))));
       });
     });
     if (d.series.length > 1) legend(svg, d.series.map(function (s, i) { return [s.name, COLORS[i % COLORS.length]]; }), VW, VH);
@@ -80,7 +81,7 @@
   }
 
   function bar(host, d) {
-    var labels = d.labels || [], vals = d.values || [], max = niceMax(Math.max.apply(null, vals.concat([1])));
+    var labels = d.labels || [], vals = (d.values || []).map(num0), max = niceMax(Math.max.apply(null, vals.concat([1])));
     var svg;
     if (d.horizontal) {
       var rowH = 34, VH = Math.max(120, labels.length * rowH + 30), L = 110, R = 560;
@@ -136,7 +137,7 @@
     var rowH = 46, VH = steps.length * rowH + 10, svg = root(600, VH, "Funnel chart");
     steps.forEach(function (s, i) {
       var wd = 420 * s.value / max, y = 5 + i * rowH, x = 130 + (420 - wd) / 2;
-      var conv = i ? " · " + AX.fmt.pct(s.value / steps[i - 1].value * 100) + " of previous" : "";
+      var conv = i && steps[i - 1].value > 0 ? " · " + AX.fmt.pct(s.value / steps[i - 1].value * 100) + " of previous" : "";
       svg.appendChild(text(122, y + 24, s.label, "end"));
       svg.appendChild(S("rect", { x: x, y: y, width: Math.max(wd, 2), height: rowH - 10, rx: 4, fill: i === 0 ? COLORS[1] : COLORS[0], class: "ch-bar ch-bar-h", style: "opacity:" + (1 - i * 0.12).toFixed(2) },
         tip(s.label + ": " + AX.fmt.num(s.value) + conv)));
@@ -146,7 +147,7 @@
   }
 
   function gauge(host, d) {
-    var v = Math.max(0, Math.min(100, d.value)), svg = root(240, 150, "Gauge " + v + "%");
+    var v = Math.max(0, Math.min(100, num0(d.value))), svg = root(240, 150, "Gauge " + v + "%");
     var cx = 120, cy = 120;
     svg.appendChild(S("path", { d: arc(cx, cy, 70, 100, Math.PI, Math.PI * 2), class: "ch-track" }));
     svg.appendChild(S("path", { d: arc(cx, cy, 70, 100, Math.PI, Math.PI + Math.PI * Math.max(v, 0.5) / 100), fill: COLORS[0], class: "ch-slice" }, tip((d.label || "Value") + ": " + v + "%")));
@@ -157,10 +158,12 @@
 
   function spark(host, pts) {
     var VW = 120, VH = 36, max = Math.max.apply(null, pts), min = Math.min.apply(null, pts), rng = max - min || 1;
+    pts = (pts || []).map(num0);
     var svg = root(VW, VH, "Sparkline"); svg.setAttribute("class", "ch ch-spark");
     var step = pts.length > 1 ? (VW - 4) / (pts.length - 1) : 0;
     var path = pts.map(function (v, i) { return (i ? "L" : "M") + (2 + i * step).toFixed(1) + " " + (VH - 4 - (VH - 8) * (v - min) / rng).toFixed(1); }).join(" ");
-    svg.appendChild(S("path", { d: path, fill: "none", stroke: COLORS[0], "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", pathLength: 1, class: "ch-line" }));
+    if (pts.length === 1) svg.appendChild(S("circle", { cx: VW / 2, cy: VH / 2, r: 3, fill: COLORS[0], class: "ch-dot" }));
+    else if (pts.length) svg.appendChild(S("path", { d: path, fill: "none", stroke: COLORS[0], "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", pathLength: 1, class: "ch-line" }));
     mount(host, svg);
   }
 
