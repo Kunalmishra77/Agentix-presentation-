@@ -34,7 +34,7 @@
     var el = AX.el;
     var nodes = (opt.nodes || []).map(function (n) { return Object.assign({}, n); });
     var edges = (opt.edges || []).map(function (e) { return e.slice(); });
-    var timers = [], destroyed = false, runId = 0, dragStop = null;
+    var timers = [], waiters = [], destroyed = false, runId = 0, dragStop = null;
 
     var svgEl = svg("svg", { class: "fl-svg", "aria-hidden": "true" });
     var defs = svg("defs");
@@ -63,6 +63,8 @@
       svgEl.setAttribute("width", mx + PAD); svgEl.setAttribute("height", my + PAD);
     }
     function drawEdges() {
+      var on = {};
+      edgeEls.forEach(function (g) { if (g.classList.contains("on")) on[g.getAttribute("data-from") + ">" + g.getAttribute("data-to")] = true; });
       edgeEls.forEach(function (g) { if (g.parentNode) g.parentNode.removeChild(g); });
       edgeEls = edges.map(function (e, i) {
         var a = byId(e[0]), b = byId(e[1]);
@@ -74,6 +76,7 @@
           var t = svg("text", { class: "fl-elabel", x: p.mx, y: p.my - 6, "text-anchor": "middle" });
           t.textContent = e[2]; g.appendChild(t);
         }
+        if (on[e[0] + ">" + e[1]]) g.classList.add("on");
         svgEl.appendChild(g);
         return g;
       }).filter(Boolean);
@@ -129,8 +132,8 @@
     function later(ms) {
       if (!ms) return Promise.resolve();
       return new Promise(function (res) {
-        var t = setTimeout(function () { var i = timers.indexOf(t); if (i >= 0) timers.splice(i, 1); res(); }, ms);
-        timers.push(t);
+        var t = setTimeout(function () { var i = timers.indexOf(t); if (i >= 0) timers.splice(i, 1); waiters = waiters.filter(function (r) { return r !== res; }); res(); }, ms);
+        timers.push(t); waiters.push(res);
       });
     }
 
@@ -160,6 +163,7 @@
       if (!id || !byId(id)) return Promise.resolve();
       var mine = ++runId;
       timers.forEach(clearTimeout); timers = [];
+      var w1 = waiters; waiters = []; w1.forEach(function (r) { r(); });
       reset();
       var ms = reduced() ? 0 : STEP;
       runBtn.disabled = true;
@@ -186,6 +190,7 @@
     function destroy() {
       destroyed = true;
       timers.forEach(clearTimeout); timers = [];
+      var w0 = waiters; waiters = []; w0.forEach(function (r) { r(); });
       if (dragStop) dragStop();
     }
 

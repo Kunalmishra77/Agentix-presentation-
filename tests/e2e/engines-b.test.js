@@ -36,7 +36,7 @@ test("chat themes, typing indicator, chips and composer", async () => {
     await page.locator("#chat .cht-thread").nth(1).click();
     await page.waitForFunction(() => getComputedStyle(document.querySelector("#chat .cht-head")).backgroundImage.indexOf("gradient") >= 0);
     await page.locator("#chat .cht-thread").nth(0).click();
-    page.evaluate(() => window.__chat.play("t1"));
+    const played = page.evaluate(() => window.__chat.play("t1"));
     await page.locator("#chat .cht-typing").waitFor();
     assert.equal(await page.locator("#chat .cht-typing i").count(), 3);
     await page.locator("#chat .cht-chip", { hasText: "Whitefield" }).waitFor();
@@ -46,6 +46,7 @@ test("chat themes, typing indicator, chips and composer", async () => {
     await page.fill("#chat .cht-input", "Hello there");
     await page.press("#chat .cht-input", "Enter");
     await page.locator("#chat .cht-msg", { hasText: "AI reply (simulated)" }).waitFor({ timeout: 4000 });
+    await played;
     assert.equal(errors.length, 0, errors.join("\n"));
   } finally { await close(); }
 });
@@ -191,5 +192,70 @@ test("no horizontal page overflow at 390", async () => {
   try {
     const o = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(o <= 0, "overflow " + o);
+  } finally { await close(); }
+});
+
+test("chat: chip click mid-delay does not drop a scripted item or its event", async () => {
+  const { page, errors, close } = await openPage(URL_);
+  try {
+    await page.evaluate(() => {
+      window.__ev2 = [];
+      const h = document.createElement("div"); h.id = "chat2"; document.body.appendChild(h);
+      window.__c2 = AX.chat.create(h, { threads: [{ id: "q", name: "Q", channel: "web", messages: [] }],
+        scripts: { q: [
+          { from: "ai", text: "Hello first", delay: 50, chips: ["Go"] },
+          { from: "ai", text: "Middle line", delay: 2500 },
+          { from: "ai", text: "Booked now", delay: 50, event: "booked" }] },
+        onEvent: (ev) => window.__ev2.push(ev) });
+      window.__pd = false;
+      window.__c2.play("q").then(() => { window.__pd = true; });
+    });
+    await page.locator("#chat2 .cht-chip", { hasText: "Go" }).click();      // inside the 2.5s delay of "Middle line"
+    await page.fill("#chat2 .cht-input", "interjection");
+    await page.press("#chat2 .cht-input", "Enter");
+    await page.waitForFunction(() => window.__pd === true, null, { timeout: 8000 });
+    const texts = await page.locator("#chat2 .cht-msg .cht-text").allInnerTexts();
+    const idx = ["Hello first", "Middle line", "Booked now"].map((s) => texts.findIndex((t) => t.includes(s)));
+    assert.ok(idx.every((i) => i >= 0) && idx[0] < idx[1] && idx[1] < idx[2], JSON.stringify(texts));
+    assert.ok(texts.includes("Go") && texts.includes("interjection"));
+    assert.deepEqual(await page.evaluate(() => window.__ev2), ["booked"]);
+    assert.equal(errors.length, 0, errors.join(" "));
+  } finally { await close(); }
+});
+
+test("destroying chat or flow mid-run resolves the pending promises", async () => {
+  const { page, close } = await openPage(URL_);
+  try {
+    const r = await page.evaluate(async () => {
+      const h = document.createElement("div"); document.body.appendChild(h);
+      const c = AX.chat.create(h, { threads: [{ id: "x", name: "X", channel: "web", messages: [] }],
+        scripts: { x: [{ from: "ai", text: "a", delay: 60000 }, { from: "ai", text: "b" }] } });
+      const f = document.createElement("div"); document.body.appendChild(f);
+      const fl = AX.flow.create(f, { nodes: [{ id: "a", kind: "trigger", label: "A", x: 0, y: 0 }, { id: "b", kind: "end", label: "B", x: 220, y: 0 }], edges: [["a", "b"]] });
+      let cd = false, fd = false;
+      c.play("x").then(() => { cd = true; });
+      fl.run().then(() => { fd = true; });
+      await new Promise((r) => setTimeout(r, 50));
+      h.__axDestroy(); f.__axDestroy();
+      await new Promise((r) => setTimeout(r, 50));
+      return { cd, fd, msgs: h.querySelectorAll(".cht-msg").length };
+    });
+    assert.deepEqual(r, { cd: true, fd: true, msgs: 0 });
+  } finally { await close(); }
+});
+
+test("pipeline approve keeps a cost-blocked stage's pending log lines", async () => {
+  const { page, close } = await openPage(URL_, RM);
+  try {
+    const lines = await page.evaluate(async () => {
+      const h = document.createElement("div"); document.body.appendChild(h);
+      const p = AX.pipeline.create(h, { cap: 0.1, stages: [{ id: "a", label: "A", ms: 300, cost: 1, log: ["line-one", "line-two"] }] });
+      p.start();
+      await new Promise((r) => setTimeout(r, 170));   // cost block at 150ms; line-two still pending (200ms)
+      p.approve();
+      await new Promise((r) => setTimeout(r, 500));
+      return Array.from(h.querySelectorAll(".pl-log li")).map((n) => n.textContent);
+    });
+    assert.ok(lines.includes("line-one") && lines.includes("line-two"), JSON.stringify(lines));
   } finally { await close(); }
 });

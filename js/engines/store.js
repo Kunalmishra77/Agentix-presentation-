@@ -84,7 +84,7 @@
       var line = cart.filter(function (l) { return l.id === p.id && (l.variant || "") === (variant || ""); })[0];
       if (line) line.qty += qty; else cart.push({ id: p.id, qty: qty, variant: variant || "" });
       drawCartBtn();
-      if (cartBody) renderCart();
+      if (cartBody && cartBody.isConnected) { view = "cart"; renderCart(); }
     }
 
     function openProduct(p) {
@@ -125,6 +125,7 @@
     }
     function line(l) {
       var p = prod(l.id);
+      if (!p) return null;
       function bump(n) {
         l.qty += n;
         if (l.qty <= 0) cart.splice(cart.indexOf(l), 1);

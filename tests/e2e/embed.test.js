@@ -1,7 +1,7 @@
 "use strict";
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { openPage } = require("../helpers/browser");
+const { openPage, serverUrl } = require("../helpers/browser");
 
 test("iframe to about:blank loads and stays live", async () => {
   const { page, errors, close } = await openPage("/tests/fixtures/embed.html?url=about:blank");
@@ -78,5 +78,21 @@ test("re-create on same host and removal clean up: one toast per message, none a
     await page.evaluate(() => document.getElementById("e").remove());
     await page.waitForTimeout(100);
     assert.equal(await page.evaluate(() => document.querySelectorAll(".emb").length), 0);
+  } finally { await close(); }
+});
+
+test("allowedOrigins that exclude this origin show the scroller immediately", async () => {
+  const { page, close } = await openPage("/tests/fixtures/embed.html?url=about:blank&allowed=" + encodeURIComponent("https://example.com"));
+  try {
+    await page.locator(".emb-scroller").waitFor({ state: "visible", timeout: 1500 });
+    assert.equal(await page.locator(".emb iframe").count(), 0);
+    assert.ok(await page.getByText("Preview — live site opens in the hosted portfolio").first().isVisible());
+  } finally { await close(); }
+});
+
+test("allowedOrigins that include this origin keep the iframe", async () => {
+  const { page, close } = await openPage("/tests/fixtures/embed.html?url=about:blank&allowed=" + encodeURIComponent(serverUrl));
+  try {
+    await page.waitForFunction(() => window.__emb.status() === "live");
   } finally { await close(); }
 });

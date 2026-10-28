@@ -4,6 +4,20 @@
   var DEFAULT_TIMEOUT = 12000;
   var CAPTION = "Preview — live site opens in the hosted portfolio";
 
+  /** Pure. patterns: exact origins ("https://example.com", "null") or wildcard hosts ("https://*.example.com", subdomains only). */
+  function originAllowed(origin, patterns) {
+    origin = String(origin == null ? "" : origin).toLowerCase();
+    return (patterns || []).some(function (p) {
+      p = String(p).toLowerCase();
+      if (p === origin) return true;
+      var wp = /^([a-z][a-z0-9+.-]*):\/\/\*\.(.+)$/.exec(p);
+      var wo = /^([a-z][a-z0-9+.-]*):\/\/(.+)$/.exec(origin);
+      if (!wp || !wo || wp[1] !== wo[1]) return false;
+      var suffix = "." + wp[2];
+      return wo[2].length > suffix.length && wo[2].slice(-suffix.length) === suffix;
+    });
+  }
+
   function sameOriginHttp(url) {
     try {
       if (!/^https?:$/.test(w.location.protocol)) return false;
@@ -98,6 +112,7 @@
     function load() {
       clearTimer(); removeFrame();
       if (mode === "scroller" || !opt.url) { showScroller(); return; }
+      if (opt.allowedOrigins && !originAllowed(w.location.origin, opt.allowedOrigins)) { showScroller(); return; }
       setStatus("loading");
       view.textContent = "";
       frame = el("iframe", { class: "emb-frame", title: opt.title || "Embedded site", loading: "lazy",
@@ -133,5 +148,5 @@
     return { setDevice: setDevice, reload: load, status: function () { return status; } };
   }
 
-  AX.embed = { create: create, CAPTION: CAPTION };
+  AX.embed = { create: create, originAllowed: originAllowed, CAPTION: CAPTION };
 })(window);

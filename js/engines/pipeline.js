@@ -50,7 +50,7 @@
     var meta = {};
     var stages = opt.stages || [];
     stages.forEach(function (s) { meta[s.id] = s; });
-    var timers = [], state, uiLog, destroyed = false, running = false, emitted = {};
+    var timers = [], state, uiLog, destroyed = false, running = false, emitted = {}, endTimer = null;
 
     function initial() {
       var s = { stages: stages.map(function (x) { return { id: x.id, status: "waiting" }; }), cost: 0, cap: opt.cap == null ? null : opt.cap, log: [], gates: [] };
@@ -58,7 +58,7 @@
       s.log = [];
       return s;
     }
-    function later(fn, ms) { var t = setTimeout(function () { var i = timers.indexOf(t); if (i >= 0) timers.splice(i, 1); fn(); }, ms); timers.push(t); }
+    function later(fn, ms) { var t = setTimeout(function () { var i = timers.indexOf(t); if (i >= 0) timers.splice(i, 1); fn(); }, ms); timers.push(t); return t; }
     function clearTimers() { timers.forEach(clearTimeout); timers = []; }
 
     var root = el("div", { class: "pl" });
@@ -120,7 +120,8 @@
           }, ms / 2);
           (m.log || []).forEach(function (line, i) { later(function () { addLog(line); state.log.push(line); }, ms * (i + 1) / (m.log.length + 1)); });
         }
-        later(function () {
+        endTimer = later(function () {
+          endTimer = null;
           if (find(state, "running") !== null && find(state, "running").id === run.id) { dispatch({ type: "tick" }); draw(); step(); }
         }, ms);
         return;
@@ -136,7 +137,7 @@
     }
     function approve() {
       if (destroyed || !find(state, "blocked")) return;
-      clearTimers();
+      if (endTimer) { clearTimeout(endTimer); var k = timers.indexOf(endTimer); if (k >= 0) timers.splice(k, 1); endTimer = null; }
       dispatch({ type: "approve" }); running = true; draw(); step();
     }
     function reset() {

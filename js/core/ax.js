@@ -65,21 +65,32 @@
 
   /** Register a destroy fn for an engine instance on host: runs the previous one on re-create and when host leaves the DOM. */
   var mounted = [], mo = null;
-  function sweep() {
-    mounted = mounted.filter(function (m) {
-      if (m.host.isConnected) { m.seen = true; return true; }
-      if (!m.seen) return true;
-      if (m.host.__axDestroy === m.fn) m.host.__axDestroy = null;
-      try { m.fn(); } catch (e) {}
-      return false;
-    });
+  function later(fn) { if (typeof requestAnimationFrame === "function") requestAnimationFrame(fn); else setTimeout(fn, 16); }
+  function destroyEntry(m) {
+    mounted = mounted.filter(function (x) { return x !== m; });
+    if (m.host.__axDestroy === m.fn) m.host.__axDestroy = null;
+    try { m.fn(); } catch (e) {}
     if (!mounted.length && mo) { mo.disconnect(); mo = null; }
+  }
+  function sweep() {
+    mounted.slice().forEach(function (m) {
+      if (m.host.isConnected) { m.seen = true; return; }
+      if (!m.seen || m.pending) return;
+      m.pending = true;   // recheck next frame: a host re-attached in a later mutation batch must survive
+      later(function () {
+        m.pending = false;
+        if (mounted.indexOf(m) < 0) return;
+        if (m.host.isConnected) m.seen = true; else destroyEntry(m);
+      });
+    });
   }
   AX.mount = function (host, fn) {
     var prev = host.__axDestroy;
     if (prev) { host.__axDestroy = null; mounted = mounted.filter(function (m) { return m.fn !== prev; }); try { prev(); } catch (e) {} }
     host.__axDestroy = fn;
-    mounted.push({ host: host, fn: fn, seen: host.isConnected });
+    var entry = { host: host, fn: fn, seen: host.isConnected, pending: false };
+    mounted.push(entry);
+    if (!entry.seen) later(function () { if (!entry.seen && !host.isConnected) mounted = mounted.filter(function (x) { return x !== entry; }); });
     if (!mo && typeof MutationObserver !== "undefined") {
       mo = new MutationObserver(sweep);
       mo.observe(document.documentElement, { childList: true, subtree: true });

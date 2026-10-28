@@ -19,6 +19,7 @@
   var q = new URLSearchParams(location.search);
   var o = { url: q.get("url") || "about:blank", mode: q.get("mode") || "iframe", title: "Fixture site", external: q.get("external") === "1",
     shots: [{ src: "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1600"><rect width="800" height="1600" fill="#ddd"/></svg>') }] };
+  if (q.get("allowed")) o.allowedOrigins = q.get("allowed").split(",");
   if (q.get("timeout")) o.timeoutMs = Number(q.get("timeout"));
   window.__emb = AX.embed.create(document.getElementById("e"), o);
 })();

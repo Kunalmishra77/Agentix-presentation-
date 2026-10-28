@@ -14,9 +14,9 @@
       return Object.assign({}, t, { messages: (t.messages || []).map(function (m) { return Object.assign({}, m); }) });
     });
     var scripts = opt.scripts || {};
-    var cursor = {};            // scripted items consumed per thread
-    var token = {};             // play/reply generation per thread, to cancel
-    var timers = [];
+    var done = {};              // done[threadId][i] = scripted item i has rendered
+    var playing = {};           // playing[threadId] = in-flight play() promise
+    var timers = [], waiters = [];
     var destroyed = false;
     var current = null;
     var composer = opt.composer !== false;
@@ -34,8 +34,8 @@
     function wait(ms) {
       if (!ms) return Promise.resolve();
       return new Promise(function (res) {
-        var t = setTimeout(function () { var i = timers.indexOf(t); if (i >= 0) timers.splice(i, 1); res(); }, ms);
-        timers.push(t);
+        var t = setTimeout(function () { var i = timers.indexOf(t); if (i >= 0) timers.splice(i, 1); waiters = waiters.filter(function (r) { return r !== res; }); res(); }, ms);
+        timers.push(t); waiters.push(res);
       });
     }
     function delayOf(item) { return reduced() ? 0 : (item.delay != null ? item.delay : DEFAULT_DELAY); }
@@ -87,13 +87,17 @@
       });
     }
 
-    /** Render one scripted item (typing delay for ai/agent), returns Promise. */
-    function playItem(t, item, tk) {
+    function isDone(id, i) { return !!(done[id] && done[id][i]); }
+    function markDone(id, i) { (done[id] = done[id] || [])[i] = true; }
+
+    /** Render one scripted item (typing delay for ai/agent), then mark it done; returns Promise. */
+    function playItem(t, item, idx) {
       var isBot = item.from === "ai" || item.from === "agent";
       var d = delayOf(item);
       if (current === t.id && isBot && d) typing(true);
       return wait(d).then(function () {
-        if (destroyed || token[t.id] !== tk) return false;
+        if (destroyed) return false;
+        markDone(t.id, idx);
         clearChips();
         addMsg(t, { from: item.from, text: item.text, at: item.at });
         if (item.chips && item.chips.length) showChips(t, item.chips);
@@ -102,32 +106,35 @@
       });
     }
 
+    /** Plays every not-yet-rendered scripted item in order; user interjections never drop or duplicate items. */
     function play(id) {
       var t = thread(id);
       if (!t) return Promise.resolve();
       open(id);
-      var tk = token[id] = (token[id] || 0) + 1;
+      if (playing[id]) return playing[id];
       var items = scripts[id] || [];
       function next() {
-        var i = cursor[id] || 0;
-        if (destroyed || token[id] !== tk || i >= items.length) return Promise.resolve();
-        cursor[id] = i + 1;
-        return playItem(t, items[i], tk).then(function (ok) { return ok ? next() : undefined; });
+        if (destroyed) return Promise.resolve();
+        var i = 0;
+        while (i < items.length && isDone(id, i)) i++;
+        if (i >= items.length) return Promise.resolve();
+        return playItem(t, items[i], i).then(function (ok) { return ok ? next() : undefined; });
       }
-      return next();
+      var p = next().then(function () { delete playing[id]; }, function (e) { delete playing[id]; throw e; });
+      playing[id] = p;
+      return p;
     }
 
-    /** Next scripted AI reply for a user-sent message, else a generic one. */
+    /** Next scripted AI reply for a user-sent message, else a generic one. Not used while play() is running. */
     function reply(t) {
       var items = scripts[t.id] || [];
-      var i = cursor[t.id] || 0;
-      if (items[i] && items[i].from === "user") i++;            // the user just typed this line themselves
-      var item = items[i];
-      while (item && item.from === "user") { i++; item = items[i]; }
-      var tk = token[t.id] = (token[t.id] || 0) + 1;
-      if (item) { cursor[t.id] = i + 1; }
-      else { item = { from: "ai", text: "AI reply (simulated)" }; }
-      return playItem(t, item, tk);
+      var i = 0;
+      while (i < items.length && (isDone(t.id, i) || items[i].from === "user")) {
+        if (!isDone(t.id, i)) markDone(t.id, i);   // the user just typed this line themselves
+        i++;
+      }
+      if (i < items.length) return playItem(t, items[i], i);
+      return playItem(t, { from: "ai", text: "AI reply (simulated)" }, -1);
     }
 
     function send(id, text) {
@@ -136,6 +143,7 @@
       if (!t || !text) return Promise.resolve();
       clearChips();
       addMsg(t, { from: "user", text: text });
+      if (playing[id]) return playing[id];
       return reply(t);
     }
 
@@ -172,6 +180,7 @@
     function destroy() {
       destroyed = true;
       timers.forEach(clearTimeout); timers = [];
+      var w0 = waiters; waiters = []; w0.forEach(function (r) { r(); });
     }
 
     drawList();

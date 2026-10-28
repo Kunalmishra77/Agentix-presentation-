@@ -1,7 +1,7 @@
 "use strict";
 const { start } = require("../../tools/serve");
 
-const PORT = 4310;
+const PORT = +process.env.AX_PORT || 4310;
 const serverUrl = "http://127.0.0.1:" + PORT;
 const { chromium } = require(process.env.PW || "E:/travel-agency/node_modules/playwright");
 

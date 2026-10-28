@@ -1,7 +1,7 @@
 "use strict";
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { openPage } = require("../helpers/browser");
+const { openPage, serverUrl } = require("../helpers/browser");
 
 test("unknown slug replaces to #/", async () => {
   const { page, errors, close } = await openPage("/index.html#/demo/does-not-exist");
@@ -123,7 +123,7 @@ test("walkthrough mounts once (loaded and cold)", async () => {
   let r = await openPage("/index.html#/");
   try {
     await r.page.addInitScript(stub);
-    await r.page.goto("http://127.0.0.1:4310/index.html#/demo/agentix/walkthrough");
+    await r.page.goto(serverUrl + "/index.html#/demo/agentix/walkthrough");
     await r.page.reload();
     await r.page.waitForFunction(() => window.__m >= 1);
     await r.page.waitForTimeout(400);
