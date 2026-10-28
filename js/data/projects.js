@@ -47,7 +47,7 @@
         W("ROI reporting", "Spend and conversions roll up into the marketing dashboard.")
       ],
       stack: ["React", "Node.js", "PostgreSQL", "WhatsApp Cloud API", "Meta Graph API", "ReactFlow", "Docker", "Coolify"],
-      liveUrl: "https://app.aiagentixdev.com/", embed: { url: "https://app.aiagentixdev.com/", mode: "scroller" },
+      liveUrl: "https://app.aiagentixdev.com/", embed: { url: "https://app.aiagentixdev.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
       shots: shots("agentix", true), demo: true
     },
     {
@@ -248,8 +248,8 @@
         W("Plan the build", "Turn the prototype into a delivery plan.")
       ],
       stack: ["Claude artifact", "HTML", "JavaScript"],
-      liveUrl: "https://claude.ai/artifact/1aWGMS5ETqSCp4f1SV5JLD", embed: { url: "https://claude.ai/artifact/1aWGMS5ETqSCp4f1SV5JLD", mode: "scroller", external: true },
-      shots: [], demo: true
+      liveUrl: "https://claude.ai/artifact/1aWGMS5ETqSCp4f1SV5JLD", embed: { url: "sites/santure/index.html", mode: "local" },
+      shots: [], demo: false
     },
     {
       slug: "ekatva", name: "Ekatva", client: "Ekatva", category: "crm", status: "proto", tier: "C", year: 2026,
@@ -268,8 +268,8 @@
         W("Review operations", "See the book of business at a glance.")
       ],
       stack: ["Claude artifact", "HTML", "JavaScript"],
-      liveUrl: "https://claude.ai/artifact/SPtLCBo9RcGfjE1FMAdwiw", embed: { url: "https://claude.ai/artifact/SPtLCBo9RcGfjE1FMAdwiw", mode: "scroller", external: true },
-      shots: [], demo: true
+      liveUrl: "https://claude.ai/artifact/SPtLCBo9RcGfjE1FMAdwiw", embed: { url: "sites/ekatva/index.html", mode: "local" },
+      shots: [], demo: false
     },
 
     /* ---------------- 04 Healthcare ---------------- */
@@ -339,7 +339,7 @@
         W("Content updated", "The CMS publishes changes instantly.")
       ],
       stack: ["PHP", "Apache", "cPanel", "Supabase", "JavaScript"],
-      liveUrl: "https://www.umanghospitals.in/", embed: { url: "https://www.umanghospitals.in/", mode: "scroller" },
+      liveUrl: "https://www.umanghospitals.in/", embed: { url: "https://www.umanghospitals.in/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
       shots: [], demo: true
     },
 
@@ -364,7 +364,7 @@
         W("Owner reporting", "Occupancy, ADR and payouts are published.")
       ],
       stack: ["React", "Node.js", "PostgreSQL", "Docker", "Coolify"],
-      liveUrl: "https://hotelmanagement.aiagentixdev.com/portal", embed: { url: "https://hotelmanagement.aiagentixdev.com/portal", mode: "scroller" },
+      liveUrl: "https://hotelmanagement.aiagentixdev.com/portal", embed: { url: "https://hotelmanagement.aiagentixdev.com/portal", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
       shots: shots("woodpecker-pms", true), demo: true
     },
     {
@@ -432,7 +432,7 @@
         W("Enters the CRM", "The member appears in Max Register.")
       ],
       stack: ["React", "Node.js", "i18n"],
-      liveUrl: "https://maxfitnessgym.co.in/", embed: { url: "https://maxfitnessgym.co.in/", mode: "scroller" },
+      liveUrl: "https://maxfitnessgym.co.in/", embed: { url: "https://maxfitnessgym.co.in/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
       shots: [], demo: true
     },
     {
@@ -502,7 +502,7 @@
         W("Guarantee tracked", "Progress is monitored for the money-back promise.")
       ],
       stack: ["Next.js", "React", "Node.js", "Three.js", "PostgreSQL", "WhatsApp Cloud API"],
-      liveUrl: "https://yourhaircompany.com/", embed: { url: "https://yourhaircompany.com/", mode: "scroller" },
+      liveUrl: "https://yourhaircompany.com/", embed: { url: "https://yourhaircompany.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
       shots: shots("yhc", false), demo: true
     },
     {
@@ -524,7 +524,7 @@
         W("Checkout", "The order is placed and tracked in admin.")
       ],
       stack: ["Next.js", "React", "Node.js", "Computer vision", "LLM", "Payments gateway"],
-      liveUrl: "https://myskinwise.com/", embed: { url: "https://myskinwise.com/", mode: "scroller" },
+      liveUrl: "https://myskinwise.com/", embed: { url: "https://myskinwise.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
       shots: shots("skinwise", false), demo: true
     },
     {
@@ -705,7 +705,7 @@
       workflow: [W("Ride the page", "Steer with the trackpad."), W("Watch range", "Speed and range update."), W("Pick variant and colour", "Configure the scooter."), W("Book a test ride", "Slot confirmed.")]
     }),
     concept({
-      slug: "crumb", name: "Crumb", path: "crumb", category: "ecommerce", tier: "B", noShots: true,
+      slug: "crumb", name: "Crumb & Co", path: "crumb", category: "ecommerce", tier: "B", noShots: true,
       summary: "A bakery with a build-your-own box and a cart that adds it up.",
       problem: "Gifting boxes need choice without a complicated order form.",
       outcomes: ["Box builder with live count", "Cart with totals", "Warm, appetising brand", "Easy gifting"],

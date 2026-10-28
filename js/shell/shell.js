@@ -20,6 +20,7 @@
         el("ul", { class: "cap-list" }, g.items.map(function (i) { return el("li", null, i); }))));
     });
     return el("div", { class: "pane pane-overview" },
+      p.status === "concept" ? el("p", { class: "concept-note", style: { margin: "0 0 10px", font: "600 .8rem var(--font-mono)", color: "var(--orange)", textTransform: "uppercase", letterSpacing: ".04em" } }, "Concept brand — designed and built by AI Agentix") : null,
       el("p", { class: "lede" }, p.summary),
       el("div", { class: "two-col" },
         section("The problem", el("p", null, p.problem)),

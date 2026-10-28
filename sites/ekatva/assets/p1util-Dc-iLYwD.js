@@ -1,0 +1,1 @@
+import{Gr as e,Wr as t,to as n}from"./ui-D_ZdZNIK.js";function r(){let e=n(),t=new Date,r=new Date(e);return r.setHours(t.getHours(),t.getMinutes(),t.getSeconds()),r>e?r:e}var i=n=>{let i=t(n),a=r();return i>a?`just now`:e(i,a,{addSuffix:!0})};export{i as t};
