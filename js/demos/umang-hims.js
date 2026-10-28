@@ -52,9 +52,9 @@
   function note(ctx) { return E("div", { class: "um-note" }, noteText(ctx)); }
   function noteSoon(ctx) {
     ensureCss();
+    var m = document.querySelector(".ax-module");   /* host captured synchronously at render time */
     setTimeout(function () {
-      var m = document.querySelector(".ax-module");
-      if (m && !m.querySelector(":scope > .um-note")) m.insertBefore(note(ctx), m.firstChild);
+      if (m && m.isConnected && !m.querySelector(":scope > .um-note")) m.insertBefore(note(ctx), m.firstChild);
     }, 0);
   }
   /* Module titles and nav labels follow the language toggle (the shell only knows the English label). */
@@ -439,7 +439,7 @@
           ["billing", ctx.t("Billing", "बिलिंग")], ["pharmacy", v.pharm === "ready" || v.pharm === "collected" ? ctx.t("Medicines ready", "दवाइयां तैयार") : ctx.t("Pharmacy", "फ़ार्मेसी")], ["done", ctx.t("Done", "पूर्ण")]];
         holder.appendChild(E("label", { class: "um-lbl", style: { maxWidth: "430px", margin: "0 auto", width: "100%" } }, ctx.t("Demo: choose a visit to follow", "डेमो: ट्रैक करने के लिए विज़िट चुनें"), picker));
         holder.appendChild(E("div", { class: "um-phone" },
-          E("div", { class: "um-url" }, "umang-hospital-hims.vercel.app/p/" + v.uhid),
+          E("div", { class: "um-url" }, "track.umang-demo/p/" + v.uhid),
           E("div", { class: "um-track" },
             E("div", {}, E("strong", {}, v.name), E("div", { style: { fontSize: ".8rem", color: "var(--ink-3)" } }, v.uhid + " · " + ctx.t("Token ", "टोकन ") + v.token + " · " + deptName(ctx, v.dept))),
             E("div", { class: "um-status" + (st[1] ? " ok" : ""), "data-tracker-status": "", "aria-live": "polite" }, st[0]),

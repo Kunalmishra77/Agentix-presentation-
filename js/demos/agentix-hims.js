@@ -85,15 +85,19 @@
   /* Table/board/dashboard views cannot carry a header node, so prepend the note right after the view renders. */
   function noteSoon() {
     ensureCss();
+    var m = document.querySelector(".ax-module");   /* host of the module being rendered right now (captured synchronously) */
     setTimeout(function () {
-      var m = document.querySelector(".ax-module");
-      if (m && !m.querySelector(":scope > .hx-note")) m.insertBefore(mkNote(), m.firstChild);
+      if (m && m.isConnected && !m.querySelector(":scope > .hx-note")) m.insertBefore(mkNote(), m.firstChild);
     }, 0);
   }
   /* AX.table handle is not exposed by the AppShell: re-run the table's own draw() through its search box. */
-  function refreshTable() {
+  function refreshTable(pageSize) {
     var s = document.querySelector(".ax-module .tbl-search");
-    if (s) s.dispatchEvent(new Event("input", { bubbles: true }));
+    if (!s) return;
+    var r = document.querySelector(".ax-module .tbl-range"), from = r ? parseInt(r.textContent, 10) : 1;
+    var page = Math.max(0, Math.floor(((from || 1) - 1) / (pageSize || 12)));
+    s.dispatchEvent(new Event("input", { bubbles: true }));   /* the engine resets to page 1 ... */
+    for (var i = 0; i < page; i++) { var n = document.querySelector(".ax-module .tbl-next"); if (n && !n.disabled) n.click(); }   /* ... so restore it */
   }
   function badge(text, kind) { return E("span", { class: "hx-badge " + (kind || "") }, text); }
   function news2Node(v) {
@@ -254,7 +258,7 @@
       wrap.appendChild(form); wrap.appendChild(out);
       wrap.appendChild(E("div", { class: "hx-row" },
         E("button", { type: "button", class: "hx-btn", on: { click: function () {
-          var v = cur(); Object.assign(r, v); r.news2 = news2Detail(v).total; refreshTable();
+          var v = cur(); Object.assign(r, v); r.news2 = news2Detail(v).total; refreshTable(12);
           simToast("Simulated — vitals recorded; nothing was sent or saved.");
         } } }, "Record vitals"),
         E("button", { type: "button", class: "hx-btn primary", on: { click: function () {
@@ -306,7 +310,7 @@
         E("p", { style: { margin: 0, fontSize: ".85rem", color: "var(--ink-2)" } }, "Verification chain: tech result → QC gate → pathologist verification → report released to doctor and patient portal."));
       body.appendChild(E("div", { class: "hx-row" },
         E("button", { type: "button", class: "hx-btn primary", on: { click: function () {
-          r.status = "Reported"; if (r.result === "Pending") r.result = "Within reference range"; st.textContent = ""; st.appendChild(badge("Reported", "good")); refreshTable();
+          r.status = "Reported"; if (r.result === "Pending") r.result = "Within reference range"; st.textContent = ""; st.appendChild(badge("Reported", "good")); refreshTable(12);
           simToast("Simulated — result verified and released; nothing was sent or saved.");
         } } }, "Verify & release")));
       return body;
@@ -328,7 +332,7 @@
       var st = E("span", {}, badge(r.status, statusKind(r.status)));
       var btn = E("button", { type: "button", class: "hx-btn primary", disabled: next[r.status] ? null : "", on: { click: function () {
         r.status = next[r.status]; st.textContent = ""; st.appendChild(badge(r.status, statusKind(r.status)));
-        btn.textContent = next[r.status] ? "Mark " + next[r.status].toLowerCase() : "Dispensed ✓"; if (!next[r.status]) btn.disabled = true; refreshTable();
+        btn.textContent = next[r.status] ? "Mark " + next[r.status].toLowerCase() : "Dispensed ✓"; if (!next[r.status]) btn.disabled = true; refreshTable(12);
         simToast("Simulated — " + r.id + " is now " + r.status + "; nothing was sent or saved.");
       } } }, next[r.status] ? "Mark " + next[r.status].toLowerCase() : "Dispensed ✓");
       return E("div", { style: { display: "grid", gap: "12px" } }, mkNote(),
@@ -393,17 +397,22 @@
   } });
 
   /* ---- Blood bank ---- */
-  mods.push({ id: "bloodbank", label: "Blood bank", icon: "heart", group: "Operations", role: "Blood bank", view: {
-    type: "dashboard",
-    kpis: function (ctx) {
-      noteSoon(); var d = D(ctx).blood;
-      return [{ label: "Units in stock", value: d.units.reduce(function (a, b) { return a + b; }, 0), format: "num", delta: 4 }, { label: "Expiring in 7 days", value: 4, delta: -12 }, { label: "Open requests", value: d.requests.length }, { label: "Donors today", value: 23, delta: 9 }];
-    },
-    charts: [
-      { type: "bar", title: "Units by blood group (critical: O-, B-, AB-)", labels: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"], values: [48, 9, 62, 11, 71, 14, 19, 4] },
-      { type: "donut", title: "Component mix", parts: [{ label: "PRBC", value: 168 }, { label: "Platelets", value: 42 }, { label: "FFP", value: 21 }, { label: "Cryo", value: 7 }] },
-      { type: "line", title: "Units issued, last 12 days", wide: true, labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], series: [{ name: "Issued", points: [18, 22, 19, 25, 31, 24, 20, 27, 29, 23, 26, 30] }, { name: "Collected", points: [20, 17, 24, 21, 19, 28, 22, 25, 21, 27, 24, 23] }] }
-    ] } });
+  mods.push({ id: "bloodbank", label: "Blood bank", icon: "heart", group: "Operations", role: "Blood bank", view: function (ctx) {
+    noteSoon();
+    var d = D(ctx).blood, total = d.units.reduce(function (a, b) { return a + b; }, 0);
+    var shares = [["PRBC", 0.68], ["Platelets", 0.17], ["FFP", 0.11]], used = 0;
+    var parts = shares.map(function (x) { var v = Math.round(total * x[1]); used += v; return { label: x[0], value: v }; });
+    parts.push({ label: "Cryo", value: total - used });
+    return {
+      type: "dashboard",
+      kpis: [{ label: "Units in stock", value: total, format: "num", delta: 4 }, { label: "Expiring in 7 days", value: d.expiring.reduce(function (a, e) { return a + e[1]; }, 0), delta: -12 }, { label: "Open requests", value: d.requests.length }, { label: "Donors today", value: 23, delta: 9 }],
+      charts: [
+        { type: "bar", title: "Units by blood group (critical: O-, B-, AB-)", labels: d.groups, values: d.units },
+        { type: "donut", title: "Component mix (" + total + " units)", parts: parts },
+        { type: "line", title: "Units issued, last 12 days", wide: true, labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], series: [{ name: "Issued", points: [18, 22, 19, 25, 31, 24, 20, 27, 29, 23, 26, 30] }, { name: "Collected", points: [20, 17, 24, 21, 19, 28, 22, 25, 21, 27, 24, 23] }] }
+      ]
+    };
+  } });
 
   /* ---- Billing & insurance ---- */
   mods.push({ id: "billing", label: "Billing & claims", icon: "wallet", group: "Finance", role: "Billing & insurance", view: {
@@ -426,7 +435,7 @@
         E("strong", { style: { fontSize: ".85rem" } }, "AI denial-risk score"), risk,
         E("strong", { style: { fontSize: ".85rem" } }, "Why"), list,
         E("div", { class: "hx-row" }, E("button", { type: "button", class: "hx-btn primary", on: { click: function () {
-          r.risk = Math.min(r.risk, 7); r.reasons = ["All mandatory documents attached"]; risk.textContent = ""; risk.appendChild(riskCell(r)); reasons(); refreshTable();
+          r.risk = Math.min(r.risk, 7); r.reasons = ["All mandatory documents attached"]; risk.textContent = ""; risk.appendChild(riskCell(r)); reasons(); refreshTable(12);
           simToast("Simulated — AI fixes applied and claim resubmitted; nothing was sent.");
         } } }, "Apply AI fixes & submit")));
     } } });
@@ -450,9 +459,9 @@
       var kp = E("div"); el.appendChild(kp);
       AX.charts.kpis(kp, { items: [{ label: "Districts reporting", value: dist.length + " / 75" }, { label: "OPD today (state)", value: dist.reduce(function (a, d) { return a + d.opd; }, 0), format: "num", delta: 3 }, { label: "Avg bed occupancy", value: Math.round(dist.reduce(function (a, d) { return a + d.occupancy; }, 0) / dist.length) + "%" }, { label: "Open fraud alerts", value: fraud.length }] });
       var top = dist.slice(0, 10);
-      var chartSlot = E("div");
-      el.appendChild(E("section", { class: "hx-card" }, E("h3", {}, "District ranking (composite score)"), E("div", { "data-secretary-table": "" })));
-      el.appendChild(E("section", { class: "hx-card" }, E("h3", {}, "Top 10 districts by score"), chartSlot));
+      var chartSlot = E("div", { style: { minWidth: "560px" } });
+      el.appendChild(E("section", { class: "hx-card" }, E("h3", {}, "District ranking (composite score)"), E("div", { "data-secretary-table": "", style: { overflowX: "auto", maxWidth: "100%" } })));
+      el.appendChild(E("section", { class: "hx-card" }, E("h3", {}, "Top 10 districts by score"), E("div", { style: { overflowX: "auto" } }, chartSlot)));
       AX.table.create(el.querySelector("[data-secretary-table]"), {
         pageSize: 16, qKeys: ["district"],
         columns: [

@@ -109,6 +109,32 @@ test("agentix-hims: beds grid, emergency board and role switcher", async () => {
   } finally { await close(); }
 });
 
+test("agentix-hims: lab, pharmacy and billing drawers act; OT event opens", async () => {
+  const { page, errors, close } = await openDemo("agentix-hims");
+  try {
+    const mod = async (id) => { await page.click('.ax-nav-item[data-id="' + id + '"]'); await page.waitForSelector('[data-module-ready][data-module="' + id + '"]'); };
+    await mod("lab");
+    await page.locator("tbody tr", { hasText: "LAB-4410" }).click();
+    await page.click(".ov-foot .btn-primary, .ov-body .hx-btn.primary");
+    await page.locator(".toast-sim").first().waitFor();
+    await page.keyboard.press("Escape");
+    await mod("pharmacy");
+    await page.locator("tbody tr", { hasText: "RX-7710" }).click();
+    await page.click(".ov-body .hx-btn.primary");
+    assert.ok(/Simulated/.test(await page.locator(".toast-sim").last().innerText()));
+    await page.waitForFunction(() => /Preparing/.test(document.querySelector(".ov-body").textContent));
+    await page.keyboard.press("Escape");
+    await mod("billing");
+    await page.locator("tbody tr", { hasText: "CLM-30500" }).click();
+    await page.locator(".ov-panel", { hasText: "AI denial-risk score" }).waitFor();
+    await page.keyboard.press("Escape");
+    await mod("ot");
+    await page.locator(".cal-ev").first().click();
+    await page.locator(".ov-panel", { hasText: "Theatre" }).waitFor();
+    assert.deepEqual(errors, []);
+  } finally { await close(); }
+});
+
 test("agentix-hims: no horizontal overflow at 390px", async () => {
   const { page, errors, close } = await openDemo("agentix-hims", { width: 390, height: 800 });
   try {
