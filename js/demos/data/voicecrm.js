@@ -77,7 +77,7 @@
     var tr = transcript(concern, i);
     tr.push({ ts: ts(dur - 6), who: "bot", text: (bucket === "Cold" ? CLOSE_NEG : CLOSE_POS)[i % 2] });
     calls.push({
-      id: "CL-" + (4210 + i), customer: p.name, phone: p.phone, email: p.email, city: p.city,
+      id: "CL-" + (4210 + i), name: "CL-" + (4210 + i) + " · " + p.name, customer: p.name, phone: p.phone, email: p.email, city: p.city,
       started: iso(Math.floor(i / 4), 9 + (i * 5) % 10, (i * 13) % 60), duration: dur,
       agent: AGENTS[i % 4 === 0 ? 1 : i % 4 === 1 ? 0 : i % 4 === 2 ? 0 : 3] || AGENTS[0],
       status: i === 7 ? "missed" : "ended",

@@ -226,7 +226,6 @@
               { key: "sentiment", label: "Sentiment", render: function (r) { return chip(r.sentiment); } },
               { key: "score", label: "Score", sortable: true, render: function (r) { return chip(r.bucket + " · " + r.score, r.bucket); } },
               { key: "concern", label: "Concern" }, { key: "outcome", label: "Outcome", render: function (r) { return chip(r.outcome); } }],
-            drawerTitle: function (r) { return r.id + " · " + r.customer; },
             drawer: function (r) { return callDrawer(r); } };
         } },
         { id: "insights", label: "Call insights", icon: "star", group: "Calls", view: function (ctx) {
@@ -248,7 +247,6 @@
               { key: "name", label: "Lead", sortable: true }, { key: "phone", label: "Phone" },
               { key: "stageLabel", label: "Stage", sortable: true }, { key: "score", label: "Score", sortable: true, render: function (r) { return chip(r.bucket + " · " + r.score, r.bucket); } },
               { key: "concern", label: "Concern" }, { key: "calls", label: "Calls", sortable: true }, { key: "owner", label: "Owner" }],
-            drawerTitle: function (r) { return r.name; },
             drawer: function (r, c) { return leadDrawer(r, c); } };
         } },
         { id: "tasks", label: "Follow-up tasks", icon: "board", group: "Sales", view: function (ctx) {
@@ -274,7 +272,6 @@
             filters: [{ key: "status", label: "status", options: ["Active", "Away"] }],
             columns: [{ key: "name", label: "Name", sortable: true }, { key: "role", label: "Role" }, { key: "handled", label: "Calls handled", sortable: true },
               { key: "conversion", label: "Conversion %", sortable: true }, { key: "avgScore", label: "Avg lead score", sortable: true }, { key: "status", label: "Status", render: function (r) { return chip(r.status); } }],
-            drawerTitle: function (r) { return r.name; },
             drawer: function (r) {
               return el("div", {}, el("div", { class: "vc-meta" }, chip(r.status), el("span", { class: "vc-chip Cold" }, r.role)),
                 sec("Contact", el("p", {}, r.email)), sec("This month", el("p", {}, r.handled + " calls handled · " + r.conversion + "% conversion · avg score " + r.avgScore)),
