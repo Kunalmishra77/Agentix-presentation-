@@ -63,6 +63,29 @@
     return loaded[src];
   };
 
+  /** Register a destroy fn for an engine instance on host: runs the previous one on re-create and when host leaves the DOM. */
+  var mounted = [], mo = null;
+  function sweep() {
+    mounted = mounted.filter(function (m) {
+      if (m.host.isConnected) { m.seen = true; return true; }
+      if (!m.seen) return true;
+      if (m.host.__axDestroy === m.fn) m.host.__axDestroy = null;
+      try { m.fn(); } catch (e) {}
+      return false;
+    });
+    if (!mounted.length && mo) { mo.disconnect(); mo = null; }
+  }
+  AX.mount = function (host, fn) {
+    var prev = host.__axDestroy;
+    if (prev) { host.__axDestroy = null; mounted = mounted.filter(function (m) { return m.fn !== prev; }); try { prev(); } catch (e) {} }
+    host.__axDestroy = fn;
+    mounted.push({ host: host, fn: fn, seen: host.isConnected });
+    if (!mo && typeof MutationObserver !== "undefined") {
+      mo = new MutationObserver(sweep);
+      mo.observe(document.documentElement, { childList: true, subtree: true });
+    }
+  };
+
   AX.state = function (initial) {
     var data = Object.assign({}, initial), subs = [];
     return {

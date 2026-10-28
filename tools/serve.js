@@ -16,6 +16,14 @@ function createServer() {
     let rel;
     try { rel = decodeURIComponent(new URL(req.url, "http://x").pathname); }
     catch { res.writeHead(400); return res.end("Bad request"); }
+    if (rel === "/__deny") {
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "X-Frame-Options": "DENY", "Cache-Control": "no-cache" });
+      return res.end("<!doctype html><title>denied</title><p>This page refuses to be framed.</p>");
+    }
+    if (rel === "/__hang") { // test helper: answers late so embed timeouts can be exercised
+      setTimeout(() => { if (!res.writableEnded) { res.writeHead(200, { "Content-Type": "text/html" }); res.end("<p>late</p>"); } }, 2500);
+      return;
+    }
     if (rel.endsWith("/")) rel += "index.html";
     const file = path.join(ROOT, rel);
     if (file !== ROOT && !file.startsWith(ROOT + path.sep)) { res.writeHead(403); return res.end("Forbidden"); }

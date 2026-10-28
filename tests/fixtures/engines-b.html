@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engines B fixture</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/engines.css">
+</head>
+<body>
+<div id="toasts" aria-live="polite"></div>
+<main style="max-width:1100px;margin:0 auto;padding:16px">
+  <h2>Chat</h2><div id="chat"></div>
+  <h2>Flow</h2><div id="flow"></div>
+  <h2>Pipeline</h2><div id="pipe"></div>
+  <h2>Tape</h2><div id="tape"></div>
+  <h2>Month</h2><div id="month"></div>
+  <h2>Store</h2><div id="store"></div>
+  <h2>Quote store</h2><div id="quote"></div>
+</main>
+<script src="../../js/core/ax.js"></script>
+<script src="../../js/core/ui.js"></script>
+<script src="../../js/engines/chat.js"></script>
+<script src="../../js/engines/flow.js"></script>
+<script src="../../js/engines/pipeline.js"></script>
+<script src="../../js/engines/calendar.js"></script>
+<script src="../../js/engines/store.js"></script>
+<script>
+(function () {
+  window.__events = []; window.__changes = []; window.__opened = []; window.__drops = []; window.__quote = [];
+
+  window.__chat = AX.chat.create(document.getElementById("chat"), {
+    threads: [
+      { id: "t1", name: "Priya Nair", channel: "whatsapp", preview: "Hi, I want a villa", messages: [{ from: "user", text: "Hi, I want a villa" }] },
+      { id: "t2", name: "Arjun Rao", channel: "instagram", preview: "Price?", messages: [{ from: "user", text: "Price?" }] }
+    ],
+    scripts: {
+      t1: [
+        { from: "ai", text: "Hello Priya! Which area are you looking at?", chips: ["Whitefield", "Indiranagar"] },
+        { from: "user", text: "Whitefield" },
+        { from: "ai", text: "Great. Shall I book a site visit for Saturday?" },
+        { from: "ai", text: "Booked for Saturday 11 AM.", event: "booked" }
+      ]
+    },
+    side: function (t) { return AX.el("div", { class: "side-probe" }, "Lead: " + t.name); },
+    onEvent: function (ev, t) { window.__events.push({ ev: ev, thread: t.id }); }
+  });
+
+  window.__flow = AX.flow.create(document.getElementById("flow"), {
+    nodes: [
+      { id: "n1", kind: "trigger", label: "New enquiry", x: 20, y: 20 },
+      { id: "n2", kind: "ai", label: "Qualify", detail: "Ask budget", x: 240, y: 20 },
+      { id: "n3", kind: "condition", label: "Budget ok?", x: 460, y: 20 },
+      { id: "n4", kind: "action", label: "Book visit", x: 680, y: 0 },
+      { id: "n5", kind: "delay", label: "Wait 1 day", x: 680, y: 100 },
+      { id: "n6", kind: "end", label: "Done", x: 900, y: 20 }
+    ],
+    edges: [["n1", "n2"], ["n2", "n3"], ["n3", "n4", "Yes"], ["n3", "n5", "No"], ["n4", "n6"], ["n5", "n6"]]
+  });
+
+  window.__pipe = AX.pipeline.create(document.getElementById("pipe"), {
+    stages: [
+      { id: "script", label: "Script", ms: 60, cost: 0.3, log: ["Drafting script"] },
+      { id: "voice", label: "Voiceover", ms: 60, cost: 0.4 },
+      { id: "publish", label: "Publish", ms: 60 }
+    ],
+    gate: "voice", cap: 5, currency: "$"
+  });
+
+  window.__tape = AX.calendar.tape(document.getElementById("tape"), {
+    start: "2026-11-01", days: 14,
+    units: [{ id: "101", label: "101", group: "Deluxe" }, { id: "102", label: "102", group: "Deluxe" }, { id: "201", label: "201", group: "Suite" }],
+    bookings: [
+      { id: "b1", unit: "101", start: "2026-11-01", nights: 2, guest: "A. Mehta", status: "confirmed" },
+      { id: "b2", unit: "102", start: "2026-11-03", nights: 3, guest: "R. Khan", status: "checked-in" }
+    ],
+    onChange: function (b) { window.__changes.push(JSON.parse(JSON.stringify(b))); },
+    onOpen: function (b) { window.__opened.push(b.id); }
+  });
+
+  AX.calendar.month(document.getElementById("month"), {
+    month: "2026-11",
+    events: [{ id: "e1", date: "2026-11-05", title: "Site visit", tone: "orange" }],
+    onDrop: function (id, date) { window.__drops.push({ id: id, date: date }); },
+    onOpen: function (e) { window.__opened.push(e.id); }
+  });
+
+  var products = [
+    { id: "p1", name: "Brass Lamp", price: 1200, mrp: 1500, cat: "Decor", variants: ["Small", "Large"] },
+    { id: "p2", name: "Cotton Throw", price: 800, cat: "Textiles" },
+    { id: "p3", name: "Wall Plate", price: 600, cat: "Decor" }
+  ];
+  window.__store = AX.store.create(document.getElementById("store"), { products: products, categories: ["Decor", "Textiles"], currency: "₹", checkout: "mock" });
+  AX.store.create(document.getElementById("quote"), { products: products, categories: ["Decor", "Textiles"], currency: "₹", checkout: "quote",
+    onAdd: function (p, q) { window.__quote.push({ id: p.id, qty: q }); } });
+})();
+</script>
+</body>
+</html>

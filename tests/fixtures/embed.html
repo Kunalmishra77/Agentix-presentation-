@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embed fixture</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/engines.css">
+</head>
+<body>
+<div id="toasts" aria-live="polite"></div>
+<main style="max-width:1000px;margin:0 auto;padding:16px"><div id="e"></div></main>
+<script src="../../js/core/ax.js"></script>
+<script src="../../js/core/ui.js"></script>
+<script src="../../js/engines/embed.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var o = { url: q.get("url") || "about:blank", mode: q.get("mode") || "iframe", title: "Fixture site", external: q.get("external") === "1",
+    shots: [{ src: "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1600"><rect width="800" height="1600" fill="#ddd"/></svg>') }] };
+  if (q.get("timeout")) o.timeoutMs = Number(q.get("timeout"));
+  window.__emb = AX.embed.create(document.getElementById("e"), o);
+})();
+</script>
+</body>
+</html>
