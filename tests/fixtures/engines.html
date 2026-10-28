@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engines fixture</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/engines.css">
+</head>
+<body>
+<div id="toasts" aria-live="polite"></div>
+<main style="max-width:1100px;margin:0 auto;padding:16px">
+  <div id="k"></div>
+  <div id="c" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0"></div>
+  <div id="t"></div>
+  <h2>Board</h2>
+  <div id="b"></div>
+</main>
+<script src="../../js/core/ax.js"></script>
+<script src="../../js/core/ui.js"></script>
+<script src="../../js/engines/charts.js"></script>
+<script src="../../js/engines/table.js"></script>
+<script src="../../js/engines/board.js"></script>
+<script>
+(function () {
+  var el = AX.el;
+  window.__onMove = [];
+  window.__onOpen = [];
+  window.__onRow = [];
+
+  AX.charts.kpis(document.getElementById("k"), { items: [
+    { label: "Leads", value: 1284, delta: 12.4, format: "num" },
+    { label: "Pipeline", value: 4820000, delta: 8, format: "inr" },
+    { label: "Conversion", value: 18.6, delta: -2.1, format: "pct" },
+    { label: "Response time", value: "4 min" }
+  ] });
+
+  var c = document.getElementById("c");
+  function slot() { var d = el("div", { class: "chart-slot" }); c.appendChild(d); return d; }
+  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  AX.charts.line(slot(), { labels: months, series: [
+    { name: "Leads", points: [120, 180, 150, 240, 310, 380] },
+    { name: "Won", points: [20, 34, 28, 52, 70, 91] } ] });
+  AX.charts.bar(slot(), { labels: months, values: [40, 65, 52, 80, 95, 120] });
+  AX.charts.donut(slot(), { parts: [{ label: "WhatsApp", value: 54 }, { label: "Web", value: 31 }, { label: "Calls", value: 15 }] });
+  AX.charts.funnel(slot(), { steps: [{ label: "Enquiries", value: 1000 }, { label: "Qualified", value: 540 }, { label: "Visits", value: 260 }, { label: "Won", value: 90 }] });
+  AX.charts.gauge(slot(), { value: 72, label: "SLA met" });
+  AX.charts.spark(slot(), [3, 5, 4, 8, 7, 11, 14]);
+
+  var names = ["Priya Nair", "Arjun Rao", "Meera Iyer", "Kabir Shah", "Ananya Das", "Rohan Gupta", "Priyanka Menon", "Vikram Joshi"];
+  var statuses = ["Hot", "Warm", "Cold"];
+  var rows = [];
+  for (var i = 0; i < 40; i++) {
+    rows.push({ id: "L" + (100 + i), name: names[i % names.length] + (i >= names.length ? " " + String.fromCharCode(65 + (i % 26)) : ""),
+      status: statuses[i % 3], value: 15000 + ((i * 7919) % 90000), phone: "+91 98xxx x0000" });
+  }
+  AX.table.create(document.getElementById("t"), {
+    columns: [
+      { key: "name", label: "Name", sortable: true },
+      { key: "status", label: "Status", sortable: true },
+      { key: "value", label: "Value", sortable: true, render: function (r) { return AX.fmt.inr(r.value); } },
+      { key: "phone", label: "Phone" }
+    ],
+    rows: rows, qKeys: ["name", "phone"],
+    filters: [{ key: "status", label: "Status", options: statuses }],
+    onRow: function (r) { window.__onRow.push(r.id); },
+    actions: [{ label: "Call", onClick: function (r) { AX.ui.toast("Simulated call to " + r.name, { kind: "sim" }); } }]
+  });
+
+  AX.board.create(document.getElementById("b"), {
+    columns: [{ id: "new", label: "New", tone: "hot" }, { id: "qualified", label: "Qualified" }, { id: "won", label: "Won", tone: "good" }],
+    cards: [
+      { id: "c1", col: "new", title: "Priya Nair", sub: "Villa enquiry", tags: ["WhatsApp"], meta: AX.fmt.inr(450000) },
+      { id: "c2", col: "new", title: "Arjun Rao", sub: "2BHK", tags: ["Web"] },
+      { id: "c3", col: "qualified", title: "Meera Iyer", sub: "Site visit booked" },
+      { id: "c4", col: "qualified", title: "Kabir Shah", sub: "Follow-up" },
+      { id: "c5", col: "won", title: "Ananya Das", sub: "Booked" }
+    ],
+    onMove: function (card, to) { window.__onMove.push({ id: card.id, to: to }); },
+    onOpen: function (card) { window.__onOpen.push(card.id); }
+  });
+})();
+</script>
+</body>
+</html>
