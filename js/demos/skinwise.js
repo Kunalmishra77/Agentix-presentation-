@@ -12,7 +12,7 @@
     { id: "sw-02", name: "Gentle Hydrating Cleanser", step: "cleanse", cat: "Cleanse", concerns: ["acne", "pigmentation", "dark-circles", "dryness", "ageing", "dullness"], skins: ["dry", "normal", "combination", "oily"], tags: ["gentle", "fragrance-free"], price: 349, mrp: 429, why: "Removes dirt without stripping the skin barrier" },
     { id: "sw-03", name: "Depigmentation Cleanser", step: "cleanse", cat: "Cleanse", concerns: ["pigmentation", "dullness"], skins: ["normal", "dry", "combination", "oily"], tags: ["brightening", "gentle"], price: 499, mrp: 599, why: "Mild brightening cleanse that preps skin for treatment" },
     { id: "sw-04", name: "Acne Gel", step: "treat", cat: "Treat", concerns: ["acne"], skins: ["oily", "combination", "normal"], tags: ["niacinamide", "oil-control"], price: 599, mrp: 749, why: "Niacinamide calms redness and reduces oil and new spots" },
-    { id: "sw-05", name: "Azelaic Acid 10% Gel", step: "treat", cat: "Treat", concerns: ["acne", "pigmentation"], skins: ["oily", "combination", "normal", "dry"], tags: ["azelaic", "pregnancy-ok"], price: 699, mrp: 849, why: "Azelaic acid fades marks and settles breakouts and is commonly used in pregnancy" },
+    { id: "sw-05", name: "Azelaic Acid 10% Gel", step: "treat", cat: "Treat", concerns: ["acne", "pigmentation"], skins: ["oily", "combination", "normal", "dry"], tags: ["azelaic", "pregnancy-ok"], price: 699, mrp: 849, why: "Azelaic acid fades marks and settles breakouts; ask your doctor before using during pregnancy" },
     { id: "sw-06", name: "Night Retinol Serum", step: "treat", cat: "Treat", concerns: ["ageing", "pigmentation", "acne"], skins: ["normal", "combination", "oily"], tags: ["retinoid", "strong", "night"], price: 899, mrp: 1099, why: "Retinol speeds cell turnover to smooth texture and fade marks" },
     { id: "sw-07", name: "Skin Lightening Gel", step: "treat", cat: "Treat", concerns: ["pigmentation"], skins: ["oily", "combination", "normal", "dry"], tags: ["vitamin-c", "brightening"], price: 749, mrp: 899, why: "Vitamin C evens tone and fades dark spots" },
     { id: "sw-08", name: "Eye-Lyte Cream", step: "treat", cat: "Treat", concerns: ["dark-circles"], skins: ["oily", "combination", "normal", "dry"], tags: ["caffeine", "peptide"], price: 649, mrp: 799, why: "Caffeine and peptides de-puff and brighten the under-eye area" },
@@ -191,6 +191,7 @@
             return h("div", { class: "sk-step", "data-routine-step": r.step },
               h("span", { class: "st" }, r.step), h("span", {}, h("b", {}, r.product.name), h("small", {}, r.why)), h("span", {}, inr(r.product.price)));
           })),
+          h("p", { class: "sk-muted sk-gap", "data-disclaimer": "" }, "Illustrative demo — not medical advice"),
           rec.cautions.length ? h("div", { class: "sk-gap", "data-cautions": "" }, rec.cautions.map(function (c) { return h("div", { class: "sk-caution" }, h("b", {}, "Caution"), h("span", {}, c)); })) : null,
           h("div", { class: "sk-row sk-gap" },
             btn("Order this routine · " + inr(total), function () { orderRoutine(ctx, rec, total); }, "primary", { "data-order-routine": "" }),
@@ -254,7 +255,7 @@
 
   /* ----- Dr. Vivek assistant ----- */
   var KB = [
-    { k: ["pregnan", "breastfeed"], a: "In pregnancy avoid retinoids (retinol, adapalene) and strong salicylic acid. Gentle cleansing, azelaic acid, hyaluronic acid, ceramide moisturiser and a mineral SPF are usually fine. Please confirm with your gynaecologist or book a consultation." },
+    { k: ["pregnan", "breastfeed"], a: "In pregnancy avoid retinoids (retinol, adapalene) and strong salicylic acid. Gentler options exist, but ask your doctor before using any skincare product during pregnancy. Please confirm with your gynaecologist or book a consultation." },
     { k: ["acne", "pimple", "breakout"], a: "For acne: a salicylic cleanser at night, a niacinamide gel on spots, an oil-free moisturiser and SPF 50 in the morning. Do not pick spots. If you see painful cysts or scarring, a dermatologist consult helps." },
     { k: ["pigment", "dark spot", "marks", "melasma"], a: "Pigmentation needs patience: vitamin C or azelaic acid, a gentle cleanser and daily SPF 50. Expect 8 to 12 weeks. Sun exposure undoes the progress, so sunscreen is the real treatment." },
     { k: ["dark circle", "under eye", "under-eye"], a: "Dark circles come from genetics, sleep, allergies or thin skin. A caffeine and peptide eye cream helps puffiness; sunscreen helps pigment. If they appeared suddenly, check with a doctor." },
@@ -285,6 +286,7 @@
         input.value = "";
       }
       input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); ask(input.value); } });
+      host.appendChild(h("p", { class: "sk-muted", "data-disclaimer": "" }, "Illustrative demo — not medical advice"));
       host.appendChild(chatHost);
       host.appendChild(h("div", { class: "sk-chat-in" }, input, btn("Send", function () { ask(input.value); }, "primary", { "data-assistant-send": "" })));
       host.appendChild(h("div", { class: "sk-sugg" }, SUGGEST.map(function (q) { return btn(q, function () { ask(q); }, "sm"); })));
