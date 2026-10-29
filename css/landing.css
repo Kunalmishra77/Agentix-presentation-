@@ -1,4 +1,4 @@
-/* Landing: preloader, nav, hero, cursor, shared media (Task 9) + One-lead scene and index (Task 10). */
+/* Landing: preloader, nav, hero, shared media (Task 9) + One-lead scene and index (Task 10). */
 body{overflow-x:clip} /* hidden would make body a scroll container and break position:sticky */
 :root{--gutter:clamp(16px,4vw,56px);--nav-h:68px;--paper-2:#EFEBE3;--ink-soft:rgba(11,31,51,.66)}
 #landing{position:relative}
@@ -130,15 +130,6 @@ body{overflow-x:clip} /* hidden would make body a scroll container and break pos
   .fan.is-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .fan-label .status-chip{display:none}
 }
-
-/* ---------- custom cursor ---------- */
-.cursor{position:fixed;left:0;top:0;z-index:550;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--orange);pointer-events:none;opacity:0;display:grid;place-items:center;
-  transition:width .3s var(--ease),height .3s var(--ease),margin .3s var(--ease),opacity .2s,background-color .3s}
-.cursor.is-on{opacity:1}
-.cursor-label{font:600 .74rem var(--font-body);color:#fff;white-space:nowrap;opacity:0;transform:scale(.6);transition:opacity .2s,transform .3s var(--ease)}
-.cursor.is-demo{width:96px;height:96px;margin:-48px 0 0 -48px;background:rgba(238,106,36,.94)}
-.cursor.is-demo .cursor-label{opacity:1;transform:none}
-body.shell-open .cursor{display:none}
 
 /* ---------- One lead, every system (deep-navy band) ---------- */
 .onelead{position:relative;background:var(--navy-deep);color:#DCE4EE;isolation:isolate}

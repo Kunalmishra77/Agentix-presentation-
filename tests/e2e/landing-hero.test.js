@@ -41,7 +41,8 @@ test("preloader finishes and the hero headline is shown, with no errors", async 
     assert.match(await page.locator("#hero h1").innerText(), /AI Applied/);
     assert.equal(await page.evaluate(() => AX.landing.lenis !== null), true);
     assert.equal(await page.locator("#hero .fan-card").count(), 7);
-    assert.equal(await page.locator("#cursor").count(), 1, "custom cursor on fine pointers");
+    assert.equal(await page.locator("#cursor, .cursor").count(), 0, "no custom cursor: the OS pointer stays normal");
+    assert.equal(await page.evaluate(() => getComputedStyle(document.body).cursor), "auto");
     const eager = await page.locator('#hero img[loading="eager"]').count();
     assert.ok(eager <= 3, "at most 3 eager hero images, got " + eager);
     assert.match(await page.locator("#hero .hero-sub").innerText(), /^50 products, platforms and websites/);
