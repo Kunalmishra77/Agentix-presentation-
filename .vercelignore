@@ -1,0 +1,13 @@
+.superpowers
+.claude
+.tmp-shots
+tmp-audit
+tmp-red
+node_modules
+tests
+tools
+docs
+AI_AGENTIX_PROJECT_KNOWLEDGE_BASE.md
+README.md
+package.json
+*.log

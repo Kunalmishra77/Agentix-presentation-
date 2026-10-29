@@ -540,15 +540,6 @@ Common tech (Verified in each package.json unless noted): Next.js static export 
 **Q&A:** How many products? About 24 in the data file. Is checkout real? No.
 **Related:** VARA Studio (fashion).
 
-### Moana (cinematic fan concept)
-**Slug:** `moana` · **Path:** `/moana/` · **URL:** https://showcase-build-tau.vercel.app/moana/ · **Source:** `E:\moana` · **Last activity:** 2026-09-27
-**Spoken intro:** Moana is a cinematic scroll-driven tribute page built to show how a film-quality hero can run on 181 images without video weight.
-**Overview:** Uses the Disney film's title and characters as a fan-style showcase, credited "Designed and developed by Indresh Mishra"; it is not an official Disney site and should be described as a design experiment, not a brand. Verified (live text).
-**Signature features:** 181-frame canvas scrub driven by scroll (Verified: `FRAME_COUNT = 181`), Home/Journey/Gallery/Characters menu, trailer button (Verified).
-**Tech stack:** Next.js 16, React 19, Tailwind 4, GSAP (Verified).
-**Q&A:** Is it official Disney? No. What is the trick? A canvas that scrubs a pre-rendered image sequence.
-**Related:** Aurelle (frame-sequence hero).
-
 ### Movade (travel)
 **Slug:** `movade` · **Path:** `/travel/` · **URL:** https://showcase-build-tau.vercel.app/travel/ · **Source:** `E:\travel-agency` · **Last activity:** 2026-08-12
 **Spoken intro:** Movade is a fictional travel agency site with a 3D depth hero, a property search bar and a popular-destinations section.

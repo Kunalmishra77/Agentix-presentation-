@@ -43,7 +43,7 @@
 | Fitness | Gym CRM with WhatsApp reminders and face check-in; gym websites | Max Register, Max Fitness website, Fitness First Dwarka |
 | Multi-product business platforms | Several connected apps (site, CRM, portals, mobile) for one business | REDUX, Your Hair Company, Skinwise, NRI Trust |
 | Business websites | Corporate and professional sites, some with admin panels | AI Agentix site, Dr. Shweta Diwan, Thames Wellness Spa, Eurobrass site |
-| E-commerce & immersive concept sites | Showcase brand sites for fictional brands, demonstrating motion, 3D and storefront craft | 21 concept brands (Aurelle, Kanak, Meridian, Cairnline …) |
+| E-commerce & immersive concept sites | Showcase brand sites for fictional brands, demonstrating motion, 3D and storefront craft | 20 concept brands (Aurelle, Kanak, Meridian, Cairnline …) |
 | Infrastructure & delivery | Docker/Coolify VPS, Vercel, cPanel/Apache, Supabase; showcase build pipeline | delivery-infra, showcase-pipeline |
 
 **Contact / next step:** https://ai-agentix.com/ (corporate site) · https://ai-agentix.com/contact

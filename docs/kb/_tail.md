@@ -15,7 +15,7 @@
 | **Hospitality** | Woodpecker PMS, Kaaya Eco Resort | Woodpecker is a full multi-property **operations platform**: front desk, folios and GST invoicing, housekeeping, POS, payroll, OTA channels, owner portal, guest booking site. Kaaya is a resort's **website with booking**: rooms, availability, payments, guest accounts and an admin. |
 | **D2C health & beauty** | Your Hair Company, Skinwise | Both are consumer brands that combine content with tools. YHC offers a scalp scan, paid video consultations, a doctor portal and a sales CRM. Skinwise offers a skin quiz, photo scan, text assistant, store and consultations. Skinwise no longer has a voice agent (removed 2026-10-28). |
 | **Content automation** | SocialPush, YT-Automation, SocialFlow's content studio | SocialPush schedules and publishes **one post to many platforms**. YT-Automation **creates** short videos with AI and publishes them to YouTube after human approval. SocialFlow's studio and calendar are Instagram-focused. |
-| **Showcase / concept brands** | 21 concept sites + showcase-pipeline | Fictional brands built to demonstrate design and motion craft, all deployed together on showcase-build-tau.vercel.app by the showcase pipeline tools. |
+| **Showcase / concept brands** | 20 concept sites + showcase-pipeline | Fictional brands built to demonstrate design and motion craft, all deployed together on showcase-build-tau.vercel.app by the showcase pipeline tools. |
 
 ### Comparison: AI messaging & CRM products
 
@@ -97,11 +97,11 @@ Verification levels below are taken from each project's own **Verification notes
 | 25 | Dr. Shweta Diwan (`dr-shweta-diwan`) | Partially verified | Admin deliberately not opened (database, roles, billing unverified); no git history |
 | 26 | Thames Wellness Spa (`thames-spa`) | Verified | Hosting provider; package prices |
 | 27 | Eurobrass corporate site (`eurobrass-site`) | Verified | None |
-| 28–48 | 21 concept brands (`aurelle`, `vara`, `drify`, `fruitivo`, `kanak`, `meridian`, `dewlab`, `melt`, `zipev`, `crumb`, `movade`, `cairnline`, `saffron`, `aurelune`, `halden`, `irontemple`, `marigold`, `moana`, `coralbay`, `tallow-tape`, `vaskaro`) | Verified (live pages + source) | None for documentation. Note that Moana is a fan concept based on a third-party film property (see its entry). |
-| 49 | Deployment & hosting (`delivery-infra`) | Partially verified | Current host of each production site; whether the SocialPush k8s manifests are in use |
-| 50 | Showcase pipeline (`showcase-pipeline`) | Verified | None |
+| 28–47 | 20 concept brands (`aurelle`, `vara`, `drify`, `fruitivo`, `kanak`, `meridian`, `dewlab`, `melt`, `zipev`, `crumb`, `movade`, `cairnline`, `saffron`, `aurelune`, `halden`, `irontemple`, `marigold`, `coralbay`, `tallow-tape`, `vaskaro`) | Verified (live pages + source) | None for documentation. |
+| 48 | Deployment & hosting (`delivery-infra`) | Partially verified | Current host of each production site; whether the SocialPush k8s manifests are in use |
+| 49 | Showcase pipeline (`showcase-pipeline`) | Verified | None |
 
-**Totals:** 50 projects documented. 37 are Verified (including the 21 concept brands), and 13 are Partially verified, mostly because their logged-in production screens were intentionally not accessed. 0 projects are blocked entirely.
+**Totals:** 49 projects documented. 36 are Verified (including the 20 concept brands), and 13 are Partially verified, mostly because their logged-in production screens were intentionally not accessed. 0 projects are blocked entirely.
 
 **To complete the partially verified entries**, the owner can provide safe demo logins or screenshots containing only demo data for:
 - AGENTiX, SocialFlow, VoiceCRM, SocialPush and the YT-Automation app

@@ -43,14 +43,14 @@
 | Fitness | Gym CRM with WhatsApp reminders and face check-in; gym websites | Max Register, Max Fitness website, Fitness First Dwarka |
 | Multi-product business platforms | Several connected apps (site, CRM, portals, mobile) for one business | REDUX, Your Hair Company, Skinwise, NRI Trust |
 | Business websites | Corporate and professional sites, some with admin panels | AI Agentix site, Dr. Shweta Diwan, Thames Wellness Spa, Eurobrass site |
-| E-commerce & immersive concept sites | Showcase brand sites for fictional brands, demonstrating motion, 3D and storefront craft | 21 concept brands (Aurelle, Kanak, Meridian, Cairnline …) |
+| E-commerce & immersive concept sites | Showcase brand sites for fictional brands, demonstrating motion, 3D and storefront craft | 20 concept brands (Aurelle, Kanak, Meridian, Cairnline …) |
 | Infrastructure & delivery | Docker/Coolify VPS, Vercel, cPanel/Apache, Supabase; showcase build pipeline | delivery-infra, showcase-pipeline |
 
 **Contact / next step:** https://ai-agentix.com/ (corporate site) · https://ai-agentix.com/contact
 
 ## Master project index
 
-50 projects. Status values come from the portfolio inventory; the live-site type (production, public site or demo) is in each project's **Links & access** table.
+49 projects. Status values come from the portfolio inventory; the live-site type (production, public site or demo) is in each project's **Links & access** table.
 
 | Project | Slug | Category | Status | Live URL | Portfolio demo (safe, fictional data) |
 |---|---|---|---|---|---|
@@ -83,7 +83,6 @@
 | [Eurobrass corporate site](#eurobrass-corporate-site) | `eurobrass-site` | Business Websites | Live | <https://eurobrass-seven.vercel.app/> | <https://agentix-portfolio.vercel.app/#/demo/eurobrass-site> |
 | [Fruitivo (perfume)](#fruitivo-perfume) | `fruitivo` | E-commerce Experiences (concept brands) | Concept | <https://showcase-build-tau.vercel.app/perfume/> | <https://agentix-portfolio.vercel.app/#/demo/fruitivo> |
 | [DRIFY (streetwear)](#drify-streetwear) | `drify` | E-commerce Experiences (concept brands) | Concept | <https://showcase-build-tau.vercel.app/drift/> | <https://agentix-portfolio.vercel.app/#/demo/drify> |
-| [Moana (cinematic fan concept)](#moana-cinematic-fan-concept) | `moana` | E-commerce Experiences (concept brands) | Concept | <https://showcase-build-tau.vercel.app/moana/> | <https://agentix-portfolio.vercel.app/#/demo/moana> |
 | [Movade (travel)](#movade-travel) | `movade` | E-commerce Experiences (concept brands) | Concept | <https://showcase-build-tau.vercel.app/travel/> | <https://agentix-portfolio.vercel.app/#/demo/movade> |
 | [AURELLE (sarees)](#aurelle-sarees) | `aurelle` | E-commerce Experiences (concept brands) | Concept | <https://showcase-build-tau.vercel.app/aurelle/> | <https://agentix-portfolio.vercel.app/#/demo/aurelle> |
 | [VARA Studio (fashion)](#vara-studio-fashion) | `vara` | E-commerce Experiences (concept brands) | Concept | <https://showcase-build-tau.vercel.app/vara/> | <https://agentix-portfolio.vercel.app/#/demo/vara> |
@@ -148,7 +147,6 @@
 - [E-commerce Experiences (concept brands)](#e-commerce-experiences-concept-brands)
   - [Fruitivo (perfume)](#fruitivo-perfume)
   - [DRIFY (streetwear)](#drify-streetwear)
-  - [Moana (cinematic fan concept)](#moana-cinematic-fan-concept)
   - [Movade (travel)](#movade-travel)
   - [AURELLE (sarees)](#aurelle-sarees)
   - [VARA Studio (fashion)](#vara-studio-fashion)
@@ -555,7 +553,7 @@ None implemented: no frontend login; backend uses a static API key header that c
 React 19, Vite, TanStack Query and Table, Recharts, Tailwind v4; Express backend with Zod; Supabase Postgres (four tables with permissive RLS). No deployment files. Known gaps from the architecture doc: no auth, scoring keywords copied from a grain CRM, export filename leftover, no tests.
 
 #### Business value & example scenarios
-Gives the front desk a priority list. Scenario: a hot lead asks about Les Mills classes; Riya answers; the agent sees it flagged and books a trial call.
+Gives the front desk a priority list. Scenario: a hot lead asks about group classes; Riya answers; the agent sees it flagged and books a trial call.
 
 #### Planned / in progress (not live)
 Gap list in the architecture doc: authentication, database-level filtering, automated overdue tasks, realtime updates, xlsx export.
@@ -1837,7 +1835,7 @@ None documented.
 Max Fitness website and Max Register.
 
 #### Verification notes
-Checked: live home and subpages (HTTP 200 for programs, membership, trainers, faqs, contact), source routes, API docs and schema. Not verified: leads actually received, any admin. Missing: git history/last-activity date; the portfolio listing mentions Les Mills programmes, but the site names them only in meta text, so confirm with the client.
+Checked: live home and subpages (HTTP 200 for programs, membership, trainers, faqs, contact), source routes, API docs and schema. Not verified: leads actually received, any admin. Missing: git history/last-activity date; the site names Les Mills only in meta text, so the portfolio does not claim it; confirm with the client before mentioning it.
 
 
 
@@ -2381,15 +2379,6 @@ Common tech (Verified in each package.json unless noted): Next.js static export 
 **Q&A:** How many products? About 24 in the data file. Is checkout real? No.
 **Related:** VARA Studio (fashion).
 
-### Moana (cinematic fan concept)
-**Slug:** `moana` · **Path:** `/moana/` · **URL:** https://showcase-build-tau.vercel.app/moana/ · **Source:** `E:\moana` · **Last activity:** 2026-09-27
-**Spoken intro:** Moana is a cinematic scroll-driven tribute page built to show how a film-quality hero can run on 181 images without video weight.
-**Overview:** Uses the Disney film's title and characters as a fan-style showcase, credited "Designed and developed by Indresh Mishra"; it is not an official Disney site and should be described as a design experiment, not a brand. Verified (live text).
-**Signature features:** 181-frame canvas scrub driven by scroll (Verified: `FRAME_COUNT = 181`), Home/Journey/Gallery/Characters menu, trailer button (Verified).
-**Tech stack:** Next.js 16, React 19, Tailwind 4, GSAP (Verified).
-**Q&A:** Is it official Disney? No. What is the trick? A canvas that scrubs a pre-rendered image sequence.
-**Related:** Aurelle (frame-sequence hero).
-
 ### Movade (travel)
 **Slug:** `movade` · **Path:** `/travel/` · **URL:** https://showcase-build-tau.vercel.app/travel/ · **Source:** `E:\travel-agency` · **Last activity:** 2026-08-12
 **Spoken intro:** Movade is a fictional travel agency site with a 3D depth hero, a property search bar and a popular-destinations section.
@@ -2642,7 +2631,7 @@ Package.json scans covered 20 repos; the source keyword scan did not finish for 
 | **Hospitality** | Woodpecker PMS, Kaaya Eco Resort | Woodpecker is a full multi-property **operations platform**: front desk, folios and GST invoicing, housekeeping, POS, payroll, OTA channels, owner portal, guest booking site. Kaaya is a resort's **website with booking**: rooms, availability, payments, guest accounts and an admin. |
 | **D2C health & beauty** | Your Hair Company, Skinwise | Both are consumer brands that combine content with tools. YHC offers a scalp scan, paid video consultations, a doctor portal and a sales CRM. Skinwise offers a skin quiz, photo scan, text assistant, store and consultations. Skinwise no longer has a voice agent (removed 2026-10-28). |
 | **Content automation** | SocialPush, YT-Automation, SocialFlow's content studio | SocialPush schedules and publishes **one post to many platforms**. YT-Automation **creates** short videos with AI and publishes them to YouTube after human approval. SocialFlow's studio and calendar are Instagram-focused. |
-| **Showcase / concept brands** | 21 concept sites + showcase-pipeline | Fictional brands built to demonstrate design and motion craft, all deployed together on showcase-build-tau.vercel.app by the showcase pipeline tools. |
+| **Showcase / concept brands** | 20 concept sites + showcase-pipeline | Fictional brands built to demonstrate design and motion craft, all deployed together on showcase-build-tau.vercel.app by the showcase pipeline tools. |
 
 ### Comparison: AI messaging & CRM products
 
@@ -2724,11 +2713,11 @@ Verification levels below are taken from each project's own **Verification notes
 | 25 | Dr. Shweta Diwan (`dr-shweta-diwan`) | Partially verified | Admin deliberately not opened (database, roles, billing unverified); no git history |
 | 26 | Thames Wellness Spa (`thames-spa`) | Verified | Hosting provider; package prices |
 | 27 | Eurobrass corporate site (`eurobrass-site`) | Verified | None |
-| 28–48 | 21 concept brands (`aurelle`, `vara`, `drify`, `fruitivo`, `kanak`, `meridian`, `dewlab`, `melt`, `zipev`, `crumb`, `movade`, `cairnline`, `saffron`, `aurelune`, `halden`, `irontemple`, `marigold`, `moana`, `coralbay`, `tallow-tape`, `vaskaro`) | Verified (live pages + source) | None for documentation. Note that Moana is a fan concept based on a third-party film property (see its entry). |
-| 49 | Deployment & hosting (`delivery-infra`) | Partially verified | Current host of each production site; whether the SocialPush k8s manifests are in use |
-| 50 | Showcase pipeline (`showcase-pipeline`) | Verified | None |
+| 28–47 | 20 concept brands (`aurelle`, `vara`, `drify`, `fruitivo`, `kanak`, `meridian`, `dewlab`, `melt`, `zipev`, `crumb`, `movade`, `cairnline`, `saffron`, `aurelune`, `halden`, `irontemple`, `marigold`, `coralbay`, `tallow-tape`, `vaskaro`) | Verified (live pages + source) | None for documentation. |
+| 48 | Deployment & hosting (`delivery-infra`) | Partially verified | Current host of each production site; whether the SocialPush k8s manifests are in use |
+| 49 | Showcase pipeline (`showcase-pipeline`) | Verified | None |
 
-**Totals:** 50 projects documented. 37 are Verified (including the 21 concept brands), and 13 are Partially verified, mostly because their logged-in production screens were intentionally not accessed. 0 projects are blocked entirely.
+**Totals:** 49 projects documented. 36 are Verified (including the 20 concept brands), and 13 are Partially verified, mostly because their logged-in production screens were intentionally not accessed. 0 projects are blocked entirely.
 
 **To complete the partially verified entries**, the owner can provide safe demo logins or screenshots containing only demo data for:
 - AGENTiX, SocialFlow, VoiceCRM, SocialPush and the YT-Automation app

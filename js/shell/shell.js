@@ -182,6 +182,9 @@
       if (wasHidden) animateIn(rect);
       var title = root.querySelector(".bar-name"); if (title) title.focus({ preventScroll: true });
     }
+    // the page gutter stays while the shell is open; css/landing.css paints it navy only beside the bar
+    var bar = root.querySelector(".shell-bar");
+    if (bar) document.documentElement.style.setProperty("--shell-bar-h", bar.offsetHeight + "px");
     cur.tab = route.tab;
     document.title = p.name + " — AI Agentix";
     renderTab(p, route);

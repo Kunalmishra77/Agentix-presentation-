@@ -28,7 +28,7 @@ test("overview lists capability grid; tabs switch; Esc closes", async () => {
     await page.waitForSelector(".shell .cap-group");
     await page.click('.shell .tab[data-tab=how]');
     await page.waitForFunction(() => location.hash === "#/demo/agentix/how");
-    assert.ok((await page.locator(".shell .flow-step").count()) >= 3);
+    await page.waitForFunction(() => document.querySelectorAll(".shell .flow-step").length >= 3);
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => location.hash === "#/");
     // hash is updated synchronously by location.replace; hashchange (which hides the shell) fires later, so wait for the state itself

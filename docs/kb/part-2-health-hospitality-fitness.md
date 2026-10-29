@@ -781,4 +781,4 @@ None documented.
 Max Fitness website and Max Register.
 
 #### Verification notes
-Checked: live home and subpages (HTTP 200 for programs, membership, trainers, faqs, contact), source routes, API docs and schema. Not verified: leads actually received, any admin. Missing: git history/last-activity date; the portfolio listing mentions Les Mills programmes, but the site names them only in meta text, so confirm with the client.
+Checked: live home and subpages (HTTP 200 for programs, membership, trainers, faqs, contact), source routes, API docs and schema. Not verified: leads actually received, any admin. Missing: git history/last-activity date; the site names Les Mills only in meta text, so the portfolio does not claim it; confirm with the client before mentioning it.

@@ -295,8 +295,8 @@ body{overflow-x:clip} /* hidden would make body a scroll container and break pos
 /* ---------- review fixes: scroll lock, a11y helpers, paused loops ---------- */
 html{scrollbar-gutter:stable}
 /* while the demo shell is open the gutter stays (the page behind must not reflow); the root background shows
-   through it, so it reads as a dark scrollbar track continuing the navy shell bar instead of a light strip */
-html.ax-locked{overflow:hidden;background:var(--navy-deep)}
+   through it: navy beside the shell bar, paper below it, so the gutter continues whatever it sits next to */
+html.ax-locked{overflow:hidden;background:linear-gradient(var(--navy-deep) 0 var(--shell-bar-h,64px),var(--paper) 0) fixed}
 .shell-body,.shell .ov-body,.shell .lightbox{overscroll-behavior:contain}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 body.shell-open #landing *,body.shell-open #landing *::before,body.shell-open #landing *::after{animation-play-state:paused!important}

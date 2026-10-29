@@ -372,7 +372,7 @@ None implemented: no frontend login; backend uses a static API key header that c
 React 19, Vite, TanStack Query and Table, Recharts, Tailwind v4; Express backend with Zod; Supabase Postgres (four tables with permissive RLS). No deployment files. Known gaps from the architecture doc: no auth, scoring keywords copied from a grain CRM, export filename leftover, no tests.
 
 #### Business value & example scenarios
-Gives the front desk a priority list. Scenario: a hot lead asks about Les Mills classes; Riya answers; the agent sees it flagged and books a trial call.
+Gives the front desk a priority list. Scenario: a hot lead asks about group classes; Riya answers; the agent sees it flagged and books a trial call.
 
 #### Planned / in progress (not live)
 Gap list in the architecture doc: authentication, database-level filtering, automated overdue tasks, realtime updates, xlsx export.
