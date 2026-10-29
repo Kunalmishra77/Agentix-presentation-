@@ -109,7 +109,7 @@
     root.textContent = "";
     var back = el("a", { class: "back", href: "#/", on: { click: function (e) { e.preventDefault(); close(); } } }, "← All projects");
     var bar = el("header", { class: "shell-bar" },
-      el("div", { class: "bar-brand" }, AX.ui.mark("bar-mark"), el("span", { class: "bar-word" }, "AGENTiX")),
+      el("div", { class: "bar-brand" }, AX.ui.mark("bar-mark"), AX.ui.wordmark({ light: true, cls: "bar-word" })),
       el("div", { class: "bar-title" }, el("h2", { class: "bar-name", tabindex: "-1" }, p.name), el("span", { class: "bar-cat" }, catTitle(p.category))),
       el("div", { class: "bar-meta" }, AX.ui.statusChip(p.status), el("span", { class: "sim-pill" }, "Demo data · Simulated"), AX.ui.agentixBadge({ size: "sm" }), back));
     var tabs = el("nav", { class: "tabs", "aria-label": "Project sections" });

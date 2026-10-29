@@ -18,8 +18,12 @@
   --shadow-2:0 8px 24px rgba(11,31,51,.12),0 2px 6px rgba(11,31,51,.08);
   --shadow-3:0 24px 60px rgba(7,20,37,.28);
   --ease:cubic-bezier(.2,.7,.2,1);
+  /* layout rhythm: one container, one gutter, one section rhythm */
+  --container:1320px; --section-y:clamp(88px,10vw,152px); --head-gap:clamp(32px,4.4vw,64px);
+  --r-card:18px; --shadow-card:0 1px 2px rgba(11,31,51,.05),0 10px 30px -18px rgba(11,31,51,.25);
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0;overflow-x:hidden}
+html{background:var(--paper)}
 body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--fs-md);line-height:1.5;-webkit-font-smoothing:antialiased}
 [hidden]{display:none!important}

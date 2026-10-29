@@ -25,13 +25,13 @@
   function mediaFor(p, variant) {
     var sizes = variant === "poster" ? "(max-width: 768px) 50vw, 24vw" : variant === "browser" ? "(max-width: 768px) 86vw, 40vw" : "(max-width: 768px) 92vw, 46vw";
     var m = AX.lx.media(p, { max: variant === "device" || variant === "control" ? 1 : 2, sizes: sizes, cls: "pc-media pc-media--" + variant });
-    var imgs = m.querySelectorAll("img");
+    var imgs = m.querySelectorAll("img:not(.ax-brand-img)");
     if (variant === "poster" && imgs.length) {
       // third frame: the first screen again, framed lower and closer (same URL, no extra request)
       var f3 = AX.lx.img(p.shots[0], { alt: "", cls: "shot-2", sizes: sizes });
       f3.addEventListener("error", function () { f3.remove(); });
       m.appendChild(f3);
-      m.classList.add("frames-" + m.querySelectorAll("img").length);
+      m.classList.add("frames-" + m.querySelectorAll("img:not(.ax-brand-img)").length);
     }
     if (variant === "browser" && imgs.length) {
       var strip = el("div", { class: "pc-strip" });
@@ -54,7 +54,7 @@
       el("div", { class: "pc-band" },
         el("div", { class: "pc-top" }, el("h3", { class: "pc-name" }, p.name), AX.ui.statusChip(p.status)),
         el("p", { class: "pc-client" }, p.client),
-        el("p", { class: "pc-sum" }, p.summary),
+        el("p", { class: "pc-sum", title: p.summary }, p.summary),
         el("div", { class: "pc-foot" }, el("div", { class: "pc-tags" }, tags(p)), el("span", { class: "pc-open" }, "Open demo →"))));
     a.addEventListener("click", function (e) {
       if (AX.lx.modified(e)) return;
@@ -190,7 +190,8 @@
       var lay = s.cat.layout;
       if (lay === "flagship") {
         s.cards.forEach(function (k) {
-          gsap.fromTo(k.querySelector(".pc-frame"), { rotationX: 16, y: 90, transformPerspective: 1400, transformOrigin: "50% 100%" },
+          // the whole card rises and settles (frame and caption move together)
+          gsap.fromTo(k, { rotationX: 10, y: 70, transformPerspective: 1400, transformOrigin: "50% 100%" },
             { rotationX: 0, y: 0, ease: "power2.out", scrollTrigger: { trigger: k, start: "top bottom", end: "top 62%", scrub: 0.6 } });
         });
       }

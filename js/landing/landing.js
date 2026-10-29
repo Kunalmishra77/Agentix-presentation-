@@ -1,4 +1,4 @@
-/* Landing orchestrator: builds nav + scenes, wires Lenis to ScrollTrigger, the custom cursor,
+/* Landing orchestrator: builds nav + scenes, wires Lenis to ScrollTrigger,
    live search / status filter, and scroll restore around the demo shell. */
 (function (w) {
   "use strict";
@@ -56,7 +56,7 @@
   }
 
   function buildNav() {
-    var q = el("input", { id: "q", class: "nav-q", type: "search", placeholder: "Search by name, client or industry", "aria-label": "Search projects", autocomplete: "off" });
+    var q = el("input", { id: "q", class: "nav-q", type: "search", placeholder: "Search projects", "aria-label": "Search projects", autocomplete: "off" });
     q.addEventListener("input", function () { filterState.q = q.value; applyFilter(); });
     var status = el("div", { class: "nav-status", role: "group", "aria-label": "Filter by status" }, STATUSES.map(function (s) {
       return el("button", { type: "button", class: "st-btn" + (s[0] ? " st-" + s[0] : ""), "data-status": s[0], "aria-pressed": s[0] === "" ? "true" : "false",
@@ -72,7 +72,7 @@
     nav = el("header", { id: "nav", class: "nav" },
       el("div", { class: "nav-row" },
         el("a", { class: "nav-logo", href: "#/", "aria-label": "AI Agentix, back to top", on: { click: function (e) { e.preventDefault(); scrollTo(0); } } },
-          AX.ui.mark("nav-mark"), AX.preloader.wordmark("wordmark nav-word")),
+          AX.ui.mark("nav-mark"), AX.ui.wordmark({ cls: "nav-word" })),
         el("button", { type: "button", class: "nav-cats", "aria-expanded": "false", "aria-controls": "nav-menu", on: { click: toggleMenu } }, "Categories"),
         el("div", { id: "nav-find", class: "nav-find" }, el("label", { class: "nav-qwrap" }, el("span", { class: "nav-qicon", "aria-hidden": "true" }), q), status, count,
           el("span", { id: "filter-status", class: "sr-only", role: "status", "aria-live": "polite" })),
@@ -114,23 +114,6 @@
   function jumpToResults() {
     var first = document.querySelector("#work .pcard:not([hidden])");
     if (first) scrollTo(first.closest(".cat") || first, { offset: -navH() - 8 });
-  }
-
-  /* --- custom cursor -------------------------------------------------------- */
-  function cursor() {
-    if (ctx.reduced || !AX.lx.finePointer() || !w.gsap) return;
-    var c = el("div", { id: "cursor", class: "cursor", "aria-hidden": "true" }, el("span", { class: "cursor-label" }, "Open demo"));
-    document.body.appendChild(c);
-    var gx = w.gsap.quickTo(c, "x", { duration: 0.35, ease: "power3.out" }), gy = w.gsap.quickTo(c, "y", { duration: 0.35, ease: "power3.out" });
-    w.addEventListener("pointermove", function (e) {
-      if (e.pointerType && e.pointerType !== "mouse") return;
-      c.classList.add("is-on"); gx(e.clientX); gy(e.clientY);
-    }, { passive: true });
-    document.addEventListener("pointerover", function (e) {
-      var t = e.target.closest && e.target.closest("[data-demo]");
-      c.classList.toggle("is-demo", !!t && !document.body.classList.contains("shell-open"));
-    });
-    document.documentElement.addEventListener("pointerleave", function () { c.classList.remove("is-on"); });
   }
 
   /* --- scroll + shell -------------------------------------------------------- */
@@ -197,7 +180,6 @@
 
     modules.forEach(function (m) { if (m.setup) m.setup(ctx); });
     if (AX.delivery && AX.delivery.setup && modules.indexOf(AX.delivery) < 0) AX.delivery.setup(ctx);
-    cursor();
     w.addEventListener("scroll", navScroll, { passive: true });
     navScroll();
     inited = true;

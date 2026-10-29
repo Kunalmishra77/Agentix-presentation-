@@ -66,11 +66,28 @@
     return el("span", { class: "status-chip status-" + s }, STATUS[s]);
   }
 
-  var MARK = '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<path d="M31 10c-3-3-9-2-11 2-5 0-9 4-8 9-3 3-3 9 1 12-1 5 2 10 7 10 2 4 8 5 11 1V10z"/><path d="M31 24h-8c-2 0-3-1-3-3M31 36h-9M20 12c1 3 3 4 6 4"/>' +
-    '<path d="M33 10c3-3 9-2 11 2 5 0 9 4 8 9 3 3 3 9-1 12 1 5-2 10-7 10-2 4-8 5-11 1V10z"/><path d="M33 24h8c2 0 3-1 3-3M33 36h9M44 12c-1 3-3 4-6 4"/><path d="M32 54v4"/></svg>';
-
-  function mark(cls) { return el("span", { class: "ax-mark " + (cls || ""), html: MARK }); }
+  /* Brand images, all derived from the official Agentix logo (tools/make-brand-assets.py).
+     Paths resolve against this script so fixtures in sub-folders load them too. */
+  var BRAND = (function () {
+    var cs = document.currentScript, src = cs && cs.src ? cs.src : "";
+    var i = src.lastIndexOf("js/core/ui.js");
+    return (i >= 0 ? src.slice(0, i) : "") + "assets/brand/";
+  })();
+  var BRAND_SIZE = { "agentix-mark": [128, 128], "agentix-logo": [480, 201], "agentix-wordmark": [381, 64], "agentix-wordmark-light": [381, 64] };
+  function brandImg(name, cls) {
+    var sz = BRAND_SIZE[name] || [];
+    return el("img", { class: "ax-brand-img " + (cls || ""), src: BRAND + name + ".png", srcset: BRAND + name + ".png 1x, " + BRAND + name + "@2x.png 2x",
+      width: sz[0], height: sz[1], alt: "AI Agentix", loading: "lazy", decoding: "async", draggable: "false" });
+  }
+  /** The original brain mark. */
+  function mark(cls) { return el("span", { class: "ax-mark " + (cls || "") }, brandImg("agentix-mark")); }
+  /** The original AGENTiX wordmark; {light:true} for navy backgrounds. */
+  function wordmark(o) {
+    o = o || {};
+    return brandImg(o.light ? "agentix-wordmark-light" : "agentix-wordmark", "ax-wordmark " + (o.cls || ""));
+  }
+  /** The full stacked logo (mark above wordmark). */
+  function logo(cls) { return brandImg("agentix-logo", "ax-logo " + (cls || "")); }
 
   function agentixBadge(o) {
     var size = (o && o.size) === "sm" ? "sm" : "md";
@@ -78,7 +95,7 @@
   }
 
   AX.ui = {
-    toast: toast, statusChip: statusChip, agentixBadge: agentixBadge, mark: mark,
+    toast: toast, statusChip: statusChip, agentixBadge: agentixBadge, mark: mark, wordmark: wordmark, logo: logo, BRAND: BRAND,
     drawer: function (o) { return overlay("drawer", o); },
     modal: function (o) { return overlay("modal", o); },
     pushEsc: pushEsc, closeTop: closeTop, closeAll: closeAll, STATUS: STATUS, SIM_DEFAULT: SIM_DEFAULT

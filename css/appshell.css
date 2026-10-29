@@ -5,7 +5,7 @@
 .ax-side{display:flex;flex-direction:column;gap:var(--sp-3);background:var(--ax-surface);border-right:1px solid var(--ax-line);padding:var(--sp-4) var(--sp-3);overflow-y:auto;min-height:0}
 .ax-brand{display:flex;align-items:center;gap:var(--sp-2);padding:0 var(--sp-2) var(--sp-2)}
 .ax-logo{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--ax-accent);color:#fff;font:700 var(--fs-sm) var(--font-display)}
-.ax-brand-name{font:600 var(--fs-md) var(--font-display);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ax-brand-name{font:600 var(--fs-md)/1.2 var(--font-display);color:var(--ink);min-width:0;overflow-wrap:break-word}
 .ax-dot{width:8px;height:8px;border-radius:50%;background:var(--ax-accent);flex:none;margin-left:auto}
 .ax-role{display:flex;flex-direction:column;gap:4px;font:500 var(--fs-xs) var(--font-mono);color:var(--ink-3);padding:0 var(--sp-2)}
 .ax-role select{font:500 var(--fs-sm) var(--font-body);padding:7px 10px;border:1px solid var(--ax-line);border-radius:var(--r-sm);background:var(--ax-bg);color:var(--ink)}
