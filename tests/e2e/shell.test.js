@@ -157,6 +157,7 @@ test("a11y: dialog role, focus inside shell, landing inert, focus restored", asy
     assert.equal(await page.evaluate(() => document.getElementById("landing").inert), true);
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => location.hash === "#/");
+    await page.waitForFunction(() => document.activeElement && document.activeElement.id === "opener");
     assert.equal(await page.evaluate(() => document.activeElement.id), "opener");
     assert.equal(await page.evaluate(() => document.getElementById("landing").inert), false);
   } finally { await close(); }
