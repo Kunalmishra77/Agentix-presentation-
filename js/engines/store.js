@@ -25,6 +25,13 @@
     var quote = opt.checkout === "quote";
     var cur = opt.currency || "₹";
     var coupons = opt.coupons || [{ code: "WELCOME10", pct: 10 }];
+    // drawers render outside .ax-app, so carry the demo's slug and accent into them
+    var app = host.closest ? host.closest(".ax-app") : null;
+    var accent = app ? app.style.getPropertyValue("--ax-accent").trim() : "";
+    function scoped(body) {
+      if (!app) return body;
+      return el("div", { class: "demo-scope", "data-slug": app.getAttribute("data-slug") || "", style: accent ? { "--ax-accent": accent, "--orange": accent } : {} }, body);
+    }
     var copt = { gstRate: opt.gstRate, shipping: opt.shipping || 0, freeOver: opt.freeOver };
     var cart = [];
     var coupon = null;
@@ -112,7 +119,7 @@
           }
           dr.close();
         } } }, quote ? "Add to quotation" : "Add to cart"));
-      var dr = AX.ui.drawer({ title: p.name, body: body });
+      var dr = AX.ui.drawer({ title: p.name, body: scoped(body) });
     }
 
     // ---- cart + checkout ----
@@ -120,7 +127,7 @@
     function openCart() {
       view = "cart";
       cartBody = el("div", { class: "st-cartbody" });
-      cartDrawer = AX.ui.drawer({ title: "Your cart", body: cartBody });
+      cartDrawer = AX.ui.drawer({ title: "Your cart", body: scoped(cartBody) });
       renderCart();
     }
     function line(l) {
@@ -185,6 +192,8 @@
           if (!f.name.value.trim() || !f.phone.value.trim() || !f.address.value.trim()) { errs.textContent = "Please fill in name, phone and address."; return; }
           var t = totals();
           var id = "AX-" + (100000 + Math.floor(Math.random() * 900000));
+          var lines = cart.map(function (l) { var p = prod(l.id); return { id: l.id, name: p ? p.name : l.id, qty: l.qty }; });
+          if (opt.onOrder) opt.onOrder({ id: id, total: t.total, lines: lines, name: f.name.value.trim(), phone: f.phone.value.trim() });
           cart = []; coupon = null; drawCartBtn();
           cartBody.textContent = "";
           cartBody.appendChild(el("div", { class: "st-done" },

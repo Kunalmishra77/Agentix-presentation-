@@ -294,10 +294,13 @@
   });
 
   /* ----- store ----- */
-  M("Customer", "products", "Products", "store", {
+  M("Customer", "products", "Products", "store", function (ctx) { return {
     type: "store", products: PRODUCTS.map(function (p) { return { id: p.id, name: p.name, price: p.price, mrp: p.mrp, cat: p.cat, tags: p.tags.filter(function (t) { return ["salicylic", "retinoid", "spf", "fragrance-free", "gentle", "pregnancy-ok"].indexOf(t) >= 0; }) }; }),
-    categories: ["Cleanse", "Treat", "Moisturise", "Protect"], gstRate: 0.18, shipping: 49, freeOver: 799, coupons: [{ code: "SKIN10", pct: 10 }]
-  });
+    categories: ["Cleanse", "Treat", "Moisturise", "Protect"], gstRate: 0.18, shipping: 49, freeOver: 799, coupons: [{ code: "SKIN10", pct: 10 }],
+    onOrder: function (o) {
+      K(ctx).orders.unshift({ id: "SO-n" + (++seq), customer: o.name + " (demo)", phone: "+91 98xxx x0000", items: o.lines.map(function (l) { return l.name; }).join(", "), count: o.lines.length, total: Math.round(o.total), date: ctx.data.today, pay: "UPI", status: "Paid", city: "Delhi" });
+    }
+  }; });
 
   /* ----- consultation form ----- */
   M("Customer", "consultation", "Consultation", "form", function (ctx) {

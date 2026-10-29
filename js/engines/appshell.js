@@ -38,7 +38,7 @@
 
   /* Exact callback keys are passed through untouched; any other top-level function value is evaluated as (ctx) -> value.
      Items inside arrays (charts[], fields[], columns[]...) are NOT function-resolved. */
-  var CALLBACK = /^(on[A-Z]\w*|render|renderCard|drawer|format|validate|filter|sort|match|compare)$/;
+  var CALLBACK = /^(on[A-Z]\w*|render|renderCard|drawer|drawerTitle|format|validate|filter|sort|match|compare)$/;
   function resolve(view, ctx) {
     if (typeof view === "function") view = view(ctx);
     var out = {};
@@ -83,7 +83,8 @@
   };
 
   ["board", "chat", "flow", "pipeline", "store"].forEach(function (t) {
-    VIEWS[t] = function (host, v) { AX[t].create(host, strip(v, [])); };
+    // the engine instance stays reachable as moduleEl.__axView (e.g. chat.play / chat.push from custom code)
+    VIEWS[t] = function (host, v) { host.__axView = AX[t].create(host, strip(v, [])); };
   });
   VIEWS.calendar = function (host, v) { AX.calendar.month(host, strip(v, [])); };
   VIEWS.tape = function (host, v) { AX.calendar.tape(host, strip(v, [])); };
@@ -115,9 +116,11 @@
         vals[f.key] = f.type === "toggle" ? i.checked : f.type === "number" ? (i.value === "" ? null : +i.value) : i.value;
       });
       result.textContent = "";
+      // onSubmit handlers often raise their own, more specific simulated toast; add the generic one only if none appeared
+      var box = document.getElementById("toasts") || document.body, before = box.querySelectorAll(".toast-sim").length;
       var out = v.onSubmit ? v.onSubmit(vals, ctx) : null;
       if (out && out.nodeType) result.appendChild(out);
-      AX.ui.toast(AX.ui.SIM_DEFAULT, { kind: "sim" });
+      if (box.querySelectorAll(".toast-sim").length === before) AX.ui.toast(AX.ui.SIM_DEFAULT, { kind: "sim" });
     });
     host.appendChild(el("div", { class: "ax-form-wrap" }, form, result));
   };
@@ -142,7 +145,7 @@
       state: state,
       toast: AX.ui.toast,
       lang: langOpts ? langOpts[0] : "en",
-      open: function (id) { api.open(id); },
+      open: function (id) { api.open(id, { rerender: true }); },
       t: function (en, hi) { return ctx.lang === "hi" && hi != null ? hi : en; }
     };
 
@@ -200,7 +203,7 @@
       nav.textContent = "";
       var groups = [], byGroup = {};
       visible().forEach(function (m) {
-        if (query && String(m.label).toLowerCase().indexOf(query) < 0) return;
+        if (query && labelOf(m).toLowerCase().indexOf(query) < 0) return;
         var g = m.group || "";
         if (!byGroup[g]) { byGroup[g] = []; groups.push(g); }
         byGroup[g].push(m);
@@ -210,7 +213,7 @@
         var sec = el("div", { class: "ax-group" }, g ? el("div", { class: "ax-group-title" }, g) : null);
         byGroup[g].forEach(function (m) {
           var b = el("button", { type: "button", class: "ax-nav-item", "data-id": m.id,
-            on: { click: function () { var sheet = root.classList.contains("sheet-open"); api.open(m.id); setSheet(false, sheet ? title : null); } } }, icon(m.icon), el("span", { class: "ax-nav-label" }, m.label));
+            on: { click: function () { var sheet = root.classList.contains("sheet-open"); api.open(m.id); setSheet(false, sheet ? title : null); } } }, icon(m.icon), el("span", { class: "ax-nav-label" }, labelOf(m)));
           if (m.id === currentId) b.setAttribute("aria-current", "page");
           sec.appendChild(b);
         });
@@ -233,9 +236,17 @@
       Array.prototype.forEach.call(langBox.querySelectorAll("button"), function (b) {
         b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === l));
       });
+      buildNav();
       if (currentId) renderModule(currentId);
     }
     function find(id) { return all.filter(function (m) { return m.id === id; })[0]; }
+    /* A module label is a string, {en, hi} or (ctx) -> string, so nav and title follow the language toggle. */
+    function labelOf(m) {
+      var l = m.label;
+      if (typeof l === "function") l = l(ctx);
+      else if (l && typeof l === "object") l = ctx.t(l.en, l.hi);
+      return l == null ? "" : String(l);
+    }
     function startId() {
       var s = opt.start && find(opt.start) ? opt.start : null;
       if (!s) { var v = visible(); s = (v[0] || all[0] || {}).id; }
@@ -247,7 +258,7 @@
       content.textContent = "";
       var host_ = el("div", { class: "ax-module", "data-module": id });
       content.appendChild(host_);
-      title.textContent = m ? m.label : "";
+      title.textContent = m ? labelOf(m) : "";
       var failed = false;
       try {
         var view = resolve(m.view, ctx);
@@ -285,7 +296,7 @@
           setNavCurrent();
           if (!nav.querySelector('[data-id="' + target + '"]')) buildNav();
           renderModule(target);
-        }
+        } else if (o.rerender) renderModule(target);
         if (write) writeHash(target);
       },
       destroy: function () { destroyed = true; curRender++; content.textContent = ""; if (root.parentNode) root.parentNode.removeChild(root); }

@@ -290,7 +290,10 @@
 
   /* ----- shop ----- */
   M("Customer", "shop", "Shop", "store", function (ctx) {
-    return { type: "store", products: ctx.data.products, categories: ["Treatment", "Supplements", "Care", "Devices", "Kits"], gstRate: 0.18, shipping: 79, freeOver: 999, coupons: [{ code: "HAIR10", pct: 10 }] };
+    return { type: "store", products: ctx.data.products, categories: ["Treatment", "Supplements", "Care", "Devices", "Kits"], gstRate: 0.18, shipping: 79, freeOver: 999, coupons: [{ code: "HAIR10", pct: 10 }],
+      onOrder: function (o) {
+        Y(ctx).orders.unshift({ id: "YO-n" + (++seq), customer: o.name, item: o.lines.map(function (l) { return l.name; }).join(", "), amount: Math.round(o.total), date: ctx.data.today, status: "Paid", pay: "UPI" });
+      } };
   });
 
   /* ----- doctor calendar ----- */
