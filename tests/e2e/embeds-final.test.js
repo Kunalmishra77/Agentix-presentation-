@@ -4,11 +4,23 @@ const { before, after } = test;
 const assert = require("node:assert/strict");
 const { openPage, serverUrl } = require("../helpers/browser");
 
-/* Collects page errors whose stack points at our own server (third-party iframe errors are not ours). */
-function ownErrors(page) {
+/** Origin of the topmost stack frame, or null when the frame has no URL (eval/anonymous). */
+function topFrameOrigin(stack) {
+  const m = /\n\s*at [^\n]*?\(?((?:https?|blob|data):[^\s)]*?):\d+:\d+\)?\s*(?:\n|$)/.exec(String(stack || ""));
+  if (!m) return null;
+  try { return new URL(m[1]).origin; } catch (e) { return "invalid:" + m[1]; }
+}
+/** An error is excused only when it originates inside the embedded third-party site (topmost frame on the embed origin). */
+function excused(stack, embedOrigin) {
+  const o = topFrameOrigin(stack);
+  return !!(embedOrigin && o && o === embedOrigin && o !== new URL(serverUrl).origin);
+}
+/** Returns {list, hook}: pass hook as openPage onPage so errors during page load are counted too. */
+function collector(embedUrl) {
+  let embedOrigin = null;
+  try { embedOrigin = new URL(embedUrl).origin; } catch (e) {}
   const list = [];
-  page.on("pageerror", (e) => { const st = String(e.stack || ""); if (!st.includes("http") || st.includes(serverUrl)) list.push(e.message); });
-  return list;
+  return { list, hook: (page) => page.on("pageerror", (e) => { if (!excused(e.stack, embedOrigin)) list.push(e.message); }) };
 }
 
 let keeper;
@@ -33,8 +45,9 @@ test("every embed-only project's Walkthrough renders AX.embed (iframe loaded or 
   const list = await projectList();
   assert.ok(list.length >= 20, "expected 20+ embed-only projects, got " + list.length);
   for (const p of list) {
-    const { page, errors, close } = await openPage("/index.html", { reducedMotion: "reduce" });
-    const mineErrs = ownErrors(page);
+    const col = collector(p.url);
+    const mineErrs = col.list;
+    const { page, errors, close } = await openPage("/index.html", { reducedMotion: "reduce", onPage: col.hook });
     try {
       await page.evaluate((h) => { location.hash = h; }, "#/demo/" + p.slug + "/walkthrough");
       await page.waitForSelector(".emb", { timeout: 15000 });
@@ -54,15 +67,25 @@ test("every embed-only project's Walkthrough renders AX.embed (iframe loaded or 
   }
 });
 
-test("own-document page errors are caught by the collector", async () => {
-  const { page, close } = await openPage("/index.html");
+test("collector counts own errors, foreign-CDN and blob-script errors; excuses only the embedded site", async () => {
+  const col = collector("https://embedded.example.org/");
+  const { page, close } = await openPage("/index.html", { onPage: col.hook });
   try {
-    const errs = ownErrors(page);
     await page.evaluate(() => setTimeout(() => { throw new Error("own-error"); }));
-    await page.waitForFunction(() => true);
-    await new Promise((r) => setTimeout(r, 500));
-    assert.deepEqual(errs, ["own-error"]);
+    await page.evaluate(() => {
+      const b = new Blob(["setTimeout(function(){ throw new Error(\"blob-error\"); })"], { type: "text/javascript" });
+      const sc = document.createElement("script"); sc.src = URL.createObjectURL(b); document.head.appendChild(sc);
+    });
+    await new Promise((r) => setTimeout(r, 700));
+    assert.ok(col.list.includes("own-error"), "own error counted: " + col.list);
+    assert.ok(col.list.includes("blob-error"), "blob script error counted: " + col.list);
   } finally { await close(); }
+  const cdn = "Error: x\n    at f (https://cdn.example.net/lib.js:1:2)";
+  const emb = "Error: x\n    at f (https://embedded.example.org/app.js:10:5)\n    at g (http://127.0.0.1/index.html:1:1)";
+  assert.equal(excused(cdn, "https://embedded.example.org"), false, "foreign CDN script is not excused");
+  assert.equal(excused(emb, "https://embedded.example.org"), true, "embedded-site frame is excused");
+  assert.equal(excused("Error: x\n    at <anonymous>:1:1", "https://embedded.example.org"), false, "no URL is not excused");
+  assert.equal(excused("Error: x\n    at h (http://127.0.0.1:4507/js/a.js:1:1)", "https://embedded.example.org"), false, "our own scripts are not excused");
 });
 
 test("hosted-only sites forward allowedOrigins; on localhost they show the scroller", async () => {
