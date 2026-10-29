@@ -24,6 +24,7 @@ async function openPage(path, opts = {}) {
   page.on("console", (m) => { if (m.type() === "error") errors.push("console: " + m.text()); });
   page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
   page.on("requestfailed", (r) => errors.push("requestfailed: " + r.url() + " " + (r.failure() && r.failure().errorText)));
+  if (opts.onPage) opts.onPage(page);
   await page.goto(serverUrl + path, { waitUntil: "load" });
   async function close() {
     await ctx.close();

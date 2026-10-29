@@ -148,5 +148,19 @@
     return { setDevice: setDevice, reload: load, status: function () { return status; } };
   }
 
-  AX.embed = { create: create, originAllowed: originAllowed, CAPTION: CAPTION };
+  /** Embed options for a project record (passes url, mode, allowedOrigins, external through unchanged). */
+  function optsFor(p, extra) {
+    var e = (p && p.embed) || {};
+    return Object.assign({ url: e.url, mode: e.mode, allowedOrigins: e.allowedOrigins,
+      external: e.external != null ? e.external : e.mode !== "local",
+      title: p && p.name, shots: (p && p.shots) || [] }, extra || {});
+  }
+  function optsForSlug(slug, extra) {
+    var p = ((AX.projects) || []).filter(function (x) { return x.slug === slug; })[0];
+    return optsFor(p, extra);
+  }
+  /** Called by js/shell/shell.js renderWalkthrough for embed-only projects. */
+  function mount(host, p) { return create(host, optsFor(p)); }
+
+  AX.embed = { create: create, originAllowed: originAllowed, CAPTION: CAPTION, optsFor: optsFor, optsForSlug: optsForSlug, mount: mount };
 })(window);

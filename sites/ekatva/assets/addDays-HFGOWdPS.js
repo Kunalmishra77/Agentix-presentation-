@@ -1,0 +1,1 @@
+import{$r as e,ei as t}from"./ui-D_ZdZNIK.js";function n(n,r,i){let a=e(n,i?.in);return isNaN(r)?t(i?.in||n,NaN):(r&&a.setDate(a.getDate()+r),a)}export{n as t};
