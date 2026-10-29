@@ -6,8 +6,11 @@ const { openPage, serverUrl } = require("../helpers/browser");
 
 /** Origin of the topmost stack frame, or null when the frame has no URL (eval/anonymous). */
 function topFrameOrigin(stack) {
-  const m = /\n\s*at [^\n]*?\(?((?:https?|blob|data):[^\s)]*?):\d+:\d+\)?\s*(?:\n|$)/.exec(String(stack || ""));
+  const top = String(stack || "").split("\n").filter((l) => /^\s*at /.test(l))[0];   // first frame only
+  if (!top) return null;
+  const m = /\(?((?:https?|blob|data):[^\s)]*?):\d+:\d+\)?\s*$/.exec(top);
   if (!m) return null;
+  if (/^(blob|data):/.test(m[1])) return "ours:" + m[1];   // blob/data scripts are ours, whatever their inner origin
   try { return new URL(m[1]).origin; } catch (e) { return "invalid:" + m[1]; }
 }
 /** An error is excused only when it originates inside the embedded third-party site (topmost frame on the embed origin). */
@@ -85,6 +88,9 @@ test("collector counts own errors, foreign-CDN and blob-script errors; excuses o
   assert.equal(excused(cdn, "https://embedded.example.org"), false, "foreign CDN script is not excused");
   assert.equal(excused(emb, "https://embedded.example.org"), true, "embedded-site frame is excused");
   assert.equal(excused("Error: x\n    at <anonymous>:1:1", "https://embedded.example.org"), false, "no URL is not excused");
+  assert.equal(excused("Error: x\n    at <anonymous>:1:1\n    at f (https://embedded.example.org/app.js:10:5)", "https://embedded.example.org"), false, "anonymous top frame is counted even with embedded frames below");
+  assert.equal(excused("Error: x\n    at f (https://embedded.example.org/app.js:10:5)\n    at <anonymous>:1:1", "https://embedded.example.org"), true, "embedded top frame is excused");
+  assert.equal(excused("Error: x\n    at f (blob:https://embedded.example.org/uuid-1:1:1)", "https://embedded.example.org"), false, "blob top frame is counted");
   assert.equal(excused("Error: x\n    at h (http://127.0.0.1:4507/js/a.js:1:1)", "https://embedded.example.org"), false, "our own scripts are not excused");
 });
 
