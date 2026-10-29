@@ -86,7 +86,7 @@ test("socialflow: every module renders, follow-gate comment DM, profile score", 
     await page.waitForSelector(".dm-msg:has-text('₹')");
     await page.click('.ax-nav-item[data-id="studio"]');
     await page.waitForSelector('[data-module-ready][data-module="studio"] form');
-    await page.click("button[type=submit]");
+    await page.click("#shell button[type=submit]");
     await page.waitForFunction(() => document.querySelectorAll(".cap-variant").length === 3);
     await page.click('.ax-nav-item[data-id="profile-score"]');
     await page.waitForSelector('[data-module-ready][data-module="profile-score"] svg');

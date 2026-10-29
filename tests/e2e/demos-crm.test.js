@@ -79,7 +79,7 @@ test("agentix-crm: client drawer has invoice timeline, communications and storie
   const { page, close } = await openDemo("agentix-crm");
   try {
     await go(page, "clients");
-    await page.locator("tbody tr").first().click();
+    await page.locator("#shell tbody tr").first().click();
     await page.locator(".ov-panel .ac-tl li").first().waitFor();
     assert.ok((await page.locator(".ov-panel .ac-tl li").count()) >= 3);
     assert.ok(/communications/i.test(await page.locator(".ov-panel").innerText()));
@@ -119,7 +119,7 @@ test("agentix-crm: internal area is locked until Unlock demo", async () => {
     await go(page, "internal");
     assert.ok(/Co-founders only/.test(await page.locator('[data-module="internal"]').innerText()));
     assert.equal(await page.locator('[data-module="internal"] tbody tr').count(), 0);
-    await page.click('button:has-text("Unlock demo")');
+    await page.click('#shell button:has-text("Unlock demo")');
     await page.locator('[data-module="internal"] tbody tr').first().waitFor();
     assert.ok((await page.locator('[data-module="internal"] tbody tr').count()) >= 5);
   } finally { await close(); }
@@ -149,7 +149,7 @@ test("agentix-crm: drawer primary button uses the brand accent; completion delta
     const delta = await page.locator(".kpi", { hasText: "Completion" }).locator(".kpi-delta").innerText();
     assert.ok(/[0-9]+%/.test(delta), delta);
     await go(page, "leads");
-    await page.locator("tbody tr").first().click();
+    await page.locator("#shell tbody tr").first().click();
     const bg = await page.locator(".ov-panel .ac-btn.primary").first().evaluate((n) => getComputedStyle(n).backgroundColor);
     assert.equal(bg, "rgb(11, 31, 51)");
   } finally { await close(); }
@@ -177,13 +177,13 @@ test("eurobrass-crm: inventory low-stock filter narrows rows", async () => {
   const { page, close } = await openDemo("eurobrass-crm");
   try {
     await go(page, "inventory");
-    await page.waitForSelector("tbody tr");
+    await page.waitForSelector("#shell tbody tr");
     const all = await page.locator(".tbl-range").innerText();
     await page.selectOption('select[data-key="level"]', "Low stock");
     await page.waitForFunction((a) => document.querySelector(".tbl-range").textContent !== a, all);
-    const rows = await page.locator("tbody tr").count();
+    const rows = await page.locator("#shell tbody tr").count();
     assert.ok(rows >= 3);
-    for (const r of await page.locator("tbody tr td[data-label='Level']").allInnerTexts()) assert.ok(/Low stock/.test(r), r);
+    for (const r of await page.locator("#shell tbody tr td[data-label='Level']").allInnerTexts()) assert.ok(/Low stock/.test(r), r);
   } finally { await close(); }
 });
 
@@ -218,7 +218,7 @@ test("eurobrass-crm: quotation with 2 products, GST 18%, send toast, convert to 
     const orderId = await page.locator("[data-q-converted]").getAttribute("data-order");
     assert.ok(/^ORD-/.test(orderId), orderId);
     await go(page, "orders");
-    const row = page.locator("tbody tr", { hasText: orderId });
+    const row = page.locator("#shell tbody tr", { hasText: orderId });
     await row.waitFor();
     assert.ok((await row.innerText()).includes(cust));
     assert.ok((await row.innerText()).includes(fmt(total)));
@@ -279,7 +279,7 @@ test("eurobrass-crm: drawer primary button uses the brass accent", async () => {
   const { page, close } = await openDemo("eurobrass-crm");
   try {
     await go(page, "dealers");
-    await page.locator("tbody tr").first().click();
+    await page.locator("#shell tbody tr").first().click();
     const bg = await page.locator(".ov-panel .eb-btn.primary").first().evaluate((n) => getComputedStyle(n).backgroundColor);
     assert.equal(bg, "rgb(140, 106, 62)");
   } finally { await close(); }

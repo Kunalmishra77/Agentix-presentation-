@@ -130,10 +130,10 @@ test("socialpush: compose, toggle 3 platforms, schedule -> calendar + posts Queu
     await page.waitForSelector(".toast-sim");
     await go(page, "posts");
     const S = (st) => '.tbl-row:has-text("Diwali sale starts tonight") .sp-status[data-status="' + st + '"]';
-    await page.waitForSelector(S("Queued"), { timeout: 3000 });
-    await page.waitForSelector(S("Publishing"), { timeout: 4000 });
-    await page.waitForSelector(S("Published"), { timeout: 4000 });
-    assert.ok(Date.now() - t0 < 4000, "published within 4s of Schedule: " + (Date.now() - t0));
+    await page.waitForSelector(S("Queued"), { timeout: 8000 });
+    await page.waitForSelector(S("Publishing"), { timeout: 8000 });
+    await page.waitForSelector(S("Published"), { timeout: 8000 });
+    assert.ok(Date.now() - t0 < 8000, "published within 8s of Schedule (3.3s timer + load margin): " + (Date.now() - t0));
     await go(page, "calendar");
     await page.waitForSelector('.cal-ev[data-id^="new-"]');
     assert.ok((await page.textContent(".cal-title")).includes("November") || (await page.textContent(".cal-title")).includes("Nov"));

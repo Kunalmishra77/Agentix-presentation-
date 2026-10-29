@@ -55,7 +55,7 @@ test("agentix-hims: nurse table shows NEWS2 12 for the seeded row and re-scores 
   try {
     await page.click('.ax-nav-item[data-id="nurse"]');
     await page.waitForSelector('[data-module-ready][data-module="nurse"] tbody tr');
-    const row = page.locator("tbody tr", { hasText: "Ramesh K." });
+    const row = page.locator("#shell tbody tr", { hasText: "Ramesh K." });
     assert.equal(await row.locator(".news2-badge").getAttribute("data-news2"), "12");
     assert.ok(/Fictional demo data/.test(await page.locator(".hx-note").first().innerText()));
     await row.click();
@@ -114,18 +114,18 @@ test("agentix-hims: lab, pharmacy and billing drawers act; OT event opens", asyn
   try {
     const mod = async (id) => { await page.click('.ax-nav-item[data-id="' + id + '"]'); await page.waitForSelector('[data-module-ready][data-module="' + id + '"]'); };
     await mod("lab");
-    await page.locator("tbody tr", { hasText: "LAB-4410" }).click();
+    await page.locator("#shell tbody tr", { hasText: "LAB-4410" }).click();
     await page.click(".ov-foot .btn-primary, .ov-body .hx-btn.primary");
     await page.locator(".toast-sim").first().waitFor();
     await page.keyboard.press("Escape");
     await mod("pharmacy");
-    await page.locator("tbody tr", { hasText: "RX-7710" }).click();
+    await page.locator("#shell tbody tr", { hasText: "RX-7710" }).click();
     await page.click(".ov-body .hx-btn.primary");
     assert.ok(/Simulated/.test(await page.locator(".toast-sim").last().innerText()));
     await page.waitForFunction(() => /Preparing/.test(document.querySelector(".ov-body").textContent));
     await page.keyboard.press("Escape");
     await mod("billing");
-    await page.locator("tbody tr", { hasText: "CLM-30500" }).click();
+    await page.locator("#shell tbody tr", { hasText: "CLM-30500" }).click();
     await page.locator(".ov-panel", { hasText: "AI denial-risk score" }).waitFor();
     await page.keyboard.press("Escape");
     await mod("ot");
@@ -215,7 +215,7 @@ test("umang-hims: nurse vitals and doctor consult complete into billing; languag
     await page.waitForSelector('[data-module-ready][data-module="nurse"] form');
     const nums = page.locator(".ax-form input[type=number]");
     for (const [i, v] of [["0", "122"], ["1", "80"], ["2", "78"], ["3", "37.2"], ["4", "98"]].map(([a, b]) => [+a, b])) await nums.nth(i).fill(v);
-    await page.click("button[type=submit]");
+    await page.click("#shell button[type=submit]");
     await page.locator(".ax-form-result [data-vitals-done]").waitFor();
     await page.click('.ax-nav-item[data-id="doctor"]');
     await page.waitForSelector('[data-module-ready][data-module="doctor"] [data-consult]');
