@@ -9,8 +9,9 @@ const ctx = loadScripts(["js/core/ax.js", "js/data/categories.js", "js/data/fake
 const AX = ctx.window.AX;
 const STATUSES = ["live", "active", "proto", "concept"];
 
-test("50 projects with unique slugs", () => {
-  assert.equal(AX.projects.length, 50);
+test("49 projects with unique slugs", () => {
+  assert.equal(AX.projects.length, 49);
+  assert.ok(!AX.projects.some((p) => p.slug === "moana"), "moana removed");
   const slugs = AX.projects.map((p) => p.slug);
   assert.equal(new Set(slugs).size, slugs.length);
 });
@@ -96,5 +97,22 @@ test("tier A projects list at least 6 feature items across groups", () => {
   for (const p of AX.projects.filter((p) => p.tier === "A")) {
     const n = p.features.reduce((a, g) => a + g.items.length, 0);
     assert.ok(n >= 6, p.slug + " has " + n);
+  }
+});
+
+test("every non-delivery project has 2+ real shots (src and thumb exist, each under 600 KB)", () => {
+  let total = 0;
+  (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); e.isDirectory() ? walk(f) : (total += fs.statSync(f).size); } })(path.join(ROOT, "assets/shots"));
+  assert.ok(total < 12e6, "assets/shots under 12 MB, got " + (total / 1e6).toFixed(1));
+  for (const p of AX.projects) {
+    if (p.category === "delivery") continue;
+    assert.ok(p.shots.length >= 2, p.slug + " has 2+ shots");
+    for (const sh of p.shots) {
+      for (const key of ["src", "thumb"]) {
+        const f = path.join(ROOT, sh[key]);
+        assert.ok(fs.existsSync(f), p.slug + " " + key + " exists: " + sh[key]);
+        assert.ok(fs.statSync(f).size <= 600 * 1024, p.slug + " " + sh[key] + " under 600 KB");
+      }
+    }
   }
 });
