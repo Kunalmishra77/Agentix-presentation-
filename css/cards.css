@@ -13,7 +13,7 @@
 .pc-frame{position:relative;border-radius:17px 17px 0 0;overflow:hidden;background:#E9E5DC}
 .pc-chrome{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;font:600 .74rem var(--font-body)}
 .pc-chrome--app{background:var(--ink);color:#fff}
-.pc-chrome--app .pc-chrome-mark{width:16px;height:16px;color:var(--orange)}
+.pc-chrome--app .pc-chrome-mark{width:16px;height:16px}
 .pc-chrome--app span:not(.ax-mark){overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .pc-live{margin-left:auto;flex:none;width:7px;height:7px;border-radius:50%;background:#3DD68C;box-shadow:0 0 0 3px rgba(61,214,140,.18)}
 .pc-chrome--browser{background:#EFEBE3;border-bottom:1px solid var(--line)}
@@ -163,9 +163,9 @@
 .ft-h{margin:0;font:700 clamp(2rem,4.8vw,4.6rem)/.98 var(--font-display);letter-spacing:-.045em;text-wrap:balance}
 .ft-cta-side p{margin:0 0 22px;color:var(--ink-2);max-width:42ch;line-height:1.6}
 .ft-base{display:flex;align-items:center;justify-content:space-between;gap:16px 32px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:28px}
-.ft-brand{display:inline-flex;align-items:center;gap:10px}
-.ft-mark{width:36px;height:36px;color:var(--orange)}
-.ft-word{font-size:1.5rem}
+.ft-brand{display:inline-flex;align-items:center}
+.ft-mark{display:block;width:auto;height:auto}
+.ft-mark img{width:auto;height:clamp(64px,7vw,88px)}
 .ft-tag{margin:0;font:600 1.05rem var(--font-display);color:var(--ink)}
 .ft-note{margin:0;font-size:.8rem;color:var(--ink-3)}
 

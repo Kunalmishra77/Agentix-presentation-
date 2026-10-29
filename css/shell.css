@@ -3,10 +3,11 @@ body.shell-open{overflow:hidden}
 .shell{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;background:var(--paper);color:var(--ink);overflow:hidden}
 .shell-bar{display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;background:var(--navy-deep);color:#fff;padding:var(--sp-3) var(--sp-5)}
 .bar-brand{display:flex;align-items:center;gap:var(--sp-2);color:var(--orange)}
-.ax-mark{display:inline-flex;width:1.4em;height:1.4em}
-.ax-mark svg{width:100%;height:100%}
-.bar-mark{width:28px;height:28px}
-.bar-word{font:700 1rem var(--font-display);color:#fff;letter-spacing:.02em}
+.ax-mark{display:inline-flex;flex:none;width:1.4em;height:1.4em}
+.ax-mark img{display:block;width:100%;height:100%;object-fit:contain}
+.ax-wordmark,.ax-logo{display:block;width:auto;max-width:100%}
+.bar-mark{width:30px;height:30px}
+.bar-word{height:17px}
 .bar-title{display:flex;flex-direction:column;min-width:0;flex:1 1 200px}
 .bar-name{margin:0;font:600 1.05rem var(--font-display);overflow-wrap:anywhere}
 .bar-cat{font-size:var(--fs-xs);color:rgba(255,255,255,.65)}

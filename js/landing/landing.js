@@ -56,7 +56,7 @@
   }
 
   function buildNav() {
-    var q = el("input", { id: "q", class: "nav-q", type: "search", placeholder: "Search by name, client or industry", "aria-label": "Search projects", autocomplete: "off" });
+    var q = el("input", { id: "q", class: "nav-q", type: "search", placeholder: "Search projects", "aria-label": "Search projects", autocomplete: "off" });
     q.addEventListener("input", function () { filterState.q = q.value; applyFilter(); });
     var status = el("div", { class: "nav-status", role: "group", "aria-label": "Filter by status" }, STATUSES.map(function (s) {
       return el("button", { type: "button", class: "st-btn" + (s[0] ? " st-" + s[0] : ""), "data-status": s[0], "aria-pressed": s[0] === "" ? "true" : "false",
@@ -72,7 +72,7 @@
     nav = el("header", { id: "nav", class: "nav" },
       el("div", { class: "nav-row" },
         el("a", { class: "nav-logo", href: "#/", "aria-label": "AI Agentix, back to top", on: { click: function (e) { e.preventDefault(); scrollTo(0); } } },
-          AX.ui.mark("nav-mark"), AX.preloader.wordmark("wordmark nav-word")),
+          AX.ui.mark("nav-mark"), AX.ui.wordmark({ cls: "nav-word" })),
         el("button", { type: "button", class: "nav-cats", "aria-expanded": "false", "aria-controls": "nav-menu", on: { click: toggleMenu } }, "Categories"),
         el("div", { id: "nav-find", class: "nav-find" }, el("label", { class: "nav-qwrap" }, el("span", { class: "nav-qicon", "aria-hidden": "true" }), q), status, count,
           el("span", { id: "filter-status", class: "sr-only", role: "status", "aria-live": "polite" })),

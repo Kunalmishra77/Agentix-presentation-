@@ -76,7 +76,7 @@
           el("p", null, "Tell us where leads, bookings or paperwork get stuck. We will show you which of these systems fits, and build the rest."),
           el("a", { class: "ft-cta btn-x btn-ink", href: CONTACT, target: "_blank", rel: "noopener" }, "Start a project"))),
       el("div", { class: "ft-base" },
-        el("div", { class: "ft-brand" }, AX.ui.mark("ft-mark"), AX.preloader.wordmark("wordmark ft-word")),
+        el("div", { class: "ft-brand" }, el("span", { class: "ax-mark ft-mark" }, AX.ui.logo("ft-logo"))),
         el("p", { class: "ft-tag" }, "AI Applied, Growth Multiplied."),
         el("p", { class: "ft-note" }, "Every demo runs on fictional data. Nothing is sent or saved.")));
     return footerEl;

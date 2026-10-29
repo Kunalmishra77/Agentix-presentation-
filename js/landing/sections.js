@@ -25,13 +25,13 @@
   function mediaFor(p, variant) {
     var sizes = variant === "poster" ? "(max-width: 768px) 50vw, 24vw" : variant === "browser" ? "(max-width: 768px) 86vw, 40vw" : "(max-width: 768px) 92vw, 46vw";
     var m = AX.lx.media(p, { max: variant === "device" || variant === "control" ? 1 : 2, sizes: sizes, cls: "pc-media pc-media--" + variant });
-    var imgs = m.querySelectorAll("img");
+    var imgs = m.querySelectorAll("img:not(.ax-brand-img)");
     if (variant === "poster" && imgs.length) {
       // third frame: the first screen again, framed lower and closer (same URL, no extra request)
       var f3 = AX.lx.img(p.shots[0], { alt: "", cls: "shot-2", sizes: sizes });
       f3.addEventListener("error", function () { f3.remove(); });
       m.appendChild(f3);
-      m.classList.add("frames-" + m.querySelectorAll("img").length);
+      m.classList.add("frames-" + m.querySelectorAll("img:not(.ax-brand-img)").length);
     }
     if (variant === "browser" && imgs.length) {
       var strip = el("div", { class: "pc-strip" });
