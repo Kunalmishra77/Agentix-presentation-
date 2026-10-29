@@ -138,7 +138,7 @@
         cells.push(el("div", { class: "cal-day" + (inMonth ? "" : " out"), "data-date": date },
           el("span", { class: "cal-num" }, String(+date.slice(8))),
           evs.map(function (e) {
-            var node = el("div", { class: "cal-ev tone-" + (e.tone || "navy"), tabindex: "0", "data-id": e.id,
+            var node = el("div", { class: "cal-ev tone-" + (e.tone || "navy"), tabindex: "0", "data-id": e.id, title: e.title,
               "aria-label": e.title + ", " + date + ". Press Enter to open.",
               on: {
                 pointerdown: function (p) { onDown(p, node, e); },

@@ -54,7 +54,7 @@
       el("div", { class: "pc-band" },
         el("div", { class: "pc-top" }, el("h3", { class: "pc-name" }, p.name), AX.ui.statusChip(p.status)),
         el("p", { class: "pc-client" }, p.client),
-        el("p", { class: "pc-sum" }, p.summary),
+        el("p", { class: "pc-sum", title: p.summary }, p.summary),
         el("div", { class: "pc-foot" }, el("div", { class: "pc-tags" }, tags(p)), el("span", { class: "pc-open" }, "Open demo →"))));
     a.addEventListener("click", function (e) {
       if (AX.lx.modified(e)) return;
@@ -190,7 +190,8 @@
       var lay = s.cat.layout;
       if (lay === "flagship") {
         s.cards.forEach(function (k) {
-          gsap.fromTo(k.querySelector(".pc-frame"), { rotationX: 16, y: 90, transformPerspective: 1400, transformOrigin: "50% 100%" },
+          // the whole card rises and settles (frame and caption move together)
+          gsap.fromTo(k, { rotationX: 10, y: 70, transformPerspective: 1400, transformOrigin: "50% 100%" },
             { rotationX: 0, y: 0, ease: "power2.out", scrollTrigger: { trigger: k, start: "top bottom", end: "top 62%", scrub: 0.6 } });
         });
       }

@@ -1,5 +1,5 @@
 /* Hero: split-line headline, a 3D fan of seven product screens that tilts toward the cursor,
-   then (pinned for 120vh) spreads into a grid and fades. Reduced motion: a static grid. */
+   then (pinned for 120vh) settles into a grid that scrolls on with the page. Reduced motion: a static grid. */
 (function (w) {
   "use strict";
   var AX = w.AX = w.AX || {};
@@ -93,7 +93,6 @@
     cards.forEach(function (c, i) {
       tl.fromTo(c, fanVars(i), Object.assign(gridState(i), { duration: 0.7, ease: "power2.inOut",
         x: function () { return gridState(i).x; }, y: function () { return gridState(i).y; } }), 0);
-      tl.to(c, { opacity: 0, duration: 0.3, ease: "power1.in" }, 0.62 + i * 0.012);
     });
     tl.to(stage, { y: lift, duration: 0.7, ease: "power2.inOut" }, 0)
       .to(root.querySelector(".hero-copy"), { y: function () { return -w.innerHeight * 0.18; }, opacity: 0, duration: 0.55 }, 0.1);

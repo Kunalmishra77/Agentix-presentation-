@@ -50,7 +50,7 @@
           el("span", { class: "cht-av", "aria-hidden": "true" }, (t.name || "?").charAt(0)),
           el("span", { class: "cht-meta" },
             el("span", { class: "cht-name" }, t.name),
-            el("span", { class: "cht-prev" }, t.preview || (last && last.text) || "")),
+            el("span", { class: "cht-prev", title: t.preview || (last && last.text) || null }, t.preview || (last && last.text) || "")),
           el("span", { class: "cht-chan" }, CH[t.channel] || t.channel)));
       });
     }
