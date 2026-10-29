@@ -42,19 +42,24 @@
     var d = ctx.data;
     host.appendChild(el("div", { class: "ff-site", "data-site": "fitness-first" },
       el("div", { class: "ff-hero" }, el("h2", {}, "Train where Dwarka trains."),
-        el("p", {}, "Les Mills programs, certified trainers and a floor built for results. Walk in for a free trial."),
+        el("p", {}, "Group programs, certified trainers and a floor built for results. Walk in for a free trial."),
         el("div", { style: { display: "flex", gap: "10px", flexWrap: "wrap" } },
           el("button", { type: "button", class: "ff-btn", "data-act": "trial", on: { click: function () { ctx.open("trial"); } } }, "Book a free trial"),
           el("button", { type: "button", class: "ff-btn ghost", on: { click: function () { ctx.open("plans"); } } }, "See membership plans"))),
-      el("div", { class: "ff-sec" }, el("h3", {}, "Programs by Les Mills"),
+      el("div", { class: "ff-sec" }, el("h3", {}, "Group programs"),
         el("div", { class: "ff-progs" }, d.programs.map(function (p) { return el("div", { class: "ff-prog" }, el("b", {}, p.name), el("p", {}, p.blurb), el("small", {}, p.mins + " min · " + p.level)); }))),
       el("div", { class: "ff-sec" }, el("h3", {}, "Trainers"),
         el("div", { class: "ff-trainers" }, d.trainers.map(function (t) { return el("div", { class: "ff-tr" }, el("i", {}, t.initials), el("b", {}, t.name), el("small", {}, t.speciality + " · " + t.years + " yrs")); }))),
       el("div", { class: "ff-strip" },
-        el("span", {}, "Faithful recreation: the live site blocks embedding, so this is a working copy of its sections."),
+        el("span", {}, "A guided tour of the site's sections with sample content. The real site is under Live website."),
         el("span", { style: { display: "flex", gap: "10px", flexWrap: "wrap" } },
           el("a", { class: "ff-btn dark", href: "https://fitnessfirstdwarka.com/", target: "_blank", rel: "noopener" }, "Open live site ↗"),
           el("a", { class: "ff-btn ghost", href: RIYA, "data-link": "riya-crm" }, "See Riya, the WhatsApp CRM →")))));
+  }
+
+  function live(host) {
+    injectCss();
+    AX.embed.create(host, AX.embed.optsForSlug(SLUG));
   }
 
   function plans(host, ctx) {
@@ -85,7 +90,8 @@
     brand: { name: "Fitness First", accent: ACCENT, logoText: "FF" },
     start: "site",
     modules: [
-      { id: "site", label: "Website", icon: "home", group: "Public site", view: { type: "custom", render: site } },
+      { id: "site", label: "Live website", icon: "home", group: "Public site", view: { type: "custom", render: live } },
+      { id: "tour", label: "Website tour", icon: "layout", group: "Public site", view: { type: "custom", render: site } },
       { id: "plans", label: "Membership plans", icon: "wallet", group: "Public site", view: { type: "custom", render: plans } },
       { id: "trial", label: "Free trial", icon: "form", group: "Public site", view: function (ctx) {
         var d = ctx.data, plan = ctx.state.get().plan;

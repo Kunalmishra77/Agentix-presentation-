@@ -5,14 +5,14 @@
   var F = AX.fake;
 
   /* Fictional dataset: Riya, a WhatsApp bot, talks to gym enquiries; the CRM scores, tracks outcomes and queues follow-ups. */
-  var GOALS = ["Weight loss", "Muscle gain", "General fitness", "Les Mills classes", "Personal training", "Post-injury rehab"];
+  var GOALS = ["Weight loss", "Muscle gain", "General fitness", "Group classes", "Personal training", "Post-injury rehab"];
   var SOURCES = ["Instagram ad", "Google search", "Walk-in referral", "Website form", "Facebook ad"];
   var OUTCOMES = ["New", "Qualified", "TrialBooked", "Converted", "Lost"];
   var SENT = ["Positive", "Neutral", "Negative"];
   var OWNERS = ["Sales desk A", "Sales desk B", "Front desk"];
   var PLANS = ["Monthly", "3 months", "6 months", "12 months"];
   var MSGS = [
-    "What are your membership prices?", "Do you have Les Mills classes in the evening?", "Is there a trainer for weight loss?",
+    "What are your membership prices?", "Do you have group classes in the evening?", "Is there a trainer for weight loss?",
     "Can I try for a day before joining?", "What are the gym timings on Sunday?", "Do you have a ladies batch?"
   ];
 
@@ -30,7 +30,7 @@
   }
 
   var tasks = [];
-  var TT = ["Call after trial", "Send Les Mills timetable", "Share 6-month offer", "Confirm trial slot", "Re-engage cold lead", "Collect feedback"];
+  var TT = ["Call after trial", "Send class timetable", "Share 6-month offer", "Confirm trial slot", "Re-engage cold lead", "Collect feedback"];
   for (var t = 0; t < 14; t++) {
     var l = leads[t + 2];
     tasks.push({ id: "T-" + (t + 1), col: t < 5 ? "todo" : t < 10 ? "doing" : "done", title: F.pick("riya-tt-" + t, TT) + " — " + l.name,
@@ -44,7 +44,7 @@
       { from: "user", text: "Hi, what are the membership prices?" },
       { from: "ai", text: "Hi! I'm Riya from Fitness First. Plans start at ₹2,499 a month, with 3, 6 and 12-month options that cost less per month. What is your goal?" },
       { from: "user", text: "Weight loss mainly." },
-      { from: "ai", text: "Great. Our Les Mills classes plus a trainer-led plan work well for that. Want to try a free day pass?" }] },
+      { from: "ai", text: "Great. Our group classes plus a trainer-led plan work well for that. Want to try a free day pass?" }] },
     { id: "c2", name: leads[9].name, channel: "whatsapp", leadId: leads[9].id, messages: [
       { from: "user", text: "Do you have an evening ladies batch?" },
       { from: "ai", text: "Yes, there is a ladies-only batch at 6 PM on weekdays. Shall I book you a trial for tomorrow?" },
@@ -59,7 +59,7 @@
       { from: "user", text: "Hi, I saw your Instagram ad. I want to start working out." },
       { from: "ai", text: "Hi! I'm Riya from Fitness First Dwarka. What is your main goal: weight loss, muscle gain or general fitness?", chips: ["Weight loss", "Muscle gain"] },
       { from: "user", text: "Weight loss. I've never been to a gym." },
-      { from: "ai", text: "That's a great start. Beginners usually begin with a guided Les Mills class plus a trainer orientation. Would you like a free trial session?", chips: ["Yes, book a trial"] },
+      { from: "ai", text: "That's a great start. Beginners usually begin with a guided group class plus a trainer orientation. Would you like a free trial session?", chips: ["Yes, book a trial"] },
       { from: "user", text: "Yes, this Saturday morning." },
       { from: "ai", text: "Booked: Saturday, 8:00 AM, free trial with a trainer orientation. I have sent the location pin and what to bring.", event: "trial" },
       { from: "ai", text: "Our sales desk will call you after the trial. See you Saturday!" }

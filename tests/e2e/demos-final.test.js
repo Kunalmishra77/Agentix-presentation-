@@ -34,7 +34,7 @@ for (const slug of SLUGS) {
       for (const id of ordered) {
         await goto(page, id);
         if (SITE_MODULES.has(id) && (await page.locator(".emb").count())) {
-          await page.waitForFunction(() => { const e = document.querySelector(".emb"); return e && e.getAttribute("data-status") !== "loading"; }, null, { timeout: 15000 });
+          await page.waitForFunction(() => { const e = document.querySelector(".emb"); return e && e.getAttribute("data-status") !== "loading"; }, null, { timeout: 25000 });
         }
         const len = await page.locator('.ax-module[data-module="' + id + '"]').evaluate((n) => n.innerText.trim().length);
         assert.ok(len > 40, slug + "/" + id + " text length " + len);

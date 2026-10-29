@@ -1,7 +1,8 @@
 (function (w) {
   "use strict";
   var AX = w.AX = w.AX || {};
-  var DEFAULT_TIMEOUT = 12000;
+  // iframe onload waits for every subresource; heavy showcase heroes take 6-8 s warm, more on a cold cache
+  var DEFAULT_TIMEOUT = 20000;
   var CAPTION = "Preview — live site opens in the hosted portfolio";
 
   /** Pure. patterns: exact origins ("https://example.com", "null") or wildcard hosts ("https://*.example.com", subdomains only). */

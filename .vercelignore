@@ -11,3 +11,4 @@ AI_AGENTIX_PROJECT_KNOWLEDGE_BASE.md
 README.md
 package.json
 *.log
+.env*
