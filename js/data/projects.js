@@ -452,7 +452,7 @@
         W("Sales notified", "Lead stored and emailed for follow-up.")
       ],
       stack: ["PHP", "MySQL", "Apache", "cPanel", "JavaScript"],
-      liveUrl: "https://fitnessfirstdwarka.com/", embed: { url: "https://fitnessfirstdwarka.com/", mode: "iframe" },
+      liveUrl: "https://fitnessfirstdwarka.com/", embed: { url: "https://fitnessfirstdwarka.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
       shots: [], demo: true
     },
 

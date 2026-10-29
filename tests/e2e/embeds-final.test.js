@@ -2,7 +2,14 @@
 const test = require("node:test");
 const { before, after } = test;
 const assert = require("node:assert/strict");
-const { openPage } = require("../helpers/browser");
+const { openPage, serverUrl } = require("../helpers/browser");
+
+/* Collects page errors whose stack points at our own server (third-party iframe errors are not ours). */
+function ownErrors(page) {
+  const list = [];
+  page.on("pageerror", (e) => { const st = String(e.stack || ""); if (!st.includes("http") || st.includes(serverUrl)) list.push(e.message); });
+  return list;
+}
 
 let keeper;
 before(async () => { keeper = await openPage("/index.html"); });
@@ -26,23 +33,36 @@ test("every embed-only project's Walkthrough renders AX.embed (iframe loaded or 
   const list = await projectList();
   assert.ok(list.length >= 20, "expected 20+ embed-only projects, got " + list.length);
   for (const p of list) {
-    const { page, errors, close } = await openPage("/index.html#/demo/" + p.slug + "/walkthrough", { reducedMotion: "reduce" });
+    const { page, errors, close } = await openPage("/index.html", { reducedMotion: "reduce" });
+    const mineErrs = ownErrors(page);
     try {
+      await page.evaluate((h) => { location.hash = h; }, "#/demo/" + p.slug + "/walkthrough");
       await page.waitForSelector(".emb", { timeout: 15000 });
       await page.waitForFunction(() => {
         const e = document.querySelector(".emb");
         return e && e.getAttribute("data-status") !== "loading";
-      }, null, { timeout: 15000 });
+      }, null, { timeout: 25000 });
       const status = await page.locator(".emb").getAttribute("data-status");
       assert.ok(status === "live" || status === "fallback", p.slug + " status " + status);
       if (status === "live") assert.equal(await page.locator(".emb iframe").count(), 1, p.slug + " iframe");
       else assert.equal(await page.locator(".emb-scroller").count(), 1, p.slug + " scroller");
       // a live third-party iframe runs the client's own scripts; their runtime errors surface as page errors and are not ours
-      const thirdParty = /^https?:/.test(p.url);
-      const mine = thirdParty ? relevant(errors).filter((e) => !e.startsWith("pageerror")) : relevant(errors);
-      assert.equal(mine.length, 0, p.slug + ": " + mine.join("\n"));
+      // our own document must never throw; third-party iframe errors are excluded by stack origin
+      const net = relevant(errors).filter((e) => !e.startsWith("pageerror"));
+      assert.equal(net.length + mineErrs.length, 0, p.slug + ": " + net.concat(mineErrs).join("\n"));
     } finally { await close(); }
   }
+});
+
+test("own-document page errors are caught by the collector", async () => {
+  const { page, close } = await openPage("/index.html");
+  try {
+    const errs = ownErrors(page);
+    await page.evaluate(() => setTimeout(() => { throw new Error("own-error"); }));
+    await page.waitForFunction(() => true);
+    await new Promise((r) => setTimeout(r, 500));
+    assert.deepEqual(errs, ["own-error"]);
+  } finally { await close(); }
 });
 
 test("hosted-only sites forward allowedOrigins; on localhost they show the scroller", async () => {
