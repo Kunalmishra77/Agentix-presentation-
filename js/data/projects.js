@@ -3,10 +3,11 @@
   var AX = w.AX = w.AX || {};
   var SHOWCASE = "https://showcase-build-tau.vercel.app/";
 
-  function shots(slug, withMid) {
-    var out = [{ src: "assets/shots/" + slug + "/hero.png", caption: "Landing page, first screen" }];
-    if (withMid) out.push({ src: "assets/shots/" + slug + "/mid.png", caption: "Landing page, mid-scroll" });
-    return out;
+  /** Shot list: names are files in assets/shots/<dir>/ (1600w jpg plus @800 thumb). */
+  function shots(dir, names, caps) {
+    return names.map(function (n) {
+      return { src: "assets/shots/" + dir + "/" + n + ".jpg", thumb: "assets/shots/" + dir + "/" + n + "@800.jpg", caption: (caps && caps[n]) || (n === "hero" ? "First screen" : n === "mid" ? "Mid-page" : n.replace(/-/g, " ").replace(/^./, function (c) { return c.toUpperCase(); })) };
+    });
   }
   function F(group) { return { group: group, items: Array.prototype.slice.call(arguments, 1) }; }
   function W(title, desc) { return { title: title, desc: desc }; }
@@ -20,7 +21,7 @@
       stack: o.stack || ["HTML", "CSS", "JavaScript", "GSAP", "ScrollTrigger", "Lenis"],
       liveUrl: SHOWCASE + o.path + "/",
       embed: { url: SHOWCASE + o.path + "/", mode: o.scroller ? "scroller" : "iframe" },
-      shots: o.noShots ? [] : shots(o.slug, o.mid !== false), demo: false
+      shots: shots(o.slug, ["hero", "mid"]), demo: false
     };
   }
 
@@ -48,7 +49,7 @@
       ],
       stack: ["React", "Node.js", "PostgreSQL", "WhatsApp Cloud API", "Meta Graph API", "ReactFlow", "Docker", "Coolify"],
       liveUrl: "https://app.aiagentixdev.com/", embed: { url: "https://app.aiagentixdev.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("agentix", true), demo: true
+      shots: shots("agentix", ["conversations", "crm", "flows"]), demo: true
     },
     {
       slug: "socialflow", name: "SocialFlow", client: "AGENTiX", category: "agents", status: "live", tier: "A", year: 2026,
@@ -73,7 +74,7 @@
       ],
       stack: ["React", "Node.js", "Meta Graph API", "Telegram Bot API", "Fabric.js", "PostgreSQL", "Docker", "Coolify"],
       liveUrl: "https://social-media.aiagentixdev.com/", embed: { url: "https://social-media.aiagentixdev.com/", mode: "iframe" },
-      shots: shots("socialflow", true), demo: true
+      shots: shots("socialflow", ["inbox", "flows", "comment-dm"]), demo: true
     },
     {
       slug: "voicecrm", name: "VoiceCRM", client: "AGENTiX", category: "agents", status: "proto", tier: "A", year: 2026,
@@ -96,7 +97,7 @@
       ],
       stack: ["React", "Vercel", "Speech-to-text", "LLM summarisation", "Chart components"],
       liveUrl: "https://voice-crm-snowy.vercel.app/", embed: { url: "https://voice-crm-snowy.vercel.app/", mode: "iframe" },
-      shots: [], demo: true
+      shots: shots("voicecrm", ["dashboard", "live-calls"]), demo: true
     },
     {
       slug: "riya-crm", name: "Riya, Fitness First WhatsApp CRM", client: "Fitness First", category: "agents", status: "proto", tier: "B", year: 2026,
@@ -116,7 +117,7 @@
         W("Sales follow-up", "A task reminds the team to call after the trial.")
       ],
       stack: ["Node.js", "WhatsApp Cloud API", "LLM", "React", "MySQL"],
-      shots: [], demo: true
+      shots: shots("riya-crm", ["dashboard", "inbox"]), demo: true
     },
 
     /* ---------------- 02 Content & Social Automation ---------------- */
@@ -139,7 +140,7 @@
         W("Published and measured", "Status turns green and analytics begin.")
       ],
       stack: ["Node.js", "BullMQ", "Redis", "PostgreSQL", "Microservices", "Kubernetes", "Docker"],
-      shots: [], demo: true
+      shots: shots("socialpush", ["composer", "calendar"]), demo: true
     },
     {
       slug: "yt-automation", name: "YT-Automation", client: "AGENTiX", category: "content", status: "live", tier: "A", year: 2026,
@@ -161,7 +162,7 @@
       ],
       stack: ["Node.js", "Python", "LLM", "Text-to-speech", "Video generation", "FFmpeg", "YouTube API"],
       liveUrl: "https://yt-automation.aiagentixdev.com/", embed: { url: "https://yt-automation.aiagentixdev.com/", mode: "iframe" },
-      shots: shots("yt-automation", true), demo: true
+      shots: shots("yt-automation", ["pipeline", "scenes"]), demo: true
     },
 
     /* ---------------- 03 CRM, Sales & Lead Intelligence ---------------- */
@@ -185,7 +186,7 @@
         W("Targets reviewed", "Revenue is compared with the plan.")
       ],
       stack: ["Node.js", "Express", "MongoDB", "Gemini API", "EJS"],
-      shots: [], demo: true
+      shots: shots("agentix-crm", ["dashboard", "kanban"]), demo: true
     },
     {
       slug: "eurobrass-crm", name: "Eurobrass CRM", client: "Eurobrass", category: "crm", status: "active", tier: "A", year: 2026,
@@ -209,7 +210,7 @@
       ],
       stack: ["React", "Vercel", "Node.js", "PDF generation"],
       liveUrl: "https://eurobrass-seven.vercel.app/", embed: { url: "https://eurobrass-seven.vercel.app/", mode: "iframe" },
-      shots: [], demo: true
+      shots: shots("eurobrass-crm", ["dashboard", "quotations"]), demo: true
     },
     {
       slug: "leadforge", name: "LeadForge", client: "AGENTiX", category: "crm", status: "active", tier: "B", year: 2026,
@@ -230,7 +231,7 @@
         W("Leads delivered", "A table with provenance for each cell.")
       ],
       stack: ["Node.js", "TypeScript", "PostgreSQL", "Playwright", "LLM", "Docker", "Coolify"],
-      shots: [], demo: true
+      shots: shots("leadforge", ["run", "results"]), demo: true
     },
     {
       slug: "santure-crm", name: "Santure AI CRM", client: "Santure AI", category: "crm", status: "proto", tier: "C", year: 2026,
@@ -249,7 +250,7 @@
       ],
       stack: ["Claude artifact", "HTML", "JavaScript"],
       liveUrl: "https://claude.ai/artifact/1aWGMS5ETqSCp4f1SV5JLD", embed: { url: "sites/santure/index.html", mode: "local" },
-      shots: [], demo: false
+      shots: shots("santure", ["hero", "mid"]), demo: false
     },
     {
       slug: "ekatva", name: "Ekatva", client: "Ekatva", category: "crm", status: "proto", tier: "C", year: 2026,
@@ -269,7 +270,7 @@
       ],
       stack: ["Claude artifact", "HTML", "JavaScript"],
       liveUrl: "https://claude.ai/artifact/SPtLCBo9RcGfjE1FMAdwiw", embed: { url: "sites/ekatva/index.html", mode: "local" },
-      shots: [], demo: false
+      shots: shots("ekatva", ["hero", "mid"]), demo: false
     },
 
     /* ---------------- 04 Healthcare ---------------- */
@@ -295,7 +296,7 @@
       ],
       stack: ["Next.js 16", "React 19", "TypeScript", "Tailwind v4", "Zustand", "Recharts", "Framer Motion", "next-intl", "react-hook-form + Zod", "Supabase (RLS)", "Vitest"],
       liveUrl: "https://government-hims.vercel.app/", embed: { url: "https://government-hims.vercel.app/", mode: "iframe" },
-      shots: shots("agentix-hims", true), demo: true
+      shots: shots("agentix-hims", ["doctor", "secretary", "journey"]), demo: true
     },
     {
       slug: "umang-hims", name: "Umang Hospital HIMS", client: "Umang Hospital", category: "health", status: "proto", tier: "A", year: 2026,
@@ -318,7 +319,7 @@
       ],
       stack: ["React", "TypeScript", "Vercel", "Voice agent", "i18n"],
       liveUrl: "https://umang-hospital-hims.vercel.app/", embed: { url: "https://umang-hospital-hims.vercel.app/", mode: "iframe" },
-      shots: shots("umang-hims", true), demo: true
+      shots: shots("umang-hims", ["doctor", "reception"]), demo: true
     },
     {
       slug: "umang-website", name: "Umang Hospital website and CMS", client: "Umang Hospital", category: "health", status: "live", tier: "B", year: 2026,
@@ -338,9 +339,9 @@
         W("Team follows up", "Staff review the leads table in the admin."),
         W("Content updated", "The CMS publishes changes instantly.")
       ],
-      stack: ["PHP", "Apache", "cPanel", "Supabase", "JavaScript"],
+      stack: ["React", "Vite", "Apache (cPanel / DirectAdmin)", "Supabase (via proxy)", "Laravel backend (built, not deployed)"],
       liveUrl: "https://www.umanghospitals.in/", embed: { url: "https://www.umanghospitals.in/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: [], demo: true
+      shots: shots("umang-website", ["hero", "mid"]), demo: true
     },
 
     /* ---------------- 05 Hospitality ---------------- */
@@ -365,7 +366,7 @@
       ],
       stack: ["React", "Node.js", "PostgreSQL", "Docker", "Coolify"],
       liveUrl: "https://hotelmanagement.aiagentixdev.com/portal", embed: { url: "https://hotelmanagement.aiagentixdev.com/portal", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("woodpecker-pms", true), demo: true
+      shots: shots("woodpecker-pms", ["tape", "folio", "dashboard"]), demo: true
     },
     {
       slug: "kaaya-eco-resort", name: "Kaaya Eco Resort", client: "Kaaya Eco Resort (Yala, Sri Lanka)", category: "hospitality", status: "live", tier: "B", year: 2026,
@@ -388,7 +389,7 @@
       ],
       stack: ["React", "Express", "MySQL", "Prisma", "Payments gateway"],
       liveUrl: "https://kaayaecoresort.com/", embed: { url: "https://kaayaecoresort.com/", mode: "iframe" },
-      shots: [], demo: true
+      shots: shots("kaaya-eco-resort", ["hero", "mid"]), demo: true
     },
 
     /* ---------------- 06 Fitness ---------------- */
@@ -413,7 +414,7 @@
         W("Check-in and reports", "Kiosk attendance feeds the reports.")
       ],
       stack: ["Next.js 16", "React 19", "next-intl (EN/HI)", "Tailwind 4", "Radix", "Prisma 7", "Postgres (Supabase)", "pg-boss", "WhatsApp Cloud API", "Razorpay", "MediaPipe", "Python YuNet face service", "Turborepo"],
-      liveUrl: "https://maxfitnessgym.co.in/crm", shots: [], demo: true
+      liveUrl: "https://maxfitnessgym.co.in/crm", shots: shots("max-register", ["today", "kiosk", "members"]), demo: true
     },
     {
       slug: "max-website", name: "Max Fitness website", client: "Max Fitness", category: "fitness", status: "live", tier: "B", year: 2026,
@@ -433,15 +434,15 @@
       ],
       stack: ["React", "Node.js", "i18n"],
       liveUrl: "https://maxfitnessgym.co.in/", embed: { url: "https://maxfitnessgym.co.in/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: [], demo: true
+      shots: shots("max-website", ["hero", "mid"]), demo: true
     },
     {
       slug: "fitness-first", name: "Fitness First Dwarka", client: "Fitness First", category: "fitness", status: "live", tier: "B", year: 2026,
-      summary: "A premium gym website with hero video, Les Mills programs, trainer profiles, membership plans and enquiry forms that reach the sales desk.",
+      summary: "A premium gym website with hero video, group fitness classes, trainer profiles, membership plans and enquiry forms that reach the sales desk.",
       problem: "A premium gym needed a site that matched its brand and turned browsers into trial bookings.",
       outcomes: ["Brand-quality video-led first impression", "Programs, trainers and plans easy to compare", "Enquiries stored and emailed instantly", "Clear path to a free trial"],
       features: [
-        F("Experience", "Hero video", "Programs (Les Mills)", "Trainers"),
+        F("Experience", "Hero video", "Group fitness classes", "Trainers"),
         F("Conversion", "Membership plans", "Lead forms to MySQL and email")
       ],
       workflow: [
@@ -453,7 +454,7 @@
       ],
       stack: ["PHP", "MySQL", "Apache", "cPanel", "JavaScript"],
       liveUrl: "https://fitnessfirstdwarka.com/", embed: { url: "https://fitnessfirstdwarka.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: [], demo: true
+      shots: shots("fitness-first", ["hero", "mid"]), demo: true
     },
 
     /* ---------------- 07 Platforms ---------------- */
@@ -480,7 +481,7 @@
       ],
       stack: ["React", "Node.js", "Android", "PostgreSQL", "WhatsApp Cloud API", "Vercel"],
       liveUrl: "https://redux-demo-iota.vercel.app/", embed: { url: "https://redux-demo-iota.vercel.app/", mode: "iframe" },
-      shots: shots("redux", true), demo: true
+      shots: shots("redux", ["journey", "quotes"]), demo: true
     },
     {
       slug: "yhc", name: "Your Hair Company", client: "Your Hair Company", category: "platforms", status: "active", tier: "A", year: 2026,
@@ -503,17 +504,17 @@
       ],
       stack: ["Next.js", "React", "Node.js", "Three.js", "PostgreSQL", "WhatsApp Cloud API"],
       liveUrl: "https://yourhaircompany.com/", embed: { url: "https://yourhaircompany.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("yhc", false), demo: true
+      shots: shots("yhc", ["hero", "doctor-calendar", "consult"]), demo: true
     },
     {
       slug: "skinwise", name: "Skinwise", client: "Skinwise", category: "platforms", status: "live", tier: "A", year: 2026,
       summary: "A skin-concern brand with a safety-aware quiz, AI photo skin scan, voice and chat assistant, consultations and a full store.",
       problem: "Skincare shoppers are overwhelmed by choice and worried about products that do not suit them.",
-      outcomes: ["Quiz builds a routine with caution flags", "Photo scan gives an objective starting point", "Assistant answers questions in chat or voice", "Checkout and admin in the same platform"],
+      outcomes: ["Quiz builds a routine with caution flags", "Photo scan gives an objective starting point", "Assistant answers questions in chat or voice", "WhatsApp order cart and admin in the same platform"],
       features: [
         F("Discovery", "Rules-based quiz with safety exclusions", "AI photo skin scan"),
         F("Guidance", "Voice and chat assistant Dr. Vivek", "Consultations"),
-        F("Commerce", "Cart and checkout", "Admin")
+        F("Commerce", "Cart that sends the order on WhatsApp", "Admin")
       ],
       workflow: [
         W("Take the quiz", "Concerns and sensitivities are captured."),
@@ -521,11 +522,11 @@
         W("Scan the skin", "A photo is analysed by AI."),
         W("Ask the assistant", "Questions are answered by voice or chat."),
         W("Build the routine", "Products are suggested with cautions."),
-        W("Checkout", "The order is placed and tracked in admin.")
+        W("Order on WhatsApp", "The cart is sent as a WhatsApp order and tracked in admin.")
       ],
-      stack: ["Next.js", "React", "Node.js", "Computer vision", "LLM", "Payments gateway"],
+      stack: ["Next.js", "React", "Node.js", "Computer vision", "LLM", "WhatsApp ordering"],
       liveUrl: "https://myskinwise.com/", embed: { url: "https://myskinwise.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("skinwise", false), demo: true
+      shots: shots("skinwise", ["hero", "quiz", "products"]), demo: true
     },
     {
       slug: "nri-trust", name: "NRI Trust", client: "NRI Trust", category: "platforms", status: "live", tier: "B", year: 2026,
@@ -548,7 +549,7 @@
       ],
       stack: ["Next.js", "React", "Three.js", "Node.js", "PDF generation"],
       liveUrl: "https://nritrust.co/", embed: { url: "https://nritrust.co/", mode: "iframe" },
-      shots: shots("nri-trust", false), demo: true
+      shots: shots("nri-trust", ["hero", "mid"]), demo: true
     },
 
     /* ---------------- 08 Business Websites ---------------- */
@@ -570,7 +571,7 @@
       ],
       stack: ["HTML", "JavaScript", "Node.js", "Vector search", "LLM"],
       liveUrl: "https://ai-agentix.com/", embed: { url: "https://ai-agentix.com/", mode: "iframe" },
-      shots: shots("ai-agentix-site", false), demo: true
+      shots: shots("ai-agentix-site", ["hero", "mid"]), demo: true
     },
     {
       slug: "dr-shweta-diwan", name: "Dr. Shweta Diwan", client: "Dr. Shweta Diwan", category: "websites", status: "live", tier: "C", year: 2026,
@@ -590,7 +591,7 @@
       ],
       stack: ["PHP", "MySQL", "Apache", "cPanel", "JavaScript"],
       liveUrl: "https://drshwetadiwan.com/", embed: { url: "https://drshwetadiwan.com/", mode: "iframe" },
-      shots: [], demo: false
+      shots: shots("dr-shweta-diwan", ["hero", "mid"]), demo: false
     },
     {
       slug: "thames-spa", name: "Thames Wellness Spa", client: "Thames Wellness Spa", category: "websites", status: "live", tier: "C", year: 2026,
@@ -609,7 +610,7 @@
       ],
       stack: ["HTML", "CSS", "JavaScript"],
       liveUrl: "https://thameswellnessspa.com/", embed: { url: "https://thameswellnessspa.com/", mode: "iframe" },
-      shots: [], demo: false
+      shots: shots("thames-spa", ["hero", "mid"]), demo: false
     },
     {
       slug: "eurobrass-site", name: "Eurobrass corporate site", client: "Eurobrass", category: "websites", status: "live", tier: "C", year: 2026,
@@ -628,7 +629,7 @@
       ],
       stack: ["React", "Vercel", "CSS"],
       liveUrl: "https://eurobrass-seven.vercel.app/", embed: { url: "https://eurobrass-seven.vercel.app/", mode: "iframe" },
-      shots: shots("eurobrass-site", false), demo: false
+      shots: shots("eurobrass-site", ["hero", "mid"]), demo: false
     },
 
     /* ---------------- 09 E-commerce concept brands ---------------- */
@@ -666,11 +667,11 @@
     }),
     concept({
       slug: "kanak", name: "Kanak Jewels", path: "kanak", category: "ecommerce",
-      summary: "A 22K gold jeweller whose live gold-rate clock re-prices every item as the rate moves.",
+      summary: "A 22K gold jeweller where a sample gold rate re-prices every item the moment it changes.",
       problem: "Gold prices change daily, so static price tags are always wrong.",
-      outcomes: ["Prices follow the gold rate", "Transparent making charges", "Add to bag with the live total", "Trust through clarity"],
-      features: [F("Pricing", "Live gold-rate clock", "Re-pricing every item"), F("Shopping", "Bag")],
-      workflow: [W("Check the rate", "The gold clock shows today's price."), W("Move the rate", "Prices recalculate."), W("Pick a piece", "See weight and price."), W("Add to bag", "Total reflects the rate.")]
+      outcomes: ["Prices follow the gold rate (sample value)", "Transparent making charges", "Add to bag with the live total", "Trust through clarity"],
+      features: [F("Pricing", "Adjustable gold-rate sample", "Re-pricing every item"), F("Shopping", "Bag")],
+      workflow: [W("Check the rate", "A sample gold rate sets the price per gram."), W("Move the rate", "Prices recalculate."), W("Pick a piece", "See weight and price."), W("Add to bag", "Total reflects the rate.")]
     }),
     concept({
       slug: "meridian", name: "Meridian", path: "meridian", category: "ecommerce",
@@ -705,12 +706,12 @@
       workflow: [W("Ride the page", "Steer with the trackpad."), W("Watch range", "Speed and range update."), W("Pick variant and colour", "Configure the scooter."), W("Book a test ride", "Slot confirmed.")]
     }),
     concept({
-      slug: "crumb", name: "Crumb & Co", path: "crumb", category: "ecommerce", tier: "B", noShots: true,
-      summary: "A bakery with a build-your-own box and a cart that adds it up.",
-      problem: "Gifting boxes need choice without a complicated order form.",
-      outcomes: ["Box builder with live count", "Cart with totals", "Warm, appetising brand", "Easy gifting"],
-      features: [F("Builder", "Build-your-own box"), F("Shopping", "Cart")],
-      workflow: [W("Choose a box size", "Start the build."), W("Fill with bakes", "Pick items."), W("Add to cart", "Box added."), W("Checkout", "Order total shown.")]
+      slug: "crumb", name: "Crumb & Co", path: "crumb", category: "ecommerce", tier: "B",
+      summary: "A bakery with a build-your-own cake builder and a cart that adds it up.",
+      problem: "Custom cakes need choice without a complicated order form.",
+      outcomes: ["Cake builder with live total", "Cart with totals", "Warm, appetising brand", "Easy custom ordering"],
+      features: [F("Builder", "Build-your-own cake"), F("Shopping", "Cart")],
+      workflow: [W("Choose a cake size", "Start the build."), W("Pick layers and toppings", "Customise the cake."), W("Add to cart", "Cake added."), W("Checkout", "Order total shown.")]
     }),
 
     /* ---------------- 10 Immersive concept brands ---------------- */
@@ -740,7 +741,7 @@
     }),
     concept({
       slug: "aurelune", name: "Aurelune", path: "aurelune", category: "immersive",
-      summary: "A villa resort where rooms light up on scroll and a cove map shows the property.",
+      summary: "A villa residences brand where rooms light up on scroll and a cove map shows the property.",
       problem: "Luxury stays are sold on atmosphere, which photos alone cannot carry.",
       outcomes: ["Rooms revealed with light", "Cove map to orient guests", "Slow, premium pacing", "Strong first impression"],
       features: [F("Showpiece", "Rooms light up on scroll", "Cove map")],
@@ -764,23 +765,14 @@
     }),
     concept({
       slug: "marigold", name: "Marigold Noir", path: "marigold", category: "immersive",
-      summary: "A wedding photographer's site told as a seven-chapter film, with packages.",
+      summary: "A wedding photographer's site told across four wedding functions and seven ceremony rounds, with packages.",
       problem: "Wedding photographers sell emotion, and thumbnails do not carry it.",
-      outcomes: ["Story told in chapters", "Packages clearly shown", "Emotion before price", "Enquiry-ready"],
-      features: [F("Showpiece", "Seven-chapter film story"), F("Offer", "Packages")],
+      outcomes: ["Story told function by function", "Packages clearly shown", "Emotion before price", "Enquiry-ready"],
+      features: [F("Showpiece", "Four wedding functions", "Seven ceremony rounds"), F("Offer", "Packages")],
       workflow: [W("Begin chapter one", "The story opens."), W("Progress through chapters", "Seven scenes."), W("See packages", "Options listed."), W("Enquire", "Date check.")]
     }),
     concept({
-      slug: "moana", name: "Moana", path: "moana", category: "immersive",
-      summary: "A cinematic hero experience driven by a 181-frame canvas scrub.",
-      problem: "A hero shot needs to feel like film without video weight.",
-      outcomes: ["Film-quality scroll hero", "Smooth frame scrubbing", "Light on bandwidth", "Reusable pattern"],
-      features: [F("Showpiece", "181-frame canvas scrub")],
-      workflow: [W("Load frames", "Preload the sequence."), W("Scroll", "Frames scrub."), W("Story beats", "Text enters."), W("Finish", "Closing call to action.")],
-      mid: false
-    }),
-    concept({
-      slug: "coralbay", name: "Coral Bay", path: "coralbay", category: "immersive", noShots: true,
+      slug: "coralbay", name: "Coral Bay", path: "coralbay", category: "immersive",
       summary: "A holiday brand where the destination is one scroll away.",
       problem: "Holiday sites show lists, not the feeling of arriving.",
       outcomes: ["Arrival feel through scroll", "Destination highlights", "Simple enquiry", "Fresh visual identity"],
@@ -788,7 +780,7 @@
       workflow: [W("Start the scroll", "Leave the city."), W("Arrive", "Beach reveals."), W("See highlights", "Activities shown."), W("Enquire", "Plan the trip.")]
     }),
     concept({
-      slug: "tallow-tape", name: "Tallow & Tape", path: "tallow", category: "immersive", noShots: true,
+      slug: "tallow-tape", name: "Tallow & Tape", path: "tallow", category: "immersive",
       summary: "A recording studio site with sessions and tracks.",
       problem: "Studios need to sound as good as they look online.",
       outcomes: ["Sessions showcased", "Tracks to preview", "A studio brand that looks as good as it sounds", "Easy booking enquiry"],
@@ -796,7 +788,7 @@
       workflow: [W("Enter the studio", "Warm hero."), W("Listen", "Tracks play."), W("Browse sessions", "Recent sessions shown."), W("Book", "Session enquiry.")]
     }),
     concept({
-      slug: "vaskaro", name: "Vaskaro", path: "vaskaro", category: "immersive", noShots: true,
+      slug: "vaskaro", name: "Vaskaro", path: "vaskaro", category: "immersive",
       summary: "A mountain motorcycle brand: mountain roads on a scroll wheel, with test rides.",
       problem: "Motorcycles are about the road, which a spec sheet cannot show.",
       outcomes: ["Road felt through scroll", "Model highlights", "Test ride booking", "Adventure brand identity"],
