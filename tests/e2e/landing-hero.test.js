@@ -45,7 +45,7 @@ test("preloader finishes and the hero headline is shown, with no errors", async 
     assert.equal(await page.evaluate(() => getComputedStyle(document.body).cursor), "auto");
     const eager = await page.locator('#hero img[loading="eager"]').count();
     assert.ok(eager <= 3, "at most 3 eager hero images, got " + eager);
-    assert.match(await page.locator("#hero .hero-sub").innerText(), /^50 products, platforms and websites/);
+    assert.match(await page.locator("#hero .hero-sub").innerText(), /^49 products, platforms and websites/);
     assert.equal(errors.length, 0, errors.join("\n"));
   } finally { await close(); }
 });

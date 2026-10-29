@@ -118,7 +118,7 @@
     render: function (host) {
       AX.embed.create(host, { url: "https://yourhaircompany.com/", title: "Your Hair Company", external: true,
         allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"],
-        shots: [{ src: "assets/shots/yhc/hero.png" }] });
+        shots: [{ src: "assets/shots/yhc/hero.jpg" }] });
     }
   });
 

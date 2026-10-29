@@ -135,7 +135,7 @@
     type: "custom",
     render: function (host) {
       AX.embed.create(host, { url: "https://redux-demo-iota.vercel.app/", title: "REDUX website", external: true,
-        shots: [{ src: "assets/shots/redux/hero.png" }, { src: "assets/shots/redux/mid.png" }] });
+        shots: [{ src: "assets/shots/redux/journey.jpg" }, { src: "assets/shots/redux/quotes.jpg" }] });
     }
   });
 

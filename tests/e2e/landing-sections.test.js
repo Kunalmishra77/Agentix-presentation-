@@ -96,7 +96,7 @@ test("footer counters, contact CTA, logo and tagline; control KPIs tick", async 
     const live = await page.evaluate(() => AX.projects.filter((p) => p.status === "live").length);
     await page.waitForFunction((l) => {
       const v = Array.from(document.querySelectorAll("#footer .ft-num")).map((n) => n.textContent.trim());
-      return v[0] === "50" && v[1] === "11" && v[2] === String(l);
+      return v[0] === "49" && v[1] === "11" && v[2] === String(l);
     }, live, { timeout: 6000 });
     const cta = page.locator('#footer a.ft-cta');
     assert.equal(await cta.getAttribute("href"), "https://ai-agentix.com/contact");

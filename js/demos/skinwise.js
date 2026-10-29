@@ -147,7 +147,7 @@
     render: function (host) {
       AX.embed.create(host, { url: "https://myskinwise.com/", title: "Skinwise", external: true,
         allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"],
-        shots: [{ src: "assets/shots/skinwise/hero.png" }] });
+        shots: [{ src: "assets/shots/skinwise/hero.jpg" }] });
     }
   });
 
