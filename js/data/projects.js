@@ -100,7 +100,7 @@
       shots: shots("voicecrm", ["dashboard", "live-calls"]), demo: true
     },
     {
-      slug: "riya-crm", name: "Riya, Fitness First WhatsApp CRM", client: "Fitness First", category: "agents", status: "proto", tier: "B", year: 2026,
+      slug: "gym-whatsapp-crm", name: "Gym WhatsApp CRM", client: "A gym chain", category: "agents", status: "proto", tier: "B", year: 2026,
       summary: "A sales dashboard over Riya, the WhatsApp bot that talks to gym leads, scores them and tracks every trial, conversion and loss.",
       problem: "Gym sales teams cannot see which WhatsApp conversations are worth a call, so trials slip away unnoticed.",
       outcomes: ["Every bot conversation scored and sorted", "Outcomes tracked from trial booked to converted or lost", "Daily follow-up list ready for the sales desk", "Sentiment makes unhappy leads visible early"],
@@ -117,7 +117,7 @@
         W("Sales follow-up", "A task reminds the team to call after the trial.")
       ],
       stack: ["Node.js", "WhatsApp Cloud API", "LLM", "React", "MySQL"],
-      shots: shots("riya-crm", ["dashboard", "inbox"]), demo: true
+      shots: shots("gym-whatsapp-crm", ["dashboard", "inbox", "insights"]), demo: true
     },
 
     /* ---------------- 02 Content & Social Automation ---------------- */
@@ -189,7 +189,7 @@
       shots: shots("agentix-crm", ["dashboard", "kanban"]), demo: true
     },
     {
-      slug: "eurobrass-crm", name: "Eurobrass CRM", client: "Eurobrass", category: "crm", status: "active", tier: "A", year: 2026,
+      slug: "manufacturer-crm", name: "Manufacturer CRM", client: "A bathroom-fittings manufacturer", category: "crm", status: "active", tier: "A", year: 2026,
       summary: "A complete CRM for a bathroom-fittings manufacturer: leads, dealers, catalogue, quotations, orders, service tickets and a dealer portal.",
       problem: "Leads, quotes and dealer orders lived in separate files, making follow-up and service slow and error-prone.",
       outcomes: ["Quotations built from the live catalogue in minutes", "Dealers get their own portal for orders", "Service tickets and technicians tracked end to end", "Roles and audit trail keep data controlled"],
@@ -209,8 +209,8 @@
         W("Service follow-up", "Tickets and technicians handle after-sales.")
       ],
       stack: ["React", "Vercel", "Node.js", "PDF generation"],
-      liveUrl: "https://eurobrass-seven.vercel.app/", embed: { url: "https://eurobrass-seven.vercel.app/", mode: "iframe" },
-      shots: shots("eurobrass-crm", ["dashboard", "quotations"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("manufacturer-crm", ["dashboard", "quotations", "orders"]), demo: true
     },
     {
       slug: "leadforge", name: "LeadForge", client: "AGENTiX", category: "crm", status: "active", tier: "B", year: 2026,
@@ -234,8 +234,8 @@
       shots: shots("leadforge", ["run", "results"]), demo: true
     },
     {
-      slug: "santure-crm", name: "Santure AI CRM", client: "Santure AI", category: "crm", status: "proto", tier: "C", year: 2026,
-      summary: "An interactive prototype of an operations platform for every team and brand at Santure AI, built with demo data.",
+      slug: "operations-crm", name: "Multi-brand Operations CRM", client: "A multi-brand services company", category: "crm", status: "proto", tier: "C", year: 2026,
+      summary: "An interactive prototype of an operations platform for every team and brand of a multi-brand services company, built with demo data.",
       problem: "Multi-brand teams need one place to run operations, but off-the-shelf tools never match their structure.",
       outcomes: ["One workspace across teams and brands", "Clickable prototype validates the idea before build", "Demo data keeps the review safe", "Clear path from prototype to production"],
       features: [
@@ -249,11 +249,11 @@
         W("Plan the build", "Turn the prototype into a delivery plan.")
       ],
       stack: ["Claude artifact", "HTML", "JavaScript"],
-      liveUrl: "https://claude.ai/artifact/1aWGMS5ETqSCp4f1SV5JLD", embed: { url: "sites/santure/index.html", mode: "local" },
-      shots: shots("santure", ["hero", "mid"]), demo: false
+      liveUrl: null, embed: null,
+      shots: [], demo: false
     },
     {
-      slug: "ekatva", name: "Ekatva", client: "Ekatva", category: "crm", status: "proto", tier: "C", year: 2026,
+      slug: "insurance-crm", name: "Insurance & Wealth CRM", client: "An insurance and wealth distributor", category: "crm", status: "proto", tier: "C", year: 2026,
       summary: "A relationship and operations platform prototype for insurance and wealth distributors, with fictional data throughout.",
       problem: "Distributors manage clients, policies and renewals across disconnected tools and memory.",
       outcomes: ["Client relationships in one view", "Renewals and reviews surfaced on time", "Operations tracked alongside sales", "Prototype proves the workflow quickly"],
@@ -269,8 +269,8 @@
         W("Review operations", "See the book of business at a glance.")
       ],
       stack: ["Claude artifact", "HTML", "JavaScript"],
-      liveUrl: "https://claude.ai/artifact/SPtLCBo9RcGfjE1FMAdwiw", embed: { url: "sites/ekatva/index.html", mode: "local" },
-      shots: shots("ekatva", ["hero", "mid"]), demo: false
+      liveUrl: null, embed: null,
+      shots: [], demo: false
     },
 
     /* ---------------- 04 Healthcare ---------------- */
@@ -299,7 +299,7 @@
       shots: shots("agentix-hims", ["doctor", "secretary", "journey"]), demo: true
     },
     {
-      slug: "umang-hims", name: "Umang Hospital HIMS", client: "Umang Hospital", category: "health", status: "proto", tier: "A", year: 2026,
+      slug: "hospital-hims", name: "Hospital OPD System (HIMS)", client: "A multi-speciality hospital", category: "health", status: "proto", tier: "A", year: 2026,
       summary: "A single-hospital OPD system that follows the patient from registration to pharmacy, with a public live visit tracker in English and Hindi.",
       problem: "OPD visits bounce between desks with paper slips, leaving patients waiting without knowing why.",
       outcomes: ["Registration by form or voice agent", "Every desk sees the same live visit", "Patients follow their own progress on a public tracker", "Bilingual from the first screen"],
@@ -318,11 +318,11 @@
         W("Pharmacy ready", "The tracker shows medicines are ready.")
       ],
       stack: ["React", "TypeScript", "Vercel", "Voice agent", "i18n"],
-      liveUrl: "https://umang-hospital-hims.vercel.app/", embed: { url: "https://umang-hospital-hims.vercel.app/", mode: "iframe" },
-      shots: shots("umang-hims", ["doctor", "reception"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("hospital-hims", ["reception", "doctor", "billing"]), demo: true
     },
     {
-      slug: "umang-website", name: "Umang Hospital website and CMS", client: "Umang Hospital", category: "health", status: "live", tier: "B", year: 2026,
+      slug: "hospital-website", name: "Hospital Website & CMS", client: "A multi-speciality hospital", category: "health", status: "live", tier: "B", year: 2026,
       summary: "A 70-route hospital website with doctor search, telemedicine, insurance help and a Supabase-powered admin that tracks every lead and campaign source.",
       problem: "Patients struggle to find the right doctor, and the hospital cannot tell which ads bring enquiries.",
       outcomes: ["Patients find specialists and book from any page", "UTM-tagged leads show which campaigns work", "Staff update content without a developer", "Dedicated landing page for Google Ads"],
@@ -340,13 +340,13 @@
         W("Content updated", "The CMS publishes changes instantly.")
       ],
       stack: ["React", "Vite", "Apache (cPanel / DirectAdmin)", "Supabase (via proxy)", "Laravel backend (built, not deployed)"],
-      liveUrl: "https://www.umanghospitals.in/", embed: { url: "https://www.umanghospitals.in/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("umang-website", ["hero", "mid"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("hospital-website", ["doctors", "admin-leads", "appointment"]), demo: true
     },
 
     /* ---------------- 05 Hospitality ---------------- */
     {
-      slug: "woodpecker-pms", name: "Woodpecker PMS", client: "Woodpecker", category: "hospitality", status: "live", tier: "A", year: 2026,
+      slug: "apartment-pms", name: "Apartment PMS", client: "A serviced-apartment group", category: "hospitality", status: "live", tier: "A", year: 2026,
       summary: "A multi-property serviced-apartment platform covering reservations, billing, housekeeping, payroll, OTA channels and an owner portal in one system.",
       problem: "Property teams juggle spreadsheets, OTA extranets and paper folios, which causes overbookings and slow billing.",
       outcomes: ["Overbookings prevented by design", "GST invoices generated from the guest folio", "Nine role portals for every team", "Owners see occupancy and payouts live"],
@@ -365,12 +365,12 @@
         W("Owner reporting", "Occupancy, ADR and payouts are published.")
       ],
       stack: ["React", "Node.js", "PostgreSQL", "Docker", "Coolify"],
-      liveUrl: "https://hotelmanagement.aiagentixdev.com/portal", embed: { url: "https://hotelmanagement.aiagentixdev.com/portal", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("woodpecker-pms", ["tape", "folio", "dashboard"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("apartment-pms", ["tape", "dashboard", "folio"]), demo: true
     },
     {
-      slug: "kaaya-eco-resort", name: "Kaaya Eco Resort", client: "Kaaya Eco Resort (Yala, Sri Lanka)", category: "hospitality", status: "live", tier: "B", year: 2026,
-      summary: "A luxury eco-resort website and booking platform for Yala, with live availability, online payments, guest accounts and a full admin.",
+      slug: "resort-booking", name: "Eco Resort Booking Platform", client: "A luxury eco-resort", category: "hospitality", status: "live", tier: "B", year: 2026,
+      summary: "A luxury eco-resort website and booking platform for a wildlife-safari destination, with live availability, online payments, guest accounts and a full admin.",
       problem: "A remote resort needed direct bookings without paying heavy OTA commissions or managing availability by phone.",
       outcomes: ["Guests check availability and book directly", "Blocked dates keep the calendar accurate", "Guest accounts show past and upcoming stays", "Admin manages everything without a developer"],
       features: [
@@ -388,13 +388,13 @@
         W("Stay and review", "Guests manage bookings and leave reviews.")
       ],
       stack: ["React", "Express", "MySQL", "Prisma", "Payments gateway"],
-      liveUrl: "https://kaayaecoresort.com/", embed: { url: "https://kaayaecoresort.com/", mode: "iframe" },
-      shots: shots("kaaya-eco-resort", ["hero", "mid"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("resort-booking", ["book", "admin-bookings", "admin-rooms"]), demo: true
     },
 
     /* ---------------- 06 Fitness ---------------- */
     {
-      slug: "max-register", name: "Max Register", client: "Max Fitness", category: "fitness", status: "live", tier: "A", year: 2026,
+      slug: "gym-crm", name: "Gym CRM", client: "A neighbourhood gym", category: "fitness", status: "live", tier: "A", year: 2026,
       summary: "A Hindi-first, phone-first gym CRM with three-tap renewals, WhatsApp reminders and a face-recognition check-in kiosk.",
       problem: "Gym owners track fees in notebooks, so renewals are missed and members drift away.",
       outcomes: ["Renew a member in three taps with a receipt", "Fee colour bands show who is due at a glance", "WhatsApp reminders run on their own", "Hindi or English at the flip of a switch"],
@@ -414,10 +414,10 @@
         W("Check-in and reports", "Kiosk attendance feeds the reports.")
       ],
       stack: ["Next.js 16", "React 19", "next-intl (EN/HI)", "Tailwind 4", "Radix", "Prisma 7", "Postgres (Supabase)", "pg-boss", "WhatsApp Cloud API", "Razorpay", "MediaPipe", "Python YuNet face service", "Turborepo"],
-      liveUrl: "https://maxfitnessgym.co.in/crm", shots: shots("max-register", ["today", "kiosk", "members"]), demo: true
+      liveUrl: null, embed: null, shots: shots("gym-crm", ["today", "members", "kiosk"]), demo: true
     },
     {
-      slug: "max-website", name: "Max Fitness website", client: "Max Fitness", category: "fitness", status: "live", tier: "B", year: 2026,
+      slug: "gym-website", name: "Gym Website", client: "A neighbourhood gym", category: "fitness", status: "live", tier: "B", year: 2026,
       summary: "A bilingual gym website with plans, the owner's story and sign-up through QR onboarding.",
       problem: "Local gyms depend on walk-ins and word of mouth, with no easy way to sign up online.",
       outcomes: ["Plans and facilities clear in two languages", "Call-back and sign-up in a few taps", "QR onboarding for walk-in members", "Public site feeds the gym CRM"],
@@ -430,14 +430,14 @@
         W("Compares plans", "Reads plans in Hindi or English."),
         W("Requests call back", "Leaves a name and number."),
         W("Signs up", "Completes sign-up or scans the QR."),
-        W("Enters the CRM", "The member appears in Max Register.")
+        W("Enters the CRM", "The member appears in the gym CRM.")
       ],
       stack: ["React", "Node.js", "i18n"],
-      liveUrl: "https://maxfitnessgym.co.in/", embed: { url: "https://maxfitnessgym.co.in/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("max-website", ["hero", "mid"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("gym-website", ["join"]), demo: true
     },
     {
-      slug: "fitness-first", name: "Fitness First Dwarka", client: "Fitness First", category: "fitness", status: "live", tier: "B", year: 2026,
+      slug: "premium-gym-website", name: "Premium Gym Website", client: "A premium gym", category: "fitness", status: "live", tier: "B", year: 2026,
       summary: "A premium gym website with hero video, group fitness classes, trainer profiles, membership plans and enquiry forms that reach the sales desk.",
       problem: "A premium gym needed a site that matched its brand and turned browsers into trial bookings.",
       outcomes: ["Brand-quality video-led first impression", "Programs, trainers and plans easy to compare", "Enquiries stored and emailed instantly", "Clear path to a free trial"],
@@ -453,13 +453,13 @@
         W("Sales notified", "Lead stored and emailed for follow-up.")
       ],
       stack: ["PHP", "MySQL", "Apache", "cPanel", "JavaScript"],
-      liveUrl: "https://fitnessfirstdwarka.com/", embed: { url: "https://fitnessfirstdwarka.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("fitness-first", ["hero", "mid"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("premium-gym-website", ["tour", "plans", "trial"]), demo: true
     },
 
     /* ---------------- 07 Platforms ---------------- */
     {
-      slug: "redux", name: "REDUX Platform", client: "Eurobrass", category: "platforms", status: "active", tier: "A", year: 2026,
+      slug: "restoration-platform", name: "Restoration Services Platform", client: "A bath-fittings manufacturer", category: "platforms", status: "active", tier: "A", year: 2026,
       summary: "Six connected products in one: website, lead CRM, care-executive portal, offline surveyor app, customer portal and admin console.",
       problem: "Enquiry to invoice crossed five hand-offs, each in a different tool, so jobs stalled and customers chased for updates.",
       outcomes: ["One thread from enquiry to invoice", "SLA timers keep leads moving", "Surveyors work offline in the field", "Customers see quotes, jobs and warranty themselves"],
@@ -480,11 +480,11 @@
         W("WhatsApp update", "The customer is notified in the outbox.")
       ],
       stack: ["React", "Node.js", "Android", "PostgreSQL", "WhatsApp Cloud API", "Vercel"],
-      liveUrl: "https://redux-demo-iota.vercel.app/", embed: { url: "https://redux-demo-iota.vercel.app/", mode: "iframe" },
-      shots: shots("redux", ["journey", "quotes"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("restoration-platform", ["quotes", "survey-app", "journey"]), demo: true
     },
     {
-      slug: "yhc", name: "Your Hair Company", client: "Your Hair Company", category: "platforms", status: "active", tier: "A", year: 2026,
+      slug: "hair-clinic-platform", name: "Hair Clinic Platform", client: "A doctor-led hair care brand", category: "platforms", status: "active", tier: "A", year: 2026,
       summary: "A doctor-led hair care brand platform: 3D scalp scan funnel, video consults, doctor portal, sales CRM, refills and a shop.",
       problem: "Hair-loss customers do not trust generic products and need a doctor, a plan and follow-through.",
       outcomes: ["Scan funnel turns visitors into booked consults", "Doctors prescribe in a purpose-built portal", "Sales team gets qualified leads automatically", "Refills and guarantees tracked without chasing"],
@@ -503,17 +503,17 @@
         W("Guarantee tracked", "Progress is monitored for the money-back promise.")
       ],
       stack: ["Next.js", "React", "Node.js", "Three.js", "PostgreSQL", "WhatsApp Cloud API"],
-      liveUrl: "https://yourhaircompany.com/", embed: { url: "https://yourhaircompany.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("yhc", ["hero", "doctor-calendar", "consult"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("hair-clinic-platform", ["consult", "scan", "doctor-calendar"]), demo: true
     },
     {
-      slug: "skinwise", name: "Skinwise", client: "Skinwise", category: "platforms", status: "live", tier: "A", year: 2026,
-      summary: "A skin-concern brand with a safety-aware quiz, AI photo skin scan, voice and chat assistant, consultations and a full store.",
+      slug: "skincare-platform", name: "Skincare Brand Platform", client: "A skincare brand", category: "platforms", status: "live", tier: "A", year: 2026,
+      summary: "A skin-concern brand with a safety-aware quiz, AI photo skin scan, chat assistant, consultations and a full store.",
       problem: "Skincare shoppers are overwhelmed by choice and worried about products that do not suit them.",
       outcomes: ["Quiz builds a routine with caution flags", "Photo scan gives an objective starting point", "Assistant answers questions in chat or voice", "WhatsApp order cart and admin in the same platform"],
       features: [
         F("Discovery", "Rules-based quiz with safety exclusions", "AI photo skin scan"),
-        F("Guidance", "Voice and chat assistant Dr. Vivek", "Consultations"),
+        F("Guidance", "Chat assistant Dr. Vivek", "Consultations"),
         F("Commerce", "Cart that sends the order on WhatsApp", "Admin")
       ],
       workflow: [
@@ -525,11 +525,11 @@
         W("Order on WhatsApp", "The cart is sent as a WhatsApp order and tracked in admin.")
       ],
       stack: ["Next.js", "React", "Node.js", "Computer vision", "LLM", "WhatsApp ordering"],
-      liveUrl: "https://myskinwise.com/", embed: { url: "https://myskinwise.com/", mode: "iframe", allowedOrigins: ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"] },
-      shots: shots("skinwise", ["hero", "quiz", "products"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("skincare-platform", ["products", "quiz", "assistant"]), demo: true
     },
     {
-      slug: "nri-trust", name: "NRI Trust", client: "NRI Trust", category: "platforms", status: "live", tier: "B", year: 2026,
+      slug: "nri-advisory", name: "NRI Advisory Platform", client: "An NRI advisory firm", category: "platforms", status: "live", tier: "B", year: 2026,
       summary: "An NRI advisory platform with a 3D globe, a risk assessment engine that returns a clear verdict, a prioritised playbook and a client portal.",
       problem: "NRIs managing assets in India face scattered advice and no clear picture of their risk.",
       outcomes: ["Risk assessed in a few minutes", "A GREEN, ORANGE or RED verdict anyone can understand", "A prioritised action playbook", "PDF report and portal for ongoing work"],
@@ -548,8 +548,8 @@
         W("Portal access", "Clients continue inside the portal.")
       ],
       stack: ["Next.js", "React", "Three.js", "Node.js", "PDF generation"],
-      liveUrl: "https://nritrust.co/", embed: { url: "https://nritrust.co/", mode: "iframe" },
-      shots: shots("nri-trust", ["hero", "mid"]), demo: true
+      liveUrl: null, embed: null,
+      shots: shots("nri-advisory", ["portal", "assessment"]), demo: true
     },
 
     /* ---------------- 08 Business Websites ---------------- */
@@ -574,7 +574,7 @@
       shots: shots("ai-agentix-site", ["hero", "mid"]), demo: true
     },
     {
-      slug: "dr-shweta-diwan", name: "Dr. Shweta Diwan", client: "Dr. Shweta Diwan", category: "websites", status: "live", tier: "C", year: 2026,
+      slug: "nutritionist-website", name: "Nutritionist Website", client: "A nutritionist", category: "websites", status: "live", tier: "C", year: 2026,
       summary: "A nutritionist's brand website with a 60-page PHP admin for blogs, case studies, orders and invoices.",
       problem: "A growing practice needed a credible site and a way to run content and billing without a developer.",
       outcomes: ["Authority built through blogs and case studies", "Booking and enquiry paths on every page", "Orders and invoices handled in admin", "Content updated by the team"],
@@ -590,11 +590,11 @@
         W("Invoice issued", "Billing is generated from admin.")
       ],
       stack: ["PHP", "MySQL", "Apache", "cPanel", "JavaScript"],
-      liveUrl: "https://drshwetadiwan.com/", embed: { url: "https://drshwetadiwan.com/", mode: "iframe" },
-      shots: shots("dr-shweta-diwan", ["hero", "mid"]), demo: false
+      liveUrl: null, embed: null,
+      shots: [], demo: false
     },
     {
-      slug: "thames-spa", name: "Thames Wellness Spa", client: "Thames Wellness Spa", category: "websites", status: "live", tier: "C", year: 2026,
+      slug: "spa-website", name: "Luxury Spa Website", client: "A luxury spa", category: "websites", status: "live", tier: "C", year: 2026,
       summary: "A luxury spa website presenting therapies and packages in a calm, premium design.",
       problem: "Spas sell an atmosphere, and a generic site fails to convey it or to guide guests to a package.",
       outcomes: ["Premium look that matches the experience", "Therapies and packages easy to browse", "Franchise and contact enquiries captured", "Fast static pages that rank well"],
@@ -609,11 +609,11 @@
         W("Spa follows up", "The team confirms the booking.")
       ],
       stack: ["HTML", "CSS", "JavaScript"],
-      liveUrl: "https://thameswellnessspa.com/", embed: { url: "https://thameswellnessspa.com/", mode: "iframe" },
-      shots: shots("thames-spa", ["hero", "mid"]), demo: false
+      liveUrl: null, embed: null,
+      shots: [], demo: false
     },
     {
-      slug: "eurobrass-site", name: "Eurobrass corporate site", client: "Eurobrass", category: "websites", status: "live", tier: "C", year: 2026,
+      slug: "manufacturer-website", name: "Manufacturer Website", client: "A brass foundry", category: "websites", status: "live", tier: "C", year: 2026,
       summary: "A brass foundry website that tells the story from cast to machine to finish, with product lines and dealer sign-in.",
       problem: "A manufacturer needed to show craft and scale, and give dealers a clear way in.",
       outcomes: ["Process told visually: cast, machine, finish", "Product lines presented clearly", "Dealers reach their login in one click", "Brand credibility for new buyers"],
@@ -628,8 +628,8 @@
         W("Enquiry", "Buyers contact the sales team.")
       ],
       stack: ["React", "Vercel", "CSS"],
-      liveUrl: "https://eurobrass-seven.vercel.app/", embed: { url: "https://eurobrass-seven.vercel.app/", mode: "iframe" },
-      shots: shots("eurobrass-site", ["hero", "mid"]), demo: false
+      liveUrl: null, embed: null,
+      shots: [], demo: false
     },
 
     /* ---------------- 09 E-commerce concept brands ---------------- */

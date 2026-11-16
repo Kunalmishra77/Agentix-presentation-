@@ -11,24 +11,22 @@ const SHOW = "https://showcase-build-tau.vercel.app/";
 
 const DEMOS = {
   agentix: ["conversations", "crm", "flows"], socialflow: ["inbox", "flows", "comment-dm"],
-  voicecrm: ["dashboard", "live-calls", "insights"], "riya-crm": ["dashboard", "inbox", "insights"],
+  voicecrm: ["dashboard", "live-calls", "insights"], "gym-whatsapp-crm": ["dashboard", "inbox", "insights"],
   socialpush: ["composer", "calendar", "analytics"], "yt-automation": ["pipeline", "scenes", "approvals"],
-  "agentix-crm": ["dashboard", "kanban", "insights-revenue"], "eurobrass-crm": ["dashboard", "quotations", "orders"],
+  "agentix-crm": ["dashboard", "kanban", "insights-revenue"], "manufacturer-crm": ["dashboard", "quotations", "orders"],
   leadforge: ["run", "results", "history"], "agentix-hims": ["doctor", "secretary", "journey"],
-  "umang-hims": ["doctor", "reception", "billing"], "woodpecker-pms": ["tape", "folio", "dashboard"],
-  "max-register": ["today", "kiosk", "members"], redux: ["journey", "quotes", "jobs"],
-  yhc: ["scan", "doctor-calendar", "consult"], skinwise: ["quiz", "assistant", "products"],
+  "hospital-hims": ["doctor", "reception", "billing"], "apartment-pms": ["tape", "folio", "dashboard"],
+  "gym-crm": ["today", "kiosk", "members"], "restoration-platform": ["journey", "quotes", "survey-app"],
+  "hair-clinic-platform": ["scan", "doctor-calendar", "consult"], "skincare-platform": ["quiz", "assistant", "products"],
+  "hospital-website": ["doctors", "appointment", "admin-leads"], "resort-booking": ["book", "admin-bookings", "admin-rooms"],
+  "gym-website": ["join"], "premium-gym-website": ["tour", "plans", "trial"], "nri-advisory": ["assessment", "portal"],
 };
+// client sites are never captured: the portfolio shows client work only through anonymised demos
 const SITES = {
-  "umang-website": "https://www.umanghospitals.in/", "kaaya-eco-resort": "https://kaayaecoresort.com/",
-  "max-website": "https://maxfitnessgym.co.in/", "fitness-first": "https://fitnessfirstdwarka.com/",
-  "nri-trust": "https://nritrust.co/", "ai-agentix-site": "https://ai-agentix.com/",
-  "dr-shweta-diwan": "https://drshwetadiwan.com/", "thames-spa": "https://thameswellnessspa.com/",
-  "eurobrass-site": "https://eurobrass-seven.vercel.app/", yhc: "https://yourhaircompany.com/", skinwise: "https://myskinwise.com/",
-  santure: "LOCAL:sites/santure/index.html", ekatva: "LOCAL:sites/ekatva/index.html",
+  "ai-agentix-site": "https://ai-agentix.com/",
   crumb: SHOW + "crumb/", coralbay: SHOW + "coralbay/", "tallow-tape": SHOW + "tallow/", vaskaro: SHOW + "vaskaro/",
 };
-const SLOW = { "kaaya-eco-resort": 6000, "thames-spa": 11000 };
+const SLOW = {};
 const CLOSERS = ['button:has-text("Accept")', 'button:has-text("Got it")', 'button:has-text("I agree")', 'button:has-text("Allow all")', 'button:has-text("No thanks")',
   '[aria-label="Close" i]', '[aria-label="Dismiss" i]', 'button[class*="close" i]', '[class*="popup" i] [class*="close" i]', '[class*="modal" i] [class*="close" i]', '.cookie button', '[id*="cookie" i] button'];
 

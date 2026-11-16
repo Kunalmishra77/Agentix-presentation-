@@ -149,7 +149,7 @@ test("agentix-hims: no horizontal overflow at 390px", async () => {
 
 /* ------------------------------ umang-hims ------------------------------ */
 test("umang-hims: every module renders", async () => {
-  const { page, errors, close } = await openDemo("umang-hims");
+  const { page, errors, close } = await openDemo("hospital-hims");
   try {
     const ids = await walkEveryModule(page, errors);
     for (const m of ["register", "reception", "nurse", "doctor", "billing", "pharmacy", "tracker", "reports"]) assert.ok(ids.includes(m), "module " + m);
@@ -162,7 +162,7 @@ async function openCard(page, uhid) {
 }
 
 test("umang-hims: form registration -> reception -> doctor -> pharmacy -> tracker shows Medicines ready", async () => {
-  const { page, errors, close } = await openDemo("umang-hims");
+  const { page, errors, close } = await openDemo("hospital-hims");
   try {
     await page.waitForSelector('[data-module-ready][data-module="register"] form');
     await page.fill("#um-name", "Sunita Mehta");
@@ -195,7 +195,7 @@ test("umang-hims: form registration -> reception -> doctor -> pharmacy -> tracke
 });
 
 test("umang-hims: Asha voice agent registers a patient with a UHID", async () => {
-  const { page, errors, close } = await openDemo("umang-hims");
+  const { page, errors, close } = await openDemo("hospital-hims");
   try {
     await page.waitForSelector('[data-module-ready][data-module="register"] form');
     await page.click('[data-reg-tab="asha"]');
@@ -209,7 +209,7 @@ test("umang-hims: Asha voice agent registers a patient with a UHID", async () =>
 });
 
 test("umang-hims: nurse vitals and doctor consult complete into billing; language toggle flips labels", async () => {
-  const { page, errors, close } = await openDemo("umang-hims");
+  const { page, errors, close } = await openDemo("hospital-hims");
   try {
     await page.click('.ax-nav-item[data-id="nurse"]');
     await page.waitForSelector('[data-module-ready][data-module="nurse"] form');
@@ -242,7 +242,7 @@ test("umang-hims: nurse vitals and doctor consult complete into billing; languag
 });
 
 test("umang-hims: no horizontal overflow at 390px", async () => {
-  const { page, errors, close } = await openDemo("umang-hims", { width: 390, height: 800 });
+  const { page, errors, close } = await openDemo("hospital-hims", { width: 390, height: 800 });
   try {
     for (const id of ["register", "reception", "nurse", "doctor", "billing", "tracker", "reports"]) {
       await page.evaluate((i) => document.querySelector(".ax-app").__axApp.open(i), id);

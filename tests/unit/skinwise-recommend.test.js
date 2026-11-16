@@ -2,7 +2,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const { loadScripts } = require("../helpers/load");
-const SW = loadScripts(["js/core/ax.js", "js/demos/skinwise.js"]).AX.skinwise;
+const SW = loadScripts(["js/core/ax.js", "js/demos/skincare-platform.js"]).AX.skinwise;
 
 const CONCERNS = ["acne", "pigmentation", "dark-circles", "dryness", "ageing", "dullness"];
 const SKINS = ["oily", "dry", "combination", "normal"];

@@ -3,7 +3,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { loadScripts } = require("../helpers/load");
 
-const ctx = loadScripts(["js/core/ax.js", "js/data/fake.js", "js/demos/nri-trust.js"]);
+const ctx = loadScripts(["js/core/ax.js", "js/data/fake.js", "js/demos/nri-advisory.js"]);
 const nri = ctx.window.AX.nri;
 
 test("no POA + no nominee + property in India is RED", () => {

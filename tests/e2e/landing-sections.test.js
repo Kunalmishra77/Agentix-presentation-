@@ -33,7 +33,7 @@ test("search 'hims' leaves exactly the two HIMS cards; Concept filter shows only
     await ready(page);
     await page.fill("#q", "hims");
     await page.waitForFunction(() => document.querySelectorAll("#work .pcard:not([hidden])").length === 2);
-    assert.deepEqual(await visibleSlugs(page), ["agentix-hims", "umang-hims"]);
+    assert.deepEqual(await visibleSlugs(page), ["agentix-hims", "hospital-hims"]);
     await page.fill("#q", "");
     await page.click('.st-btn[data-status="concept"]');
     const concept = await page.evaluate(() => AX.projects.filter((p) => p.status === "concept" && p.category !== "delivery").length);
@@ -53,14 +53,14 @@ test("open a card mid-page, Esc: scroll restored within 40px and the next pin st
     await ready(page);
     await page.evaluate(() => AX.landing.scrollTo("#cat-hospitality", { immediate: true }));
     await settled(page);
-    const card = page.locator('#work .pcard[data-demo="woodpecker-pms"]');
+    const card = page.locator('#work .pcard[data-demo="apartment-pms"]');
     await card.hover();
     await settled(page);
     const y0 = await page.evaluate(() => scrollY);
     assert.ok(y0 > 2000, "opened from the middle of the page, y=" + y0);
     await card.click();
     await page.locator("#shell").waitFor({ state: "visible" });
-    await page.waitForFunction(() => location.hash === "#/demo/woodpecker-pms");
+    await page.waitForFunction(() => location.hash === "#/demo/apartment-pms");
     await settled(page);
     await page.keyboard.press("Escape");
     await page.locator("#shell").waitFor({ state: "hidden" });

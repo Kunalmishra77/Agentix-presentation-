@@ -52,14 +52,14 @@ test("rulings: delivery, concept embeds, nri-trust, kaaya", () => {
   assert.equal(by("fruitivo").embed.url, "https://showcase-build-tau.vercel.app/perfume/");
   assert.equal(by("movade").embed.url, "https://showcase-build-tau.vercel.app/travel/");
   assert.equal(by("tallow-tape").embed.url, "https://showcase-build-tau.vercel.app/tallow/");
-  assert.equal(by("nri-trust").status, "live");
-  assert.equal(by("nri-trust").liveUrl, "https://nritrust.co/");
-  const k = by("kaaya-eco-resort");
+  assert.equal(by("nri-advisory").status, "live");
+  assert.equal(by("nri-advisory").liveUrl, null);
+  const k = by("resort-booking");
   assert.equal(k.category, "hospitality");
   assert.equal(k.tier, "B");
   assert.equal(k.demo, true);
   assert.equal(k.year, 2026);
-  assert.equal(k.embed.url, "https://kaayaecoresort.com/");
+  assert.equal(k.embed, null);
 });
 
 test("every shots[].src exists on disk", () => {
@@ -106,7 +106,10 @@ test("every non-delivery project has 2+ real shots (src and thumb exist, each un
   assert.ok(total < 12e6, "assets/shots under 12 MB, got " + (total / 1e6).toFixed(1));
   for (const p of AX.projects) {
     if (p.category === "delivery") continue;
-    assert.ok(p.shots.length >= 2, p.slug + " has 2+ shots");
+    // client projects show only screenshots of our anonymised demo; those without a demo show none
+    const client = !/^(AGENTiX|Concept brand)/.test(p.client || "");
+    if (client && !p.demo) { assert.equal(p.shots.length, 0, p.slug + " client project without demo has no shots"); continue; }
+    assert.ok(p.shots.length >= (client ? 1 : 2), p.slug + " has enough shots");
     for (const sh of p.shots) {
       for (const key of ["src", "thumb"]) {
         const f = path.join(ROOT, sh[key]);
@@ -115,4 +118,25 @@ test("every non-delivery project has 2+ real shots (src and thumb exist, each un
       }
     }
   }
+});
+
+test("no client or client-brand name appears in anything the portfolio serves", () => {
+  // the portfolio is presented to rooms that may include our clients, so their names never ship
+  const banned = /umang|eurobrass|woodpecker|kaaya|\byala\b|max ?fitness|max ?register|fitness ?first|fitnessfirst|redux by|"redux"|your ?hair ?company|yourhaircompany|skinwise|nri ?trust|nritrust|shweta|diwan|thames|santure|ekatva|ankit|chopra/i;
+  const allow = /AX\.(redux|eurobrass|kaaya|skinwise|woodpecker|maxRegister|yhc)\b|F\.(person|int|pick|series)\("(umang|kaaya|yhc)|"(umang|kaaya)-[a-z0-9]+-"|"(skinwise|yhc|redux)-css"|key: "redux"/g;
+  const files = ["index.html", "sites/_sim.js"];
+  (function walk(d) {
+    for (const e of fs.readdirSync(path.join(ROOT, d), { withFileTypes: true })) {
+      const f = d + "/" + e.name;
+      if (e.isDirectory()) walk(f); else if (/\.(js|css|html)$/.test(f)) files.push(f);
+    }
+  })("js");
+  for (const e of fs.readdirSync(path.join(ROOT, "css"))) files.push("css/" + e);
+  for (const f of files) {
+    fs.readFileSync(path.join(ROOT, f), "utf8").split(/\r?\n/).forEach((line, i) => {
+      const m = line.replace(allow, "").match(banned);
+      assert.equal(m, null, f + ":" + (i + 1) + " mentions " + (m && m[0]));
+    });
+  }
+  for (const d of fs.readdirSync(path.join(ROOT, "assets/shots"))) assert.doesNotMatch(d, banned, "shot folder " + d);
 });

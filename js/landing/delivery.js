@@ -7,9 +7,9 @@
   var CONTACT = "https://ai-agentix.com/contact";
   var STACK = ["Docker", "Coolify", "Vercel", "cPanel", "Apache", "PHP and MySQL", "Supabase", "PostgreSQL RLS", "pg_cron", "pgvector", "Kubernetes", "Node.js", "BullMQ", "Playwright"];
   var TARGETS = [
-    { k: "Docker + Coolify", d: "VPS containers for SocialFlow, LeadForge, Max Fitness, Woodpecker" },
+    { k: "Docker + Coolify", d: "VPS containers for SocialFlow, LeadForge, the gym CRM and the hotel PMS" },
     { k: "Vercel", d: "Most frontends, previews on every push" },
-    { k: "cPanel + Apache", d: "PHP and MySQL sites for Umang, Dr. Shweta, Fitness First" },
+    { k: "cPanel + Apache", d: "PHP and MySQL sites for a hospital, a nutritionist and a gym" },
     { k: "Supabase", d: "Postgres with RLS, pg_cron, pgmq and pgvector" }
   ];
   var strip, footerEl, counters = [];

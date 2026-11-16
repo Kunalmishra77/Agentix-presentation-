@@ -21,8 +21,14 @@ test("local embeds point to existing files", () => {
   }
 });
 
-test("non-demo, non-delivery projects have an embed", () => {
-  for (const p of projects.filter((x) => x.demo === false && x.category !== "delivery")) {
+// client work is shown only through anonymised demos: no live client site is framed or linked
+const isClient = (p) => !/^(AGENTiX|Concept brand)/.test(p.client || "");
+test("own and concept projects without a demo have an embed; client projects never do", () => {
+  for (const p of projects.filter((x) => x.demo === false && x.category !== "delivery" && !isClient(x))) {
     assert.ok(p.embed, p.slug + " needs embed");
+  }
+  for (const p of projects.filter(isClient)) {
+    assert.ok(!p.embed, p.slug + " embed");
+    assert.ok(!p.liveUrl, p.slug + " liveUrl");
   }
 });

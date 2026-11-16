@@ -32,10 +32,10 @@ async function walkAll(slug, minModules) {
 }
 
 /* ---------------- Woodpecker PMS ---------------- */
-test("woodpecker-pms: every module renders", () => walkAll("woodpecker-pms", 23));
+test("woodpecker-pms: every module renders", () => walkAll("apartment-pms", 23));
 
 test("woodpecker-pms: tape extend into a free night works, into an occupied one is rejected", async () => {
-  const { page, errors, close } = await sweep("woodpecker-pms");
+  const { page, errors, close } = await sweep("apartment-pms");
   try {
     await openModule(page, "tape");
     const bar = '.tp-bar[data-id="WP-10002"]';
@@ -54,10 +54,10 @@ test("woodpecker-pms: tape extend into a free night works, into an occupied one 
 });
 
 test("woodpecker-pms: new booking overlap gives an error toast", async () => {
-  const { page, close } = await sweep("woodpecker-pms");
+  const { page, close } = await sweep("apartment-pms");
   try {
     await openModule(page, "new-booking");
-    const today = await page.evaluate(() => AX.data["woodpecker-pms"].today);
+    const today = await page.evaluate(() => AX.data["apartment-pms"].today);
     const start = await page.evaluate((t) => AX.calendar.addDays(t, 2), today); // inside WP-10002 on HK-101
     await page.fill('.ax-form input[type="text"] >> nth=0', "Test Guest");
     await page.selectOption(".ax-form select >> nth=0", "HK-101");
@@ -70,7 +70,7 @@ test("woodpecker-pms: new booking overlap gives an error toast", async () => {
 });
 
 test("woodpecker-pms: folio POS charge then GST invoice totals include GST", async () => {
-  const { page, errors, close } = await sweep("woodpecker-pms");
+  const { page, errors, close } = await sweep("apartment-pms");
   try {
     await openModule(page, "folio");
     const before = +(await page.getAttribute("[data-folio-total]", "data-folio-total"));
@@ -91,7 +91,7 @@ test("woodpecker-pms: folio POS charge then GST invoice totals include GST", asy
 });
 
 test("woodpecker-pms: booking engine reservation appears on the tape", async () => {
-  const { page, errors, close } = await sweep("woodpecker-pms");
+  const { page, errors, close } = await sweep("apartment-pms");
   try {
     await openModule(page, "booking-engine");
     await page.click("[data-be-rooms] li >> nth=0 >> button");
@@ -105,7 +105,7 @@ test("woodpecker-pms: booking engine reservation appears on the tape", async () 
 });
 
 test("woodpecker-pms: 390px has no horizontal overflow", async () => {
-  const { page, close } = await sweep("woodpecker-pms", { width: 390, height: 800 });
+  const { page, close } = await sweep("apartment-pms", { width: 390, height: 800 });
   try {
     for (const id of ["dashboard", "folio", "pricing", "tape"]) {
       await openModule(page, id);
@@ -116,15 +116,15 @@ test("woodpecker-pms: 390px has no horizontal overflow", async () => {
 
 /* ---------------- Max Register ---------------- */
 test("max-register: every module renders, Hindi is the default", async () => {
-  const { page, close } = await sweep("max-register");
+  const { page, close } = await sweep("gym-crm");
   try {
     assert.equal(await page.getAttribute('.ax-lang [data-lang="hi"]', "aria-pressed"), "true");
   } finally { await close(); }
-  await walkAll("max-register", 18);
+  await walkAll("gym-crm", 18);
 });
 
-test("max-register: renew in 3 taps produces a receipt number MF/YYYY-YY/NNNNNN", async () => {
-  const { page, errors, close } = await sweep("max-register");
+test("max-register: renew in 3 taps produces a receipt number GY/YYYY-YY/NNNNNN", async () => {
+  const { page, errors, close } = await sweep("gym-crm");
   try {
     await openModule(page, "renew");
     const st = () => page.evaluate((id) => { const a = document.querySelector(".ax-app").__axApp.ctx; const m = a.state.get().mx.members.find((x) => x.id === id); return Math.round((Date.parse(m.paidTill) - Date.parse(a.data.today)) / 86400000); }, mid);
@@ -136,7 +136,7 @@ test("max-register: renew in 3 taps produces a receipt number MF/YYYY-YY/NNNNNN"
     await page.click('[data-mode="UPI"]');
     await page.waitForSelector("[data-receipt-no]");
     const no = (await page.textContent("[data-receipt-no]")).trim();
-    assert.match(no, /^MF\/\d{4}-\d{2}\/\d{6}$/);
+    assert.match(no, /^GY\/\d{4}-\d{2}\/\d{6}$/);
     assert.equal(no.slice(-6), "000123");
     const leftAfter = await st();
     assert.ok(leftAfter > leftBefore && leftAfter > 7, "days left increased into the green band: " + leftBefore + " -> " + leftAfter);
@@ -150,7 +150,7 @@ test("max-register: renew in 3 taps produces a receipt number MF/YYYY-YY/NNNNNN"
 });
 
 test("max-register: advancing 3 days adds a WhatsApp reminder", async () => {
-  const { page, close } = await sweep("max-register");
+  const { page, close } = await sweep("gym-crm");
   try {
     await openModule(page, "reminders");
     const before = await page.locator('[data-rem="sent"]').count();
@@ -164,14 +164,14 @@ test("max-register: advancing 3 days adds a WhatsApp reminder", async () => {
 });
 
 test("max-register: kiosk greets a valid member and alerts for an expired one", async () => {
-  const { page, close } = await sweep("max-register");
+  const { page, close } = await sweep("gym-crm");
   try {
     await page.click('.ax-lang [data-lang="en"]');
     await openModule(page, "kiosk");
     await page.click("[data-kiosk-scan]");
     await page.waitForSelector('[data-kiosk-result="good"]');
     assert.match(await page.textContent("[data-kiosk-result]"), /Namaste, \w+! 12 days left/);
-    const expired = await page.evaluate(() => AX.data["max-register"].members[6].id);
+    const expired = await page.evaluate(() => AX.data["gym-crm"].members[6].id);
     await page.selectOption('select[aria-label="Who is at the door"]', expired);
     await page.click("[data-kiosk-scan]");
     await page.waitForSelector('[data-kiosk-result="expired"]');
@@ -180,7 +180,7 @@ test("max-register: kiosk greets a valid member and alerts for an expired one", 
 });
 
 test("max-register: leads board moves update the funnel; verify queue approves", async () => {
-  const { page, close } = await sweep("max-register");
+  const { page, close } = await sweep("gym-crm");
   try {
     await openModule(page, "leads");
     await page.waitForSelector("[data-funnel] svg");
@@ -199,12 +199,12 @@ test("max-register: leads board moves update the funnel; verify queue approves",
 });
 
 test("max-register: phone frame on desktop, full-bleed at 390 without overflow", async () => {
-  const d = await sweep("max-register");
+  const d = await sweep("gym-crm");
   try {
     const w = await d.page.evaluate(() => document.querySelector(".ax-app").getBoundingClientRect().width);
     assert.ok(w < 460, "desktop frame width " + w);
   } finally { await d.close(); }
-  const m = await sweep("max-register", { width: 390, height: 800 });
+  const m = await sweep("gym-crm", { width: 390, height: 800 });
   try {
     for (const id of ["today", "members", "renew", "leads", "kiosk"]) {
       await openModule(m.page, id);
@@ -214,9 +214,9 @@ test("max-register: phone frame on desktop, full-bleed at 390 without overflow",
 });
 
 test("woodpecker-pms: tariff above 7,500 invoices at 9% + 9% and tax arithmetic adds up", async () => {
-  const { page, errors, close } = await sweep("woodpecker-pms");
+  const { page, errors, close } = await sweep("apartment-pms");
   try {
-    const b = await page.evaluate(() => AX.data["woodpecker-pms"].bookings.find((x) => x.status === "checked-in" && x.tariff > 7500));
+    const b = await page.evaluate(() => AX.data["apartment-pms"].bookings.find((x) => x.status === "checked-in" && x.tariff > 7500));
     assert.ok(b, "demo has an in-house booking above the 7,500 slab");
     await openModule(page, "folio");
     await page.selectOption('select[aria-label="In-house guest"]', b.id);

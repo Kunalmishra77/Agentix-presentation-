@@ -4,7 +4,7 @@
   "use strict";
   var AX = w.AX = w.AX || {};
   var el = AX.el;
-  var FAN = ["agentix", "woodpecker-pms", "agentix-hims", "max-register", "socialflow", "aurelle", "yt-automation"];
+  var FAN = ["agentix", "apartment-pms", "agentix-hims", "gym-crm", "socialflow", "aurelle", "yt-automation"];
   var LINES = ["AI Applied,", "Growth Multiplied."];
   // The three lightest fan screenshots (measured 115-132 KB) load eagerly; the rest (incl. the 1 MB aurelle PNG) stay lazy.
   var EAGER = ["socialflow", "yt-automation", "agentix-hims"];

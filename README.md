@@ -13,7 +13,7 @@ npm run serve                 # http://127.0.0.1:4310/
 PORT=8090 node tools/serve.js # any other port
 ```
 
-You can also open `index.html` straight from disk (`file://`). Everything works except the two locally mirrored sites (Santure and Ekatva), which need http.
+You can also open `index.html` straight from disk (`file://`).
 
 ## Project layout
 
@@ -27,7 +27,7 @@ You can also open `index.html` straight from disk (`file://`). Everything works 
 | `js/engines/` | Reusable demo engines: charts, table, board, chat, flow, pipeline, calendar, store, embed, appshell. |
 | `js/demos/<slug>.js` | One demo per product: a module manifest rendered by the AppShell. Loaded on demand. |
 | `js/demos/data/<slug>.js` | That demo's fictional data. |
-| `sites/` | Local mirrors of two prototype sites, plus `_sim.js`, which marks their actions as simulated. |
+| `sites/_sim.js` | Marks actions inside embedded sites as simulated. |
 | `assets/shots/<slug>/` | Card and gallery screenshots: `<name>.jpg` at 1600 px wide, `<name>@800.jpg` thumbnails. |
 | `assets/brand/` | The Agentix logo, mark, wordmark and favicon. |
 | `css/` | Design tokens, landing, cards, shell, engines and appshell styles. |
@@ -54,6 +54,10 @@ npm run frames                  # checks which live sites allow framing
 ```
 
 The e2e tests need Google Chrome installed (Playwright runs with `channel: "chrome"`) and the `playwright` package. Set `PW` to its path; the default is `E:/travel-agency/node_modules/playwright`. Give each parallel run its own `AX_PORT` so the servers don't collide.
+
+## Client names
+
+The portfolio is shown to rooms that may include our clients, so no client name, logo, live site or screenshot of a client's real site is shipped. Client projects carry generic names (for example "Hospital OPD System") and are shown only through our own demos with fictional data. `tests/unit/projects.test.js` fails if a client name appears in anything the site serves.
 
 ## Live embeds
 

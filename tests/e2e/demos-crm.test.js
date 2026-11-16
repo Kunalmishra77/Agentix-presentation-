@@ -157,7 +157,7 @@ test("agentix-crm: drawer primary button uses the brand accent; completion delta
 
 /* ------------------------------ eurobrass-crm ------------------------------ */
 test("eurobrass-crm: every module renders", async () => {
-  const { page, errors, close } = await openDemo("eurobrass-crm");
+  const { page, errors, close } = await openDemo("manufacturer-crm");
   try {
     const ids = await walkEveryModule(page, errors);
     for (const m of ["dashboard", "leads", "customers", "dealers", "dealer-portal", "products", "inventory", "quotations", "orders", "service",
@@ -166,15 +166,15 @@ test("eurobrass-crm: every module renders", async () => {
 });
 
 test("eurobrass-crm: no real customer names in the dataset", async () => {
-  const { page, close } = await openDemo("eurobrass-crm");
+  const { page, close } = await openDemo("manufacturer-crm");
   try {
-    const s = await page.evaluate(() => JSON.stringify(AX.data["eurobrass-crm"]));
+    const s = await page.evaluate(() => JSON.stringify(AX.data["manufacturer-crm"]));
     for (const bad of ["Westin", "Lalit", "Medanta", "DMRC", "Taj", "Hyatt", "Marriott", "Oberoi", "Sarovar", "Meridian", "Hilton", "Radisson"]) assert.ok(!s.includes(bad), bad);
   } finally { await close(); }
 });
 
 test("eurobrass-crm: inventory low-stock filter narrows rows", async () => {
-  const { page, close } = await openDemo("eurobrass-crm");
+  const { page, close } = await openDemo("manufacturer-crm");
   try {
     await go(page, "inventory");
     await page.waitForSelector("#shell tbody tr");
@@ -188,13 +188,13 @@ test("eurobrass-crm: inventory low-stock filter narrows rows", async () => {
 });
 
 test("eurobrass-crm: quotation with 2 products, GST 18%, send toast, convert to order", async () => {
-  const { page, errors, close } = await openDemo("eurobrass-crm");
+  const { page, errors, close } = await openDemo("manufacturer-crm");
   try {
     await go(page, "quotations");
     await page.waitForSelector("[data-q-customer]");
     const cust = await page.locator("[data-q-customer] option").nth(1).innerText();
     await page.selectOption("[data-q-customer]", { index: 1 });
-    const prods = await page.evaluate(() => AX.data["eurobrass-crm"].products.map((p) => ({ id: p.id, price: p.price })));
+    const prods = await page.evaluate(() => AX.data["manufacturer-crm"].products.map((p) => ({ id: p.id, price: p.price })));
     const pick = [prods[0], prods[3]];
     const qty = [2, 3];
     for (let i = 0; i < 2; i++) {
@@ -227,7 +227,7 @@ test("eurobrass-crm: quotation with 2 products, GST 18%, send toast, convert to 
 });
 
 test("eurobrass-crm: catalogue Add to quotation lands in the quotation builder", async () => {
-  const { page, close } = await openDemo("eurobrass-crm");
+  const { page, close } = await openDemo("manufacturer-crm");
   try {
     await go(page, "products");
     await page.locator(".st-open").first().click();
@@ -239,7 +239,7 @@ test("eurobrass-crm: catalogue Add to quotation lands in the quotation builder",
 });
 
 test("eurobrass-crm: service ticket assigned to a technician", async () => {
-  const { page, close } = await openDemo("eurobrass-crm");
+  const { page, close } = await openDemo("manufacturer-crm");
   try {
     await go(page, "service");
     await page.waitForSelector(".bd-card");
@@ -259,7 +259,7 @@ test("eurobrass-crm: service ticket assigned to a technician", async () => {
 });
 
 test("eurobrass-crm: dealer portal shows orders, schemes and stock", async () => {
-  const { page, close } = await openDemo("eurobrass-crm");
+  const { page, close } = await openDemo("manufacturer-crm");
   try {
     await go(page, "dealer-portal");
     const t = await page.locator('[data-module="dealer-portal"]').innerText();
@@ -268,7 +268,7 @@ test("eurobrass-crm: dealer portal shows orders, schemes and stock", async () =>
 });
 
 test("eurobrass-crm: mobile quotations has no horizontal overflow", async () => {
-  const { page, close } = await openDemo("eurobrass-crm", { width: 390, height: 800 });
+  const { page, close } = await openDemo("manufacturer-crm", { width: 390, height: 800 });
   try {
     await go(page, "quotations");
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
@@ -276,7 +276,7 @@ test("eurobrass-crm: mobile quotations has no horizontal overflow", async () => 
 });
 
 test("eurobrass-crm: drawer primary button uses the brass accent", async () => {
-  const { page, close } = await openDemo("eurobrass-crm");
+  const { page, close } = await openDemo("manufacturer-crm");
   try {
     await go(page, "dealers");
     await page.locator("#shell tbody tr").first().click();

@@ -2,7 +2,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const { loadScripts } = require("../helpers/load");
-const ctx = loadScripts(["js/demos/agentix-crm.js", "js/demos/eurobrass-crm.js"]);
+const ctx = loadScripts(["js/demos/agentix-crm.js", "js/demos/manufacturer-crm.js"]);
 const { crm, eurobrass } = ctx.AX;
 
 test("deadlineKind: red/amber/green with thresholds, done is always green", () => {

@@ -37,10 +37,10 @@ async function walkAll(slug, minModules) {
 const noOverflow = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
 
 /* ======================= REDUX ======================= */
-test("redux: every module renders", () => walkAll("redux", 15));
+test("redux: every module renders", () => walkAll("restoration-platform", 14));
 
 test("redux: approving the quote in the portal adds a 'Quote approved' WhatsApp row to the outbox, a job and an advance invoice", async () => {
-  const { page, errors, close } = await sweep("redux");
+  const { page, errors, close } = await sweep("restoration-platform");
   try {
     await openModule(page, "outbox");
     assert.equal(await page.locator('.tbl tbody tr:has-text("Quote approved")').count(), 0);
@@ -62,7 +62,7 @@ test("redux: approving the quote in the portal adds a 'Quote approved' WhatsApp 
 });
 
 test("redux: surveyor app shows 'Offline — 3 items queued' and Sync clears it", async () => {
-  const { page, errors, close } = await sweep("redux");
+  const { page, errors, close } = await sweep("restoration-platform");
   try {
     await openModule(page, "survey-app");
     assert.match(await page.textContent("[data-sync-banner]"), /Offline — 3 items queued/);
@@ -75,12 +75,12 @@ test("redux: surveyor app shows 'Offline — 3 items queued' and Sync clears it"
 });
 
 test("redux: quote follows the survey and 18% GST; a 10% discount needs approval before sending", async () => {
-  const { page, errors, close } = await sweep("redux");
+  const { page, errors, close } = await sweep("restoration-platform");
   try {
     await openModule(page, "quotes");
     const t0 = +(await page.getAttribute("[data-quote-totals]", "data-quote-totals"));
     const expected = await page.evaluate(() => {
-      const d = AX.data.redux, lines = [];
+      const d = AX.data["restoration-platform"], lines = [];
       d.survey.bathrooms.forEach((b) => b.fittings.forEach((f) => { const r = d.rc(f.type, f.finish); lines.push({ price: r.redux, market: r.market }); }));
       return AX.redux.quoteTotals(lines, 0).total;
     });
@@ -103,7 +103,7 @@ test("redux: quote follows the survey and 18% GST; a 10% discount needs approval
 });
 
 test("redux: website enquiry creates a routed lead with an SLA chip and a WhatsApp row", async () => {
-  const { page, errors, close } = await sweep("redux");
+  const { page, errors, close } = await sweep("restoration-platform");
   try {
     await openModule(page, "leads");
     const before = await page.locator('.bd-col[data-col="new"] .bd-card').count();
@@ -123,7 +123,7 @@ test("redux: website enquiry creates a routed lead with an SLA chip and a WhatsA
 });
 
 test("redux: moving a job on the board logs a WhatsApp job update; 390px fits", async () => {
-  const { page, errors, close } = await sweep("redux");
+  const { page, errors, close } = await sweep("restoration-platform");
   try {
     await openModule(page, "jobs");
     const id = await page.getAttribute('.bd-col[data-col="scheduled"] .bd-card >> nth=0', "data-id");
@@ -137,7 +137,7 @@ test("redux: moving a job on the board logs a WhatsApp job update; 390px fits", 
     await page.waitForSelector('.tbl tbody tr:has-text("Job update"):has-text("' + id + '")');
     assert.deepEqual(errors, []);
   } finally { await close(); }
-  const m = await sweep("redux", { width: 390, height: 800 });
+  const m = await sweep("restoration-platform", { width: 390, height: 800 });
   try {
     for (const id of ["journey", "leads", "survey-app", "quotes", "portal", "outbox"]) {
       await openModule(m.page, id);
@@ -156,10 +156,10 @@ async function takeScan(page, picks) {
   await page.waitForSelector("[data-scan-result]");
 }
 
-test("yhc: every module renders", () => walkAll("yhc", 16));
+test("yhc: every module renders", () => walkAll("hair-clinic-platform", 15));
 
 test("yhc: scan funnel runs 4 questions, a progress mesh, then a stage and density that match the rules", async () => {
-  const { page, errors, close } = await sweep("yhc");
+  const { page, errors, close } = await sweep("hair-clinic-platform");
   try {
     await takeScan(page, [1, 1, 2, 1]);
     const expected = await page.evaluate(() => AX.yhc.scanResult({ pattern: 1, duration: 1, family: 2, lifestyle: 1 }));
@@ -174,7 +174,7 @@ test("yhc: scan funnel runs 4 questions, a progress mesh, then a stage and densi
 });
 
 test("yhc: customer books a ₹500 consult, doctor sees it on the calendar, Send plan creates the sales lead", async () => {
-  const { page, errors, close } = await sweep("yhc");
+  const { page, errors, close } = await sweep("hair-clinic-platform");
   try {
     await takeScan(page, [1, 1, 2, 1]);
     await page.click("[data-goto-book]");
@@ -229,7 +229,7 @@ test("yhc: customer books a ₹500 consult, doctor sees it on the calendar, Send
 });
 
 test("yhc: role switcher limits the sidebar to that role's modules", async () => {
-  const { page, close } = await sweep("yhc");
+  const { page, close } = await sweep("hair-clinic-platform");
   try {
     await setRole(page, "Doctor");
     const ids = await page.$$eval(".ax-nav-item[data-id]", (n) => n.map((x) => x.getAttribute("data-id")));
@@ -240,7 +240,7 @@ test("yhc: role switcher limits the sidebar to that role's modules", async () =>
 });
 
 test("yhc: refill care sequence pauses for customer confirmation and continues on Approve; a follow-up can be closed", async () => {
-  const { page, close } = await sweep("yhc");
+  const { page, close } = await sweep("hair-clinic-platform");
   try {
     await openModule(page, "care");
     await page.click(".pl-actions button:has-text(\"Start\")");
@@ -257,7 +257,7 @@ test("yhc: refill care sequence pauses for customer confirmation and continues o
 });
 
 test("yhc: 390px fits", async () => {
-  const m = await sweep("yhc", { width: 390, height: 800 });
+  const m = await sweep("hair-clinic-platform", { width: 390, height: 800 });
   try {
     for (const id of ["scan", "book", "account", "consult", "doctor-calendar", "sales-leads"]) {
       await openModule(m.page, id);
@@ -277,8 +277,8 @@ async function takeQuiz(page, vals) {
 }
 
 test("skinwise: every module renders, and there is no voice module anywhere", async () => {
-  await walkAll("skinwise", 9);
-  const { page, close } = await sweep("skinwise");
+  await walkAll("skincare-platform", 8);
+  const { page, close } = await sweep("skincare-platform");
   try {
     const ids = await page.$$eval(".ax-nav-item[data-id]", (n) => n.map((x) => x.getAttribute("data-id")));
     assert.ok(!ids.includes("voice"));
@@ -287,7 +287,7 @@ test("skinwise: every module renders, and there is no voice module anywhere", as
 });
 
 test("skinwise: quiz while pregnant excludes retinoids and salicylic acid and shows the caution", async () => {
-  const { page, errors, close } = await sweep("skinwise");
+  const { page, errors, close } = await sweep("skincare-platform");
   try {
     await takeQuiz(page, ["acne", "oily", "false", "true", "mid"]);
     const txt = await page.textContent("[data-quiz-result]");
@@ -313,7 +313,7 @@ test("skinwise: quiz while pregnant excludes retinoids and salicylic acid and sh
 });
 
 test("skinwise: quiz without pregnancy recommends the salicylic cleanser for oily acne-prone skin", async () => {
-  const { page, close } = await sweep("skinwise");
+  const { page, close } = await sweep("skincare-platform");
   try {
     await takeQuiz(page, ["acne", "oily", "false", "false", "mid"]);
     const txt = await page.textContent("[data-quiz-result]");
@@ -323,7 +323,7 @@ test("skinwise: quiz without pregnancy recommends the salicylic cleanser for oil
 });
 
 test("skinwise: photo scan shows a 'Simulated analysis' scorecard with four 0-100 scores", async () => {
-  const { page, errors, close } = await sweep("skinwise");
+  const { page, errors, close } = await sweep("skincare-platform");
   try {
     await openModule(page, "scan");
     await page.click('[data-sample="1"]');
@@ -347,7 +347,7 @@ test("skinwise: photo scan shows a 'Simulated analysis' scorecard with four 0-10
 });
 
 test("skinwise: Dr. Vivek answers by topic with safety wording", async () => {
-  const { page, errors, close } = await sweep("skinwise");
+  const { page, errors, close } = await sweep("skincare-platform");
   try {
     await openModule(page, "assistant");
     await page.fill("[data-assistant-input]", "Is retinol safe in pregnancy?");
@@ -361,7 +361,7 @@ test("skinwise: Dr. Vivek answers by topic with safety wording", async () => {
 });
 
 test("skinwise: store lists 12 products and adds one to the cart", async () => {
-  const { page, close } = await sweep("skinwise");
+  const { page, close } = await sweep("skincare-platform");
   try {
     await openModule(page, "products");
     assert.equal(await page.locator(".st-card").count(), 12);
@@ -372,7 +372,7 @@ test("skinwise: store lists 12 products and adds one to the cart", async () => {
 });
 
 test("skinwise: consultation request lands in admin consultations and leads", async () => {
-  const { page, errors, close } = await sweep("skinwise");
+  const { page, errors, close } = await sweep("skincare-platform");
   try {
     await openModule(page, "consultation");
     await page.fill('.ax-form input[type="text"] >> nth=0', "Meher Testwala");
@@ -395,7 +395,7 @@ test("skinwise: consultation request lands in admin consultations and leads", as
 });
 
 test("skinwise: 390px fits", async () => {
-  const m = await sweep("skinwise", { width: 390, height: 800 });
+  const m = await sweep("skincare-platform", { width: 390, height: 800 });
   try {
     for (const id of ["quiz", "scan", "assistant", "products", "consultation", "admin-orders"]) {
       await openModule(m.page, id);

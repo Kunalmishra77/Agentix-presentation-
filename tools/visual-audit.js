@@ -17,8 +17,8 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const LANDING_W = [360, 390, 768, 1024, 1280, 1440, 1920];
 const DEMO_W = [390, 768, 1440];
-const DEMOS = (args.demos ? String(args.demos).split(",") : ["agentix", "socialflow", "agentix-hims", "umang-hims", "woodpecker-pms", "max-register",
-  "voicecrm", "socialpush", "yt-automation", "redux", "yhc", "skinwise"]);
+const DEMOS = (args.demos ? String(args.demos).split(",") : ["agentix", "socialflow", "agentix-hims", "hospital-hims", "apartment-pms", "gym-crm",
+  "voicecrm", "socialpush", "yt-automation", "restoration-platform", "hair-clinic-platform", "skincare-platform"]);
 const EXT = [
   ["cairnline", "https://showcase-build-tau.vercel.app/cairnline/"], ["meridian", "https://showcase-build-tau.vercel.app/meridian/"],
   ["saffron", "https://showcase-build-tau.vercel.app/saffron/"], ["aurelune", "https://showcase-build-tau.vercel.app/aurelune/"],

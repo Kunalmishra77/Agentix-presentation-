@@ -15,7 +15,7 @@
   function phone(person, body) {
     return el("div", { class: "ol-phone" },
       el("div", { class: "ol-wa-head" }, el("span", { class: "ol-ava" }, "U"),
-        el("span", { class: "ol-wa-who" }, el("b", null, "Umang Hospital"), el("small", null, "AGENTiX agent, online"))),
+        el("span", { class: "ol-wa-who" }, el("b", null, "City Hospital"), el("small", null, "AGENTiX agent, online"))),
       el("div", { class: "ol-wa-body" }, body));
   }
 
@@ -46,7 +46,7 @@
     var rows = [["11", "Rakesh Yadav", "Vitals"], ["12", "Sunita Bansal", "Consult"], ["13", "Arjun Mehra", "Waiting"]];
     if (AX.fake) rows = rows.map(function (r, i) { return [r[0], AX.fake.person("queue" + i).name, r[2]]; });
     return el("div", { class: "ol-app ol-hims" },
-      el("div", { class: "ol-app-bar" }, el("b", null, "Umang HIMS"), el("span", null, "Reception, OPD")),
+      el("div", { class: "ol-app-bar" }, el("b", null, "Hospital HIMS"), el("span", null, "Reception, OPD")),
       el("div", { class: "ol-reg u3-reg" },
         el("div", { class: "ol-reg-id" }, el("small", null, "UHID"), el("b", null, "UMG-2611-0142")),
         el("div", null, el("b", null, p.name), el("small", null, "34 F, Full Body Checkup")),
@@ -100,9 +100,9 @@
         text: f + " sees a hospital ad and asks about the price on WhatsApp. The AGENTiX agent picks it up straight away.", ui: ui1(p) },
       { slug: "agentix", product: "AGENTiX CRM", title: "The AI replies and books",
         text: "The agent quotes the package, offers two slots and books one. The lead card heats up from Lead to Hot to Booked.", ui: ui2(p) },
-      { slug: "umang-hims", product: "Umang HIMS", title: "Registered and in the OPD queue",
+      { slug: "hospital-hims", product: "Hospital HIMS", title: "Registered and in the OPD queue",
         text: "At the desk, " + f + " is already registered with a UHID and joins the OPD queue as token 14.", ui: ui3(p) },
-      { slug: "woodpecker-pms", product: "Woodpecker folio billing", title: "The bill is generated with GST",
+      { slug: "apartment-pms", product: "Hotel PMS folio billing", title: "The bill is generated with GST",
         text: "The same folio engine that runs our hotel PMS raises the invoice, splits CGST and SGST and records the UPI payment.", ui: ui4(p) },
       { slug: "socialpush", product: "SocialPush", title: "A follow-up reel is scheduled",
         text: "A health-tips reel for people like " + f + " is queued once and scheduled to Instagram, YouTube and Facebook.", ui: ui5(p) },

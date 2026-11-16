@@ -94,10 +94,10 @@ test("collector counts own errors, foreign-CDN and blob-script errors; excuses o
   assert.equal(excused("Error: x\n    at h (http://127.0.0.1:4507/js/a.js:1:1)", "https://embedded.example.org"), false, "our own scripts are not excused");
 });
 
-test("hosted-only sites forward allowedOrigins; on localhost they show the scroller", async () => {
+test("hosted-only own sites forward allowedOrigins; on localhost they show the scroller", async () => {
   const { page, close } = await openPage("/index.html");
   try {
-    const rows = await page.evaluate(() => ["agentix", "woodpecker-pms", "umang-website", "max-website", "yhc", "skinwise"].map((s) => {
+    const rows = await page.evaluate(() => ["agentix"].map((s) => {
       const p = AX.projects.find((x) => x.slug === s);
       const o = AX.embed.optsFor(p);
       return { s, mode: o.mode, ao: o.allowedOrigins, local: AX.embed.originAllowed(location.origin, o.allowedOrigins) };
@@ -107,36 +107,22 @@ test("hosted-only sites forward allowedOrigins; on localhost they show the scrol
       assert.deepEqual(r.ao, ["https://agentix-portfolio.vercel.app", "https://ai-agentix.com", "https://*.ai-agentix.com"], r.s);
       assert.equal(r.local, false, r.s);
     }
-    const hosted = await page.evaluate(() => AX.embed.originAllowed("https://agentix-portfolio.vercel.app", AX.projects.find((x) => x.slug === "yhc").embed.allowedOrigins) &&
-      AX.embed.originAllowed("https://www.ai-agentix.com", AX.projects.find((x) => x.slug === "yhc").embed.allowedOrigins));
+    const hosted = await page.evaluate(() => AX.embed.originAllowed("https://agentix-portfolio.vercel.app", AX.projects.find((x) => x.slug === "agentix").embed.allowedOrigins) &&
+      AX.embed.originAllowed("https://www.ai-agentix.com", AX.projects.find((x) => x.slug === "agentix").embed.allowedOrigins));
     assert.equal(hosted, true);
   } finally { await close(); }
 });
 
-for (const [slug, text] of [["santure-crm", "Santure"], ["ekatva", "Ekatva"]]) {
-  test(slug + " local mirror renders interactive content", async () => {
+test("client projects without a demo show no live site and no screenshots", async () => {
+  for (const slug of ["operations-crm", "insurance-crm", "nutritionist-website", "spa-website", "manufacturer-website"]) {
     const { page, errors, close } = await openPage("/index.html#/demo/" + slug + "/walkthrough", { reducedMotion: "reduce" });
     try {
-      await page.waitForSelector(".emb iframe", { timeout: 15000 });
-      const handle = await page.waitForSelector(".emb iframe");
-      const frame = await handle.contentFrame();
-      await frame.waitForFunction(() => document.body && document.body.innerText.length > 200, null, { timeout: 20000 });
-      const txt = await frame.evaluate(() => document.body.innerText);
-      assert.ok(txt.toLowerCase().includes(text.toLowerCase()), slug + " frame text: " + txt.slice(0, 200));
-      const clickables = await frame.evaluate(() => document.querySelectorAll("button, a[href], input, [role=button]").length);
-      assert.ok(clickables >= 5, slug + " interactive elements: " + clickables);
-      await page.waitForFunction(() => document.querySelector(".emb").getAttribute("data-status") === "live");
-      // click something for real: first sidebar/nav link or button inside the mirrored app
-      const before = await frame.evaluate(() => location.href + "|" + document.body.innerText.length);
-      const btn = frame.locator("nav a, aside a, [role=tab], button").nth(2);
-      await btn.click({ timeout: 5000 }).catch(() => {});
-      await page.waitForTimeout(500);
-      const after = await frame.evaluate(() => document.body.innerText.length);
-      assert.ok(after > 100, "app still rendering after click (" + before + " -> " + after + ")");
-      assert.equal(relevant(errors).length, 0, slug + ": " + relevant(errors).join("\n"));
+      await page.waitForSelector(".shell .pane, #shell [class*=pane]", { timeout: 15000 });
+      assert.equal(await page.locator("#shell .emb, #shell iframe").count(), 0, slug + " embed");
+      assert.equal(relevant(errors).length, 0, slug + ": " + relevant(errors).join(" | "));
     } finally { await close(); }
-  });
-}
+  }
+});
 
 test("concept brand overview carries the label; Crumb renamed", async () => {
   const { page, close } = await openPage("/index.html#/demo/crumb", { reducedMotion: "reduce" });
